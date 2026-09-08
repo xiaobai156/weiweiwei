@@ -55,18 +55,26 @@ def recheck_failed(period: int, timeout: int = 8, workers: int = 1) -> int:
         for target in targets
     ]
     existing = txt_writer.read_existing_successes(success_path)
-    passed = {(sites[result.index - 1].name, result) for result in results if result.success_line}
-    for name, result in passed:
+    passed = [result for result in results if result.success_line]
+    for result in passed:
+        name = sites[result.index - 1].name
         existing[name] = (result.success_line, result.ranking_value)
     lines = [line for line, _ in existing.values()]
     values = [value for _, value in existing.values()]
-    atomic_write_text(success_path, "\n".join(txt_writer.format_single_period_success(lines, values)) + "\n", encoding="utf-8-sig")
+    atomic_write_text(success_path, "\n".join(txt_writer.format_ranking(lines, values)) + "\n", encoding="utf-8-sig")
 
-    passed_keys = {(sites[result.index - 1].name, sites[result.index - 1].url) for result in results if result.success_line}
+    passed_keys = {
+        (sites[result.index - 1].name, sites[result.index - 1].url,
+         sites[result.index - 1].pick, period)
+        for result in passed
+    }
     kept = []
     for block in _failure_blocks(failure_path):
         match = FAIL_RE.match(block.splitlines()[0].strip())
-        key = (match["name"], match["url"]) if match and int(match["period"]) == period else None
+        key = (
+            (match["name"], match["url"], match["pick"], int(match["period"]))
+            if match else None
+        )
         if key not in passed_keys:
             kept.append(block)
     txt_writer.write_optional_fail_file(failure_path, kept)
