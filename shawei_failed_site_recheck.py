@@ -25,6 +25,22 @@ def _failure_blocks(path: Path) -> list[str]:
     return [block.strip() for block in re.split(r"(?:\r?\n){2,}", text.strip()) if block.strip()]
 
 
+def _read_existing_successes_strict(path: Path):
+    """Treat an unreadable existing success file as a hard write barrier."""
+    if not path.exists():
+        return {}
+    try:
+        lines = path.read_text(encoding="utf-8-sig").splitlines()
+    except (OSError, UnicodeError):
+        raise RuntimeError(f"成功TXT读取失败，拒绝覆盖: {path}")
+    existing = {}
+    for line in lines:
+        parsed = txt_writer.parse_success_line(line)
+        if parsed is not None:
+            existing[parsed[0]] = (parsed[1], parsed[2])
+    return existing
+
+
 def _targets(path: Path, period: int, sites):
     by_identity = {(site.name, site.url, site.pick): site for site in sites}
     targets = []
@@ -54,7 +70,11 @@ def recheck_failed(period: int, timeout: int = 8, workers: int = 1) -> int:
         )
         for target in targets
     ]
-    existing = txt_writer.read_existing_successes(success_path)
+    try:
+        existing = _read_existing_successes_strict(success_path)
+    except RuntimeError as exc:
+        print(str(exc))
+        return 2
     passed = [result for result in results if result.success_line]
     for result in passed:
         name = sites[result.index - 1].name
