@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 from shawei.config.paths import FAIL_OUTPUT_DIR, OUTPUT_DIR
-from shawei.persistence.atomic_file import atomic_write_text
+from shawei.persistence.atomic_file import atomic_write_text, file_lock
 
 
 def resolve_success_path(value: str) -> Path:
@@ -50,16 +50,26 @@ def format_ranking(lines: list[str], values: list[str]) -> list[str]:
         expanded_values.extend(parts or [value])
     counter = Counter(expanded_values)
     if counter:
-        output.extend(("", "尾数 次数"))
+        output.extend(("", "内容    次数    排名"))
+        rank = 0
+        previous_count: int | None = None
         for value, count in sorted(counter.items(), key=lambda item: (-item[1], item[0])):
+            if count != previous_count:
+                rank += 1
+                previous_count = count
             label = f"{value}尾" if re.fullmatch(r"\d", value) else value
-            output.append(f"{label:<3} {count}次")
+            output.append(f"{label:<7}{count:<8}{rank}")
     return output
+
+
+def format_single_period_success(lines: list[str], values: list[str]) -> list[str]:
+    """Format only verified single-period success rows and their ranking."""
+    return format_ranking(lines, values)
 
 
 def parse_success_line(line: str) -> tuple[str, str, str] | None:
     stripped = line.strip()
-    if not stripped or stripped == "尾数 次数" or re.search(r"\s\d+次$", stripped):
+    if not stripped or stripped in {"尾数 次数", "内容    次数    排名"} or re.search(r"\s\d+次$", stripped):
         return None
     parts = stripped.rsplit(maxsplit=1)
     if len(parts) != 2:
@@ -115,10 +125,6 @@ def format_failure_summary(fail_lines: Iterable[str]) -> list[str]:
     return ["失败分类: " + " / ".join(parts)]
 
 
-def is_retryable_failure_line(line: str) -> bool:
-    return classify_failure_text(line) in {"TLS失败", "连接断开", "超时", "HTTP失败"}
-
-
 def format_failure_records(fail_lines: Iterable[str]) -> str:
     records = [line.rstrip("\r\n") for line in fail_lines if line and line.strip()]
     return "\n\n".join(records) + "\n" if records else ""
@@ -129,14 +135,6 @@ def write_optional_fail_file(path: Path, fail_lines: list[str]) -> bool:
         atomic_write_text(path, format_failure_records(fail_lines), encoding="utf-8-sig")
         return True
     if path.exists():
-        path.unlink()
+        with file_lock(path):
+            path.unlink(missing_ok=True)
     return False
-
-
-_resolve_path = resolve_success_path
-_resolve_failure_path = resolve_failure_path
-_default_current_output_names = default_current_output_names
-_split_ranking_value = split_ranking_value
-_format_ranking = format_ranking
-_parse_success_line = parse_success_line
-_read_existing_successes = read_existing_successes

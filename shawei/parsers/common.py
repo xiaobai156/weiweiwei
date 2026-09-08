@@ -111,12 +111,6 @@ def is_two_tail_site_url(url: str) -> bool:
     return url.strip() in TWO_TAIL_SITE_URLS
 
 
-def is_valid_result_value(value: str, url: str = "") -> bool:
-    if re.fullmatch(r"\d", value or ""):
-        return True
-    return is_two_tail_site_url(url) and re.fullmatch(r"\d、\d", value or "") is not None
-
-
 def _prediction_text(chunk: str) -> str:
     head = re.split(r"\b开\s*[:：?\uff1f]?", normalize_text(chunk), maxsplit=1)[0]
     return head.strip()

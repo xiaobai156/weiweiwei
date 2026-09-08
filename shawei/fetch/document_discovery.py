@@ -17,15 +17,23 @@ from shawei.fetch.decoding import (
     strip_html_tags,
 )
 from shawei.fetch.dynamic_article import (
+    DynamicArticleEmptyShellError,
+    DynamicArticleNotFoundError,
     admin_article_api_urls,
     admin_article_landing_data_url,
     decode_admin_article_json,
     decode_landing_page_admin_article_json,
     dynamic_article_id,
     is_admin_article_url,
+    is_dynamic_article_url,
     manager_article_api_urls,
 )
-from shawei.fetch.http_client import FETCH_CACHE_LOCK, FETCH_CHILDREN, fetch_text
+from shawei.fetch.http_client import (
+    FETCH_CACHE_LOCK,
+    FETCH_CHILDREN,
+    _is_http_404_error,
+    fetch_text,
+)
 from shawei.fetch.profile import (
     collect_profile_feed_documents,
     decode_forum_detail_json,
@@ -92,10 +100,7 @@ def collect_followed_link_documents(
         if matches:
             href = matches[-1] if is_bottom_pick(pick) else matches[0]
             target_url = urljoin(current_url, href)
-            try:
-                target = fetch_text(target_url, timeout)
-            except Exception:
-                return []
+            target = fetch_text(target_url, timeout)
             with FETCH_CACHE_LOCK:
                 FETCH_CHILDREN.setdefault(page_url, set()).add(target_url)
             documents = [target]
@@ -113,10 +118,7 @@ def collect_followed_link_documents(
         next_url = next_page_url(current_url, current_page, visited)
         if next_url is None:
             break
-        try:
-            current_page = fetch_text(next_url, timeout)
-        except Exception:
-            break
+        current_page = fetch_text(next_url, timeout)
         current_url = next_url
         visited.add(next_url)
     return []
@@ -207,35 +209,59 @@ def collect_documents(
     is_dynamic_scoped = is_dynamic_scoped_url(url)
     article_id = dynamic_article_id(url)
     spa_target_id = spa_forum_target_id(url)
+    empty_shell_error: DynamicArticleEmptyShellError | None = None
+    dynamic_api_count = 0
+    dynamic_api_404_count = 0
 
     if is_admin:
         for api_url in admin_article_api_urls(url):
+            dynamic_api_count += 1
             try:
                 api_text = fetch_text(api_url, timeout)
-            except Exception:
+            except Exception as exc:
+                if not _is_http_404_error(exc):
+                    raise
+                dynamic_api_404_count += 1
                 continue
-            docs.extend(decode_admin_article_json(api_text, article_id, site_name))
+            try:
+                docs.extend(decode_admin_article_json(api_text, article_id, site_name))
+            except DynamicArticleEmptyShellError as exc:
+                empty_shell_error = exc
 
         admin_landing = admin_article_landing_data_url(url)
         if admin_landing is not None:
             article_id, api_url = admin_landing
+            dynamic_api_count += 1
             try:
                 api_text = fetch_text(api_url, timeout)
-            except Exception:
+            except Exception as exc:
+                if not _is_http_404_error(exc):
+                    raise
+                dynamic_api_404_count += 1
                 api_text = ""
             if api_text:
                 docs.extend(decode_landing_page_admin_article_json(api_text, article_id, site_name))
 
     for api_url in manager_article_api_urls(url):
+        dynamic_api_count += 1
         try:
             api_text = fetch_text(api_url, timeout)
-        except Exception:
+        except Exception as exc:
+            if not _is_http_404_error(exc):
+                raise
+            dynamic_api_404_count += 1
             continue
         try:
             docs.extend(decode_admin_article_json(api_text, article_id, site_name))
-        except LookupError as exc:
-            if not is_admin or "接口响应不是有效JSON" not in str(exc):
-                raise
+        except DynamicArticleEmptyShellError as exc:
+            empty_shell_error = empty_shell_error or exc
+
+    if is_dynamic_article_url(url):
+        if not docs and empty_shell_error is not None:
+            raise empty_shell_error
+        if not docs and dynamic_api_count and dynamic_api_404_count == dynamic_api_count:
+            raise DynamicArticleNotFoundError(f"目标ID {article_id} 的全部专属接口均返回404")
+        return docs
 
     try:
         page = fetch_text(url, timeout)
@@ -334,37 +360,3 @@ def build_documents(
         )
         for index, content in enumerate(contents)
     ]
-
-
-def discover_documents(
-    url: str,
-    timeout: int = 20,
-    follow_link_keywords: tuple[str, ...] = (),
-    follow_link_rendered: bool = False,
-    follow_link_only: bool = False,
-    follow_link_pick: str = "top",
-    site_name: str = "",
-    target_period: int | None = None,
-    profile_parser: str = "",
-    profile_boundary_window: int = STRICT_BOUNDARY_WINDOW,
-    same_period_record_selection: bool = False,
-    follow_link_pagination: bool = False,
-) -> list[Document]:
-    """Return immutable documents with stable source identity and order."""
-    contents = collect_documents(
-        url,
-        timeout,
-        follow_link_keywords,
-        follow_link_rendered,
-        follow_link_only,
-        follow_link_pick,
-        site_name,
-        target_period,
-        profile_parser,
-        profile_boundary_window,
-        same_period_record_selection,
-        follow_link_pagination,
-    )
-    record_id = dynamic_article_id(url) or spa_forum_target_id(url)
-    source_type = "profile" if profile_parser else "dynamic" if record_id else "page"
-    return build_documents(url, contents, source_type, record_id)

@@ -12,7 +12,6 @@ _PICK_ALIASES = {
     "尾部": "bottom",
     "底部": "bottom",
     "下": "bottom",
-    "buttom": "bottom",
 }
 
 
@@ -72,7 +71,3 @@ def canonical_pick(pick: str | None) -> str:
 
 def is_bottom_pick(pick: str) -> bool:
     return canonical_pick(pick) == "bottom"
-
-
-def boundary_pick_label(pick: str) -> str:
-    return "bottom/尾部/下" if canonical_pick(pick) == "bottom" else "top/顶部/上"

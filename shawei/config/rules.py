@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import json
 from dataclasses import replace
 
 from shawei.config.constants import LIUXUAN_SITE_URL
-from shawei.config.paths import SITES_JSON_PATH
+from shawei.config.sites import load_sites
 from shawei.domain.models import StrictRule
 from shawei.domain.text import normalize_text
 
@@ -294,12 +293,14 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         allowed_sources=("compact",),
         chunk_keywords=("万象回春", "绝杀一尾", "绝杀1尾", "杀一尾"),
         prefer_rendered=True,
+        render_timeout=30,
         require_site_keyword=False,
     ),
     "https://mm.676626m.com:1888/bbs/8030": StrictRule(
         allowed_sources=("compact",),
         chunk_keywords=("人增寿算", "绝杀一个尾"),
         prefer_rendered=True,
+        render_timeout=30,
         require_site_keyword=False,
     ),
     "https://tcwsqrno.ril3o-7ghui-hiepuc.work:16633/topic/255637.html": StrictRule(
@@ -369,7 +370,8 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         require_site_keyword=False,
     ),
     "https://sfch0f.ky3r5-0b4c9-yudwqy.work/topic/240474.html": StrictRule(
-        allowed_sources=("compact",),
+        allowed_sources=("dedicated",),
+        dedicated_parser="nalawanzhi_bottom_tail",
         chunk_keywords=("纳喇满职", "绝杀一尾", "绝杀1尾", "杀一尾"),
         prefer_rendered=True,
         require_site_keyword=False,
@@ -409,6 +411,7 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         dedicated_parser="saodi_topic_main_tail",
         chunk_keywords=("扫地焚香", "绝杀一尾", "绝杀1尾", "杀一尾"),
         prefer_rendered=True,
+        render_timeout=30,
         require_site_keyword=True,
         max_section_span=11000,
     ),
@@ -432,10 +435,13 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         require_site_keyword=False,
     ),
     "https://kpfhptru.s8hvq-ssvup-eladiw.xyz:16622/topic/223705.html": StrictRule(
-        allowed_sources=("compact",),
+        allowed_sources=("lead_compact",),
         chunk_keywords=("横刀跃马", "绝杀一尾", "绝杀1尾", "杀一尾"),
         prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        direction_document_scope="top",
         require_site_keyword=False,
+        lead_span=900,
     ),
     "https://bucgnuda.sbsrh-yvu62-jrtrcm.xyz:16633/topic/476526.html": StrictRule(
         allowed_sources=("dedicated",),
@@ -619,7 +625,8 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         require_site_keyword=False,
     ),
     "https://pwqviw.1tcpi-45qgo-qddfnk.work:16677/topic/273012.html": StrictRule(
-        allowed_sources=("compact",),
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_published_body_tail",
         chunk_keywords=("深山穷林", "绝杀一尾", "绝杀1尾", "杀一尾"),
         prefer_rendered=True,
         require_site_keyword=False,
@@ -1140,6 +1147,7 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         chunk_keywords=('坚韧不拔', "绝杀一尾"),
         prefer_rendered=True,
         require_site_keyword=False,
+        prefer_rendered_body_text=True,
     ),
     'https://eolantz.v6nli-9yz71-rihyny.xyz:16677/topic/447895.html': StrictRule(
         allowed_sources=("dedicated",),
@@ -1607,7 +1615,142 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         allowed_sources=("dedicated",),
         dedicated_parser="kaijiangfacai_combined_kill_table",
         chunk_keywords=("开奖发财", "综合杀料", "杀尾"),
+        prefer_rendered=True,
+        render_timeout=20,
         require_site_keyword=False,
+    ),
+    "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/topic/470055.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_body_two_tail",
+        chunk_keywords=("杀特两尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="root_two_tail_block",
+        chunk_keywords=("澳门跑马图[绝杀二尾]",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/topic/220698.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_body_single_tail",
+        chunk_keywords=("精准杀尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/677675.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_body_two_tail",
+        chunk_keywords=("绝杀二尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682114.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_body_single_tail",
+        chunk_keywords=("杀肖杀尾",),
+        require_site_keyword=True,
+    ),
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682113.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_body_two_tail",
+        chunk_keywords=("绝杀二尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682100.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_body_two_tail",
+        chunk_keywords=("绝杀二尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1556/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("稳杀一尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1544/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("稳杀一尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1543/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("绝杀一尾", "㊣绝杀一尾"),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1469/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_two_tail",
+        chunk_keywords=("准杀二尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1452/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_two_tail",
+        chunk_keywords=("绝杀二尾",),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1449/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("绝杀一尾", "原创一尾"),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/1434/tid/82.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("绝杀一尾", "我是静静绝杀一尾"),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://aa.373785d.com:1888/": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="aa_macau_two_tail_block",
+        chunk_keywords=("澳门绝杀二尾",),
+        prefer_rendered=False,
+        require_site_keyword=False,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/199/tid/4.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("绝杀一尾", "曾道人每期绝杀一尾"),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
+    "https://4.48kk49.com:1888/Article/ar_content/id/173/tid/5.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="article_static_single_tail",
+        chunk_keywords=("绝杀一尾", "管家婆精准绝杀一尾"),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
     ),
     LIUXUAN_SITE_URL: StrictRule(
         allowed_sources=("dedicated",),
@@ -1617,6 +1760,78 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
     ),
 
 }
+
+
+_SCANNED_ARTICLE_SINGLE_TAIL_RULE = StrictRule(
+    allowed_sources=("dedicated",),
+    dedicated_parser="article_static_single_tail",
+    chunk_keywords=("绝杀1尾", "绝杀①尾", "绝杀一尾"),
+    require_site_keyword=True,
+)
+_SCANNED_ARTICLE_TWO_TAIL_RULE = StrictRule(
+    allowed_sources=("dedicated",),
+    dedicated_parser="article_static_two_tail",
+    chunk_keywords=("绝杀二尾", "绝杀②尾", "绝杀2尾"),
+    require_site_keyword=True,
+)
+_SCANNED_TOPIC_SINGLE_TAIL_RULE = StrictRule(
+    allowed_sources=("dedicated",),
+    dedicated_parser="topic_body_single_tail",
+    chunk_keywords=("绝杀1尾",),
+    require_site_keyword=True,
+)
+_SCANNED_TOPIC_TWO_TAIL_RULE = StrictRule(
+    allowed_sources=("dedicated",),
+    dedicated_parser="topic_body_two_tail",
+    chunk_keywords=("绝杀二尾",),
+    require_site_keyword=True,
+)
+
+STRICT_SITE_RULES.update(
+    {
+        "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a082c7108adb5ed7357ef3b?url=lhw": _SCANNED_ARTICLE_TWO_TAIL_RULE,
+        "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a083d1308adb5ed7357f036?url=lhw": _SCANNED_ARTICLE_TWO_TAIL_RULE,
+        "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a095a86291caff3edcb8a9d?url=lf": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a09527a291caff3edcb8a33?url=lf": _SCANNED_ARTICLE_TWO_TAIL_RULE,
+        "https://rwraojf.l54vq-9httr-cmdnip.work:29477/article/lottery/6a5271005e6c7637a3f55124?url=xdr": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://oofsukyp.7u9l0-zq8hd-obpxwe.work:29455/article/lottery/6a3a2dec018539c611cba03e?url=home": _SCANNED_ARTICLE_TWO_TAIL_RULE,
+        "https://0130190827.673454.xyz/bbs/topic.php?id=20144": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://0130190827.673454.xyz/bbs/topic.php?id=20150": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://0130190827.673454.xyz/bbs/topic.php?id=20140": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://67806780827.325346.xyz/bbs/topic.php?id=19812": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://67806780827.234535.xyz/bbs/topic.php?id=22163": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://67806780827.234535.xyz/bbs/topic.php?id=19587": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.983654.xyz/bbs/topic.php?id=20758": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.833567.xyz/bbs/topic.php?id=22608": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://88888020827.833567.xyz/bbs/topic.php?id=20522": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://88888020827.833567.xyz/bbs/topic.php?id=20972": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.833567.xyz/bbs/topic.php?id=19832": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.885536.xyz/bbs/topic.php?id=20684": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://0130190827.657954.xyz/bbs/topic.php?id=20210": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://drxgkjt.uu1oc-eyjpt-uxyccu.xyz:29400/article/lottery/6a33e92ddfa16552b923d408?url=jyb": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://nwrkkmv.rx287-rkrai-jsjccc.xyz:29499/article/lottery/6a55d62cf447e21b02daa632?url=ggz": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://buzsxio.821n4-hgj04-edkrft.xyz:29455/article/lottery/6a7ee533ee4739fbe9ea270d?url=bxj": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://buzsxio.821n4-hgj04-edkrft.xyz:29455/article/lottery/6a73f86e2822d465035fbb61?url=bxj": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://pgyzulb.iwnn7-gyyip-pnpfqv.work:29477/article/lottery/6a58e7d2f447e21b02db8190?url=bflc": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://herymche.x6l2j-h6kfu-qdresg.work:29466/article/lottery/6a0452504ea5c20141013e9b?url=txbb": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
+        "https://12388990827.794555.xyz/bbs/topic.php?id=21353": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://12388990827.794555.xyz/bbs/topic.php?id=20270": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://12388990827.688756.xyz/bbs/topic.php?id=18520": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://12388990827.688756.xyz/bbs/topic.php?id=19930": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://0130190827.767566.xyz/bbs/topic.php?id=30780": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.897657.xyz/bbs/topic.php?id=20207": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.897657.xyz/bbs/topic.php?id=20215": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.997595.xyz/bbs/topic.php?id=18490": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://jtrmhar.cwdc3-r5vqn-qzqasa.work:17455/topic/741190.html": StrictRule(
+            allowed_sources=("dedicated",),
+            dedicated_parser="xingcha_topic_two_tail",
+            chunk_keywords=("精杀二尾专区",),
+            prefer_rendered=True,
+            require_site_keyword=True,
+            render_timeout=30,
+        ),
+    }
+)
 
 
 # Same-URL, different-name rules remain explicitly keyed by both URL and
@@ -1665,33 +1880,18 @@ def strict_rule_for(url: str) -> StrictRule:
     rule = STRICT_SITE_RULES.get(url)
     if rule is None:
         raise LookupError(f"没有专属解析规则，禁止通用兜底抓取: {url}")
-    return rule
-
-
-def configured_site_name_for_url(url: str) -> str:
-    global SITE_NAME_BY_URL
-    if SITE_NAME_BY_URL is None:
-        mapping: dict[str, list[str]] = {}
-        try:
-            payload = json.loads(SITES_JSON_PATH.read_text(encoding="utf-8-sig"))
-        except (OSError, json.JSONDecodeError):
-            payload = []
-        if isinstance(payload, list):
-            for item in payload:
-                if isinstance(item, dict) and item.get("url") and item.get("name"):
-                    mapping.setdefault(str(item["url"]), []).append(str(item["name"]))
-        SITE_NAME_BY_URL = {
-            site_url: tuple(names) for site_url, names in mapping.items()
-        }
-    names = SITE_NAME_BY_URL.get(url, ())
-    return names[-1] if names else ""
+    return replace(rule, site_url=url)
 
 
 def configured_site_names_for_url(url: str) -> tuple[str, ...]:
     global SITE_NAME_BY_URL
-    configured_site_name_for_url(url)
     if SITE_NAME_BY_URL is None:
-        return ()
+        mapping: dict[str, list[str]] = {}
+        for site in load_sites():
+            mapping.setdefault(site.url, []).append(site.name)
+        SITE_NAME_BY_URL = {
+            site_url: tuple(names) for site_url, names in mapping.items()
+        }
     return SITE_NAME_BY_URL.get(url, ())
 
 
@@ -1717,5 +1917,5 @@ def effective_rule_for(url: str, site_name: str) -> StrictRule:
     if rule is None:
         rule = strict_rule_for(url)
     if url in SAME_PERIOD_RECORD_SELECTION_URLS:
-        return replace(rule, same_period_record_selection=True)
-    return rule
+        return replace(rule, same_period_record_selection=True, site_url=url)
+    return replace(rule, site_url=url)

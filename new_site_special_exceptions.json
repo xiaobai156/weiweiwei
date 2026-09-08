@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "project": "杀尾-修复版2",
+  "authorized_period": 223,
+  "authorization": "用户明确指令：特例添加进去 开始",
+  "scope": "前述7个候选站点",
+  "exception_scope": [
+    "允许在当前近10期缓存无效、正式判重未完成的情况下加入配置",
+    "允许历史期数不足或存在缺期的候选加入配置"
+  ],
+  "not_overridden": [
+    "URL/topic身份绑定",
+    "栏目、字段和原始文档隔离",
+    "top/bottom绝对边界",
+    "尾数数量和0-9合法性",
+    "同期冲突裁决"
+  ],
+  "sites": [
+    {
+      "name": "如履薄冰",
+      "url": "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/topic/470055.html",
+      "pick": "top",
+      "target_223": "6、8",
+      "target_status": "失败：绝对top边界是224期，不是指定223期",
+      "effective_history_observation": "真实页面包含224期占位/当前行及223期以后历史，标准top边界未通过"
+    },
+    {
+      "name": "跑马图",
+      "url": "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/",
+      "pick": "bottom",
+      "target_223": "3、2",
+      "target_status": "通过指定bottom边界",
+      "missing_history_periods": [201, 202, 205, 211, 217]
+    },
+    {
+      "name": "穷老尽气",
+      "url": "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/topic/220698.html",
+      "pick": "bottom",
+      "target_223": "8",
+      "target_status": "通过指定bottom边界"
+    },
+    {
+      "name": "赏心悦目",
+      "url": "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/677675.html",
+      "pick": "top",
+      "target_223": "9、8",
+      "target_status": "通过指定top边界"
+    },
+    {
+      "name": "枝外生枝",
+      "url": "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682114.html",
+      "pick": "bottom",
+      "target_223": "8",
+      "target_status": "通过指定bottom边界"
+    },
+    {
+      "name": "夏雨雨人",
+      "url": "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682113.html",
+      "pick": "top",
+      "target_223": "9、6",
+      "target_status": "通过指定top边界"
+    },
+    {
+      "name": "数据诗篇",
+      "url": "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682100.html",
+      "pick": "top",
+      "target_223": "1、9",
+      "target_status": "通过指定top边界"
+    }
+  ],
+  "additional_authorizations": [
+    {
+      "authorized_period": 225,
+      "authorization": "用户明确指令：特例允许无有效近10期缓存新增这7站",
+      "scope": "白杨金牌、径宅姐、清肝明目、小小乾坤、热血风云、小屈大伸、我是静静",
+      "exception_scope": [
+        "允许在当前近10期缓存无有效向量、正式判重未完成的情况下新增这7站",
+        "允许本次添加后仅复跑这7站，不跑全量"
+      ],
+      "double_tail_scope": [
+        "小小乾坤",
+        "热血风云"
+      ],
+      "formal_duplicate_status": "未完成：正式判重服务发现当前缓存没有完整近10期向量；本次按授权特例准入，未使用不完整缓存、旧TXT或人工数据宣称不重复",
+      "history_observation_225_to_216": {
+        "白杨金牌": {
+          "valid_periods": [225, 224, 223, 222, 221, 220, 218, 217, 216],
+          "missing_periods": [219]
+        },
+        "径宅姐": {
+          "valid_periods": [225, 224, 223, 221, 220, 219, 218, 216],
+          "missing_periods": [222, 217]
+        },
+        "清肝明目": {
+          "valid_periods": [225, 224, 223, 222, 221, 220, 218, 217, 216],
+          "missing_periods": [219]
+        },
+        "小小乾坤": {
+          "valid_periods": [225, 224, 223, 222, 220, 218, 217, 216],
+          "missing_periods": [221, 219]
+        },
+        "热血风云": {
+          "valid_periods": [225, 224, 223, 222, 221, 220, 219, 218, 217, 216],
+          "missing_periods": []
+        },
+        "小屈大伸": {
+          "valid_periods": [225, 224, 223, 222, 221, 220, 219, 218, 217, 216],
+          "missing_periods": []
+        },
+        "我是静静": {
+          "valid_periods": [225],
+          "missing_periods": [224, 223, 222, 221, 220, 219, 218, 217, 216]
+        }
+      },
+      "not_overridden": [
+        "URL/文章记录ID身份绑定",
+        "标题和正文同一文章区块",
+        "top绝对边界",
+        "字段语义和来源隔离",
+        "同期冲突裁决",
+        "双尾值必须为两个0-9尾数"
+      ],
+      "sites": [
+        {
+          "name": "白杨金牌",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1556/tid/82.html",
+          "pick": "top"
+        },
+        {
+          "name": "径宅姐",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1544/tid/82.html",
+          "pick": "top"
+        },
+        {
+          "name": "清肝明目",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1543/tid/82.html",
+          "pick": "top"
+        },
+        {
+          "name": "小小乾坤",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1469/tid/82.html",
+          "pick": "top"
+        },
+        {
+          "name": "热血风云",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1452/tid/82.html",
+          "pick": "top"
+        },
+        {
+          "name": "小屈大伸",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1449/tid/82.html",
+          "pick": "top"
+        },
+        {
+          "name": "我是静静",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/1434/tid/82.html",
+          "pick": "top"
+        }
+      ]
+    },
+    {
+      "authorized_period": 224,
+      "authorization": "用户明确指令：使用225期作为新增基准，且补充允许该站无有效缓存特例；后续明确：按224期添加",
+      "scope": "港澳彩票绝杀",
+      "exception_scope": [
+        "允许该站在当前近10期缓存无有效向量、正式判重未完成的情况下继续审查",
+        "不允许绕过澳门绝杀二尾目标区块、top绝对边界、期数缺失、双尾数量或同期冲突校验"
+      ],
+      "site": {
+        "name": "港澳彩票绝杀",
+        "url": "https://aa.373785d.com:1888/",
+        "pick": "top",
+        "field": "澳门绝杀二尾"
+      },
+      "formal_duplicate_status": "未完成：recent_10_cache.json当前完整向量为0，未使用不完整缓存、旧TXT或人工数据宣称不重复",
+      "target_225_status": "未准入：澳门目标区块的绝对top边界为224期，页面没有225期；本特例不覆盖绝对top边界和指定期数缺失",
+      "target_224_status": "通过：澳门目标区块绝对top边界为224期，值为0、5",
+      "latest_valid_observation": {
+        "period": 224,
+        "value": "0、5",
+        "source_block": "澳门绝杀二尾",
+        "hong_kong_block_ignored": true
+      },
+      "history_observation_224_to_205": {
+        "valid_periods": [224, 223, 221, 220, 219, 218, 217, 216, 215, 214, 213, 212, 211, 210, 209, 208, 207, 206, 205],
+        "missing_periods": [225, 222]
+      },
+      "admission_status": "已按224期加入sites.json；正式判重未完成，按该站无有效缓存特例准入"
+    },
+    {
+      "authorized_period": 225,
+      "authorization": "用户明确指令：特例允许无有效近10期缓存新增这两站",
+      "scope": "曾道人每期、管家婆精准绝杀一尾",
+      "exception_scope": [
+        "允许这两站在当前近10期缓存无有效向量、正式判重未完成的情况下新增",
+        "允许本次添加后仅复跑这两站，不跑全量"
+      ],
+      "formal_duplicate_status": "未完成：正式判重服务发现当前缓存没有完整近10期向量；本次按用户授权特例准入，未使用不完整缓存、旧TXT或人工数据宣称不重复",
+      "not_overridden": [
+        "URL文章ID身份绑定",
+        "标题和正文同一文章区块",
+        "top绝对边界",
+        "单尾字段和0-9合法性",
+        "同期冲突裁决"
+      ],
+      "history_observation_225_to_216": {
+        "曾道人每期": {
+          "valid_periods": [225, 224, 223, 222, 221, 220, 219, 218, 217, 216],
+          "missing_periods": []
+        },
+        "管家婆精准绝杀一尾": {
+          "valid_periods": [225, 224, 223, 222, 221, 220, 219, 218, 217, 216],
+          "missing_periods": []
+        }
+      },
+      "sites": [
+        {
+          "name": "曾道人每期",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/199/tid/4.html",
+          "pick": "top",
+          "target_225": "3"
+        },
+        {
+          "name": "管家婆精准绝杀一尾",
+          "url": "https://4.48kk49.com:1888/Article/ar_content/id/173/tid/5.html",
+          "pick": "top",
+          "target_225": "5"
+        }
+      ],
+      "admission_status": "已按225期加入sites.json；正式判重未完成，按本次无有效缓存特例准入"
+    },
+    {
+      "authorized_period": 240,
+      "authorization": "用户明确指令：特例允许7条疑似重复，开始正式写入19条",
+      "scope": "绝杀两尾扫描结果中240期bottom验证通过的19个候选站点",
+      "exception_scope": [
+        "允许网开三面、振奋人心、猫咪尾巴、童颜鹤发、劲爆猛料、一心为民、百财王特存在连续3至5期疑似重复",
+        "本批摩拳擦富、大义凛然因与前批重名被排除"
+      ],
+      "not_overridden": [
+        "URL和文章或topic ID身份绑定",
+        "站名、栏目、字段和原始文档隔离",
+        "bottom绝对边界",
+        "单双尾数量与0-9合法性",
+        "同期冲突和连续6期以上重复禁入"
+      ],
+      "formal_duplicate_status": "19站均无连续6期以上重复；7站连续3至5期疑似重复已获本次特例授权",
+      "sites": [
+        {"name": "舒舒服服", "url": "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a082c7108adb5ed7357ef3b?url=lhw", "pick": "bottom"},
+        {"name": "凉风有信", "url": "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a083d1308adb5ed7357f036?url=lhw", "pick": "bottom"},
+        {"name": "网开三面", "url": "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a095a86291caff3edcb8a9d?url=lf", "pick": "bottom"},
+        {"name": "拔地而起", "url": "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a09527a291caff3edcb8a33?url=lf", "pick": "bottom"},
+        {"name": "振奋人心", "url": "https://rwraojf.l54vq-9httr-cmdnip.work:29477/article/lottery/6a5271005e6c7637a3f55124?url=xdr", "pick": "bottom"},
+        {"name": "开路先锋", "url": "https://oofsukyp.7u9l0-zq8hd-obpxwe.work:29455/article/lottery/6a3a2dec018539c611cba03e?url=home", "pick": "bottom"},
+        {"name": "再度归来", "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20144", "pick": "bottom"},
+        {"name": "猫咪尾巴", "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20150", "pick": "bottom"},
+        {"name": "马料发财", "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20140", "pick": "bottom"},
+        {"name": "童颜鹤发", "url": "https://67806780827.325346.xyz/bbs/topic.php?id=19812", "pick": "bottom"},
+        {"name": "暖夏少年", "url": "https://67806780827.234535.xyz/bbs/topic.php?id=22163", "pick": "bottom"},
+        {"name": "劲爆猛料", "url": "https://67806780827.234535.xyz/bbs/topic.php?id=19587", "pick": "bottom"},
+        {"name": "一心为民", "url": "https://88888020827.983654.xyz/bbs/topic.php?id=20758", "pick": "bottom"},
+        {"name": "喜欢中奖", "url": "https://88888020827.833567.xyz/bbs/topic.php?id=22608", "pick": "bottom"},
+        {"name": "推陈出新", "url": "https://88888020827.833567.xyz/bbs/topic.php?id=20522", "pick": "bottom"},
+        {"name": "江山如画", "url": "https://88888020827.833567.xyz/bbs/topic.php?id=20972", "pick": "bottom"},
+        {"name": "百财王特", "url": "https://88888020827.833567.xyz/bbs/topic.php?id=19832", "pick": "bottom"},
+        {"name": "致富宝贝", "url": "https://88888020827.885536.xyz/bbs/topic.php?id=20684", "pick": "bottom"},
+        {"name": "怪咖小生", "url": "https://0130190827.657954.xyz/bbs/topic.php?id=20210", "pick": "bottom"}
+      ],
+      "admission_status": "已按240期bottom基准完成验证并获准正式加入"
+    },
+    {
+      "authorization": "用户明确指令：特例允许这14条按各站实时绝对bottom期数添加，开始",
+      "scope": "绝杀两尾扫描结果中14个单尾bottom候选站点",
+      "exception_scope": [
+        "允许本批连续3至5期疑似重复候选加入",
+        "允许按各站实时绝对bottom期数完成正式定向复跑"
+      ],
+      "not_overridden": [
+        "URL和文章或topic ID身份绑定",
+        "站名、栏目、字段和原始文档隔离",
+        "bottom绝对边界",
+        "单尾数量与0-9合法性",
+        "同期冲突和连续6期以上重复禁入"
+      ],
+      "formal_duplicate_status": "14站均无连续6期以上重复；连续3至5期疑似重复已获本次特例授权",
+      "live_bottom_snapshot": {
+        "天地良心": {"period": 240, "value": "5"},
+        "秋水伊人": {"period": 239, "value": "6"},
+        "微风习习": {"period": 239, "value": "0"},
+        "顺流而下": {"period": 239, "value": "7"},
+        "春云满望": {"period": 239, "value": "3"},
+        "金帝护卫": {"period": 240, "value": "5"},
+        "澳彩碼王": {"period": 240, "value": "7"},
+        "饱食暖衣": {"period": 240, "value": "7"},
+        "寻宝探码": {"period": 239, "value": "3"},
+        "财源滚滚": {"period": 239, "value": "8"},
+        "潇洒人生": {"period": 239, "value": "1"},
+        "夜空无痕": {"period": 239, "value": "7"},
+        "安身立命": {"period": 239, "value": "8"},
+        "海角天涯": {"period": 239, "value": "3"}
+      },
+      "sites": [
+        {"name": "天地良心", "url": "https://drxgkjt.uu1oc-eyjpt-uxyccu.xyz:29400/article/lottery/6a33e92ddfa16552b923d408?url=jyb", "pick": "bottom"},
+        {"name": "秋水伊人", "url": "https://nwrkkmv.rx287-rkrai-jsjccc.xyz:29499/article/lottery/6a55d62cf447e21b02daa632?url=ggz", "pick": "bottom"},
+        {"name": "微风习习", "url": "https://buzsxio.821n4-hgj04-edkrft.xyz:29455/article/lottery/6a7ee533ee4739fbe9ea270d?url=bxj", "pick": "bottom"},
+        {"name": "顺流而下", "url": "https://buzsxio.821n4-hgj04-edkrft.xyz:29455/article/lottery/6a73f86e2822d465035fbb61?url=bxj", "pick": "bottom"},
+        {"name": "春云满望", "url": "https://pgyzulb.iwnn7-gyyip-pnpfqv.work:29477/article/lottery/6a58e7d2f447e21b02db8190?url=bflc", "pick": "bottom"},
+        {"name": "金帝护卫", "url": "https://herymche.x6l2j-h6kfu-qdresg.work:29466/article/lottery/6a0452504ea5c20141013e9b?url=txbb", "pick": "bottom"},
+        {"name": "澳彩碼王", "url": "https://12388990827.794555.xyz/bbs/topic.php?id=21353", "pick": "bottom"},
+        {"name": "饱食暖衣", "url": "https://12388990827.794555.xyz/bbs/topic.php?id=20270", "pick": "bottom"},
+        {"name": "寻宝探码", "url": "https://12388990827.688756.xyz/bbs/topic.php?id=18520", "pick": "bottom"},
+        {"name": "财源滚滚", "url": "https://12388990827.688756.xyz/bbs/topic.php?id=19930", "pick": "bottom"},
+        {"name": "潇洒人生", "url": "https://0130190827.767566.xyz/bbs/topic.php?id=30780", "pick": "bottom"},
+        {"name": "夜空无痕", "url": "https://88888020827.897657.xyz/bbs/topic.php?id=20207", "pick": "bottom"},
+        {"name": "安身立命", "url": "https://88888020827.897657.xyz/bbs/topic.php?id=20215", "pick": "bottom"},
+        {"name": "海角天涯", "url": "https://88888020827.997595.xyz/bbs/topic.php?id=18490", "pick": "bottom"}
+      ],
+      "admission_status": "已按各站实时绝对bottom期数完成验证并获准正式加入"
+    }
+  ]
+}

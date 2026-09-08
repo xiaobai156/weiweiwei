@@ -4,7 +4,6 @@ import re
 import threading
 import time
 from collections.abc import Iterable
-from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 
 from shawei.config.constants import DIRECTION_BOUNDARY_WINDOW, PERIOD_CHUNK_RE, PERIOD_RE
@@ -15,20 +14,22 @@ from shawei.domain.models import (
     Record,
     SiteLike,
     StrictRule,
-    ValidationDecision,
 )
 from shawei.domain.text import normalize_text
 from shawei.fetch import browser, document_discovery
-from shawei.fetch.dynamic_article import admin_article_api_urls, is_admin_article_url
+from shawei.fetch.dynamic_article import (
+    DynamicArticleEmptyShellError,
+    DynamicArticleNotFoundError,
+    dynamic_article_api_urls,
+    is_dynamic_article_url,
+)
 from shawei.fetch.http_client import (
     FETCH_CACHE_LOCK,
     FETCH_STATUS,
     RECORD_CACHE,
     RENDER_STATUS,
     RUNTIME_CACHE_LOCK,
-    _is_http_404_error,
     clear_fetch_cache,
-    fetch_text,
 )
 from shawei.fetch.profile import (
     _is_unscoped_dynamic_aggregate_url,
@@ -42,7 +43,6 @@ from shawei.validation.validator import select_current_record, validate_document
 
 DOMAIN_LOCKS: dict[str, threading.RLock] = {}
 DOMAIN_LOCKS_GUARD = threading.Lock()
-VALIDATION_DECISION_CACHE: dict[tuple, ValidationDecision] = {}
 
 
 def _domain_lock_for(url: str) -> threading.RLock:
@@ -61,7 +61,6 @@ def _extract_site_records_from_documents(
     pick: str,
     rule: StrictRule,
     target_period: int | None,
-    cache_key: tuple | None = None,
 ) -> list[Record]:
     decision = validate_documents(
         documents,
@@ -71,9 +70,6 @@ def _extract_site_records_from_documents(
         rule=rule,
         target_period=target_period,
     )
-    if cache_key is not None:
-        with RUNTIME_CACHE_LOCK:
-            VALIDATION_DECISION_CACHE[cache_key] = decision
     return list(decision.records)
 
 
@@ -112,22 +108,6 @@ def _prefer_rendered_documents(
     return _prefer_structured_rendered_documents(rendered)
 
 
-def _admin_article_primary_api_returned_404(url: str, timeout: int) -> bool:
-    for api_url in admin_article_api_urls(url):
-        with FETCH_CACHE_LOCK:
-            status = FETCH_STATUS.get(api_url, "")
-        if status == "404":
-            return True
-        if status:
-            continue
-        try:
-            fetch_text(api_url, timeout)
-        except Exception as exc:
-            if _is_http_404_error(exc):
-                return True
-    return False
-
-
 def _documents_lack_target_or_keywords(
     documents: Iterable[str | Document],
     target_period: int | None,
@@ -142,18 +122,6 @@ def _documents_lack_target_or_keywords(
     return bool(signals) and not any(keyword in combined for keyword in signals)
 
 
-def _article_admin_needs_render_fallback(
-    url: str,
-    documents: list[str],
-    rule: StrictRule,
-    target_period: int | None,
-    timeout: int,
-) -> bool:
-    return _admin_article_primary_api_returned_404(url, timeout) or _documents_lack_target_or_keywords(
-        documents, target_period, rule.chunk_keywords + rule.table_headers
-    )
-
-
 def _article_admin_failure_reason(
     url: str,
     documents: Iterable[str | Document],
@@ -162,10 +130,10 @@ def _article_admin_failure_reason(
     timeout: int,
 ) -> str:
     reasons: list[str] = []
-    for api_url in admin_article_api_urls(url):
+    for api_url in dynamic_article_api_urls(url):
         with FETCH_CACHE_LOCK:
             status = FETCH_STATUS.get(api_url, "未请求")
-        reasons.append(f"主接口:{status}")
+        reasons.append(f"接口:{status}")
     combined = normalize_text("\n".join(_document_content(document) for document in documents))
     if target_period is not None and not re.search(rf"(?<!\d){target_period}\s*期", combined):
         reasons.append(f"原始内容没有{target_period}期")
@@ -317,15 +285,27 @@ def _collect_admin_article_records(
         )
     except Exception as exc:
         fetch_error = exc
-    if fetch_error is not None and _is_dynamic_identity_error(fetch_error):
+    if fetch_error is not None and _is_dynamic_identity_error(fetch_error) and not isinstance(
+        fetch_error, DynamicArticleEmptyShellError
+    ):
         raise fetch_error
 
-    primary_api_404 = _admin_article_primary_api_returned_404(url, timeout)
+    if fetch_error is None and documents:
+        records = _extract_site_records_from_documents(
+            documents, site_name, pick, rule, target_period
+        )
+        if records:
+            return _cache_records(cache_key, records)
+        raise LookupError(
+            _article_admin_failure_reason(url, documents, rule, target_period, render_timeout)
+        )
+
+    fallback_allowed = isinstance(
+        fetch_error, (DynamicArticleEmptyShellError, DynamicArticleNotFoundError)
+    )
     rendered: list[str] = []
     render_validation_error: Exception | None = None
-    if primary_api_404 or _documents_lack_target_or_keywords(
-        documents, target_period, rule.chunk_keywords + rule.table_headers
-    ):
+    if fallback_allowed:
         rendered = browser.render_browser_documents(url, render_timeout)
         if rendered:
             try:
@@ -337,19 +317,19 @@ def _collect_admin_article_records(
     if rendered:
         rendered_documents = _documentize(url, rendered, "browser")
         records = _extract_site_records_from_documents(
-            rendered_documents + documents, site_name, pick, rule, target_period, cache_key
+            rendered_documents + documents, site_name, pick, rule, target_period
         )
         if records:
             return _cache_records(cache_key, records)
 
-    if primary_api_404 and documents:
+    if fallback_allowed and documents:
         records = _extract_site_records_from_documents(
-            documents, site_name, pick, rule, target_period, cache_key
+            documents, site_name, pick, rule, target_period
         )
         if records:
             return _cache_records(cache_key, records)
 
-    if primary_api_404:
+    if fallback_allowed:
         if fetch_error is not None and not documents and render_validation_error is not None:
             raise fetch_error
         if render_validation_error is not None and not documents:
@@ -358,12 +338,6 @@ def _collect_admin_article_records(
             _article_admin_failure_reason(url, documents, rule, target_period, render_timeout)
         )
 
-    if documents:
-        records = _extract_site_records_from_documents(
-            documents, site_name, pick, rule, target_period, cache_key
-        )
-        if records:
-            return _cache_records(cache_key, records)
     if fetch_error is not None and not documents:
         raise fetch_error
     raise LookupError(_article_admin_failure_reason(url, documents, rule, target_period, render_timeout))
@@ -405,46 +379,25 @@ def collect_site_records(
             "profile",
         )
         records = _extract_site_records_from_documents(
-            documents, site_name, pick, rule, target_period, cache_key
+            documents, site_name, pick, rule, target_period
         )
         if records:
             return _cache_records(cache_key, records)
         raise LookupError(f"{site_name}专属用户记录已锁定，但没有解析出{target_period}期数据")
 
-    if is_admin_article_url(url):
+    if is_dynamic_article_url(url):
         return _collect_admin_article_records(
             url, site_name, pick, timeout, target_period, rule, cache_key
         )
 
-    needs_render = (
-        (is_root_page_url(url) and not is_dynamic_scoped_url(url))
-        or (rule.prefer_rendered and not is_dynamic_scoped_url(url))
-    )
+    needs_render = rule.prefer_rendered and not is_dynamic_scoped_url(url)
     documents: list[Document] = []
     rendered: list[str] = []
     fetch_error: Exception | None = None
     if needs_render:
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            fetch_future = executor.submit(
-                document_discovery.collect_documents,
-                url,
-                timeout,
-                rule.follow_link_keywords,
-                rule.follow_link_rendered,
-                rule.follow_link_only,
-                pick,
-                site_name=site_name,
-                follow_link_pagination=rule.follow_link_pagination,
-            )
-            render_future = executor.submit(browser.render_browser_documents, url, timeout)
-            try:
-                documents = _documentize(url, fetch_future.result(), "page")
-            except Exception as exc:
-                fetch_error = exc
-            try:
-                rendered = render_future.result()
-            except Exception:
-                rendered = []
+        rendered = browser.render_browser_documents(
+            url, max(timeout, rule.render_timeout or timeout)
+        )
     else:
         try:
             documents = _documentize(
@@ -463,7 +416,6 @@ def collect_site_records(
             )
         except Exception as exc:
             fetch_error = exc
-            rendered = browser.render_browser_documents(url, timeout)
         if is_dynamic_scoped_url(url) and (
             not documents
             or _documents_lack_target_or_keywords(
@@ -492,15 +444,9 @@ def collect_site_records(
     else:
         ordered = rendered_documents + documents if rule.prefer_rendered else documents + rendered_documents
     records = _extract_site_records_from_documents(
-        ordered, site_name, pick, rule, target_period, cache_key
+        ordered, site_name, pick, rule, target_period
     )
     return _cache_records(cache_key, records)
-
-
-def is_root_page_url(url: str) -> bool:
-    return browser.is_root_page_url(url)
-
-
 def _site_failure(
     index: int,
     site: SiteLike,
@@ -531,12 +477,11 @@ def crawl_current_site(
     site: SiteLike,
     period: int,
     timeout: int,
-    retries: int = 2,
-    missing_retries: int = 2,
-    missing_retry_delay: int = 6,
+    retries: int = 1,
 ) -> CurrentRunResult:
     messages = [f"[{index}/{total}] {site.name} {site.pick} {site.url}"]
     records: list[Record] = []
+    record: Record | None = None
     try:
         with _domain_lock_for(site.url):
             for attempt in range(max(0, retries) + 1):
@@ -548,23 +493,20 @@ def crawl_current_site(
                         timeout=timeout,
                         target_period=period,
                     )
+                    record, _ = select_current_record(records, period, site.pick)
                     break
                 except Exception as exc:
-                    # A stale HTTP/browser document can expose the previous
-                    # absolute edge.  Clear the URL-scoped fetch/render
-                    # caches before a configured retry so a fresh response
-                    # gets a chance; a genuinely out-of-bound page still
-                    # fails after the retry budget is exhausted.
                     message = str(exc)
                     boundary_or_missing = (
                         "绝对top边界" in message
                         or "绝对bottom边界" in message
                         or f"没有找到{period}期" in message
+                        or f"不是指定{period}期" in message
                     )
-                    if attempt < max(0, retries) and boundary_or_missing:
-                        clear_fetch_cache(site.url)
-                    if attempt >= max(0, retries):
+                    if not boundary_or_missing or attempt >= max(0, retries):
                         raise
+                    messages.append(f"  未找到{period}期，清缓存后刷新第{attempt + 1}次")
+                    clear_fetch_cache(site.url)
                     time.sleep(min(8.0, 1.5 * (attempt + 1)))
     except Exception as exc:
         reason = f"{type(exc).__name__}: {exc}"
@@ -577,48 +519,6 @@ def crawl_current_site(
             f"抓取/解析失败({reason})",
             period=period,
         )
-
-    record: Record | None = None
-    for attempt in range(max(0, missing_retries) + 1):
-        try:
-            record, _ = select_current_record(records, period, site.pick)
-            break
-        except LookupError as exc:
-            if attempt >= max(0, missing_retries):
-                reason = str(exc) or f"没有找到{period}期数据"
-                return _site_failure(
-                    index,
-                    site,
-                    "指定期数校验",
-                    reason,
-                    [*messages, f"  失败: {reason}"],
-                    period=period,
-                )
-            delay = max(0, int(missing_retry_delay or 0))
-            messages.append(f"  未找到{period}期，清缓存后补抓第{attempt + 1}次")
-            if delay:
-                time.sleep(delay)
-            clear_fetch_cache(site.url)
-            try:
-                with _domain_lock_for(site.url):
-                    records = collect_site_records(
-                        site.url,
-                        site.name,
-                        pick=site.pick,
-                        timeout=timeout,
-                        target_period=period,
-                    )
-            except Exception as retry_exc:
-                reason = f"{type(retry_exc).__name__}: {retry_exc}"
-                return _site_failure(
-                    index,
-                    site,
-                    "补抓",
-                    reason,
-                    [*messages, f"  失败: 补抓时抓取/解析失败({reason})"],
-                    f"抓取/解析失败({reason})",
-                    period=period,
-                )
 
     if record is None:
         reason = f"没有找到{period}期数据"

@@ -28,24 +28,11 @@ if "%PERIOD%"=="" (
   exit /b 1
 )
 
-set "PERIODS="
-set /p "PERIODS=Compare how many periods, default 10: "
-if "%PERIODS%"=="" set "PERIODS=10"
-
-set "WORKERS="
-set /p "WORKERS=Workers, default 8: "
-if "%WORKERS%"=="" set "WORKERS=8"
-
 echo.
-echo Running period %PERIOD%, periods %PERIODS%, workers %WORKERS%
+echo Running period %PERIOD%, fixed 10-period window
 echo.
 
-where py >nul 2>nul
-if %errorlevel%==0 (
-  %PY_CMD% shawei_consecutive_duplicate_checker.py --period %PERIOD% --window %PERIODS% --workers %WORKERS% --use-recent-cache
-) else (
-  %PY_CMD% shawei_consecutive_duplicate_checker.py --period %PERIOD% --window %PERIODS% --workers %WORKERS% --use-recent-cache
-)
+%PY_CMD% shawei_consecutive_duplicate_checker.py --period %PERIOD%
 
 echo.
 echo Finished. Check files:

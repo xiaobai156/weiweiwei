@@ -52,6 +52,9 @@ class StrictRule:
     # Some browser pages parse more reliably from body.inner_text than from the
     # HTML representation, whose CSS/JS can push the target block past bounds.
     prefer_rendered_body_text: bool = False
+    # The URL is part of the rule identity.  A blank value is reserved for
+    # generic unit fixtures that have no configured site identity.
+    site_url: str = ""
 
 
 @dataclass(frozen=True)
@@ -130,17 +133,6 @@ class ValidationDecision:
 
 
 @dataclass(frozen=True)
-class FailureResult:
-    stage: str
-    reason: str
-    site_name: str
-    url: str
-    candidate_count: int = 0
-    conflict_values: tuple[str, ...] = ()
-    elapsed_seconds: float = 0.0
-
-
-@dataclass(frozen=True)
 class CurrentRunResult:
     index: int
     success_line: str | None
@@ -152,6 +144,11 @@ class CurrentRunResult:
 
 
 class SiteLike(Protocol):
-    name: str
-    url: str
-    pick: str
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def url(self) -> str: ...
+
+    @property
+    def pick(self) -> str: ...

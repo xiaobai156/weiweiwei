@@ -25,12 +25,6 @@ SOURCE_PARSERS: dict[str, Parser] = {
 }
 
 
-def register_source_parser(source: str, parser: Parser) -> None:
-    if not source or source in SOURCE_PARSERS:
-        raise ValueError(f"解析来源重复或为空: {source}")
-    SOURCE_PARSERS[source] = parser
-
-
 def parse_source(source: str, document: str, site_name: str, **kwargs):
     parser = SOURCE_PARSERS.get(source)
     if parser is None:

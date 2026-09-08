@@ -14,13 +14,16 @@ from shawei.domain.models import Record
 from shawei.domain.text import contains_none, is_bottom_pick, normalize_text
 from shawei.parsers.common import (
     TableParser, _compact_snippet, _has_draw_signal, _period_window,
-    _site_keyword_present, extract_draw_text, extract_table_records,
+    _site_keyword_present, extract_compact_records, extract_draw_text,
+    extract_table_records,
 )
 from shawei.parsers.topic import (
-    TOPIC_MAIN_DEDICATED_PARSERS, _DynamicHtmlParser, _dynamic_class_tokens,
+    TOPIC_MAIN_DEDICATED_PARSERS, _DynamicHtmlNode, _DynamicHtmlParser, _dynamic_class_tokens,
     _dynamic_node_text_in_order, _extract_topic_main_dedicated_records,
+    _select_contiguous_record_segment, _topic_body_has_author_anchor,
     _topic_main_select_contiguous_segment, extract_topic_published_body_records,
     extract_lainan_yixin_bottom_records, extract_qingqingdandan_topic_records,
+    extract_special_body_records, extract_static_article_body_records,
 )
 
 
@@ -35,6 +38,21 @@ class DedicatedContext:
     pick: str = "top"
     anchor_span: int = 1500
     allow_same_period_records: bool = False
+
+
+def _parse_nalawanzhi_bottom(
+    document: str, site_name: str, parser_name: str, context: DedicatedContext
+) -> list[Record]:
+    records = extract_compact_records(
+        document,
+        site_name,
+        chunk_keywords=context.chunk_keywords,
+        exclude_keywords=context.exclude_keywords,
+        max_chunk_span=context.max_chunk_span,
+        require_draw_signal=context.require_draw_signal,
+        require_site_keyword=context.require_site_keyword,
+    )
+    return _select_contiguous_record_segment(records, "bottom")
 
 
 _CURRENT_DRAW_ZODIAC = "鼠牛虎兔龙蛇马羊猴鸡狗猪"
@@ -644,6 +662,114 @@ _TTSS_LIST_DETAIL_TITLES = {
 _TTSS_LIST_TAIL_RE = re.compile(r"[\[【]\s*(\d)\s*尾\s*[\]】]")
 
 
+_AA_MACAU_TAB_ID = "dxzt141"
+_AA_MACAU_BLOCK_ID = "con_dxzt14_1"
+_AA_MACAU_TAB_LABEL = "澳门绝杀二尾"
+_AA_MACAU_ROW_LABEL = "绝杀二尾"
+_AA_MACAU_TWO_TAIL_RE = re.compile(
+    r"绝\s*杀\s*二\s*尾\s*[【\[（(]\s*(\d)\s*尾\s*(\d)\s*尾\s*[】\]）)]"
+)
+
+
+def _parse_aa_macau_two_tail_block(
+    document: str,
+    site_name: str,
+    parser_name: str,
+    context: DedicatedContext,
+) -> list[Record]:
+    """Parse only aa.373785d.com's Macau two-tail tab.
+
+    The page places Macau and Hong Kong histories in sibling tab panels.  The
+    tab label and its exact content id are both required before any rows are
+    considered; a page-wide row scan would mix the two sources.
+    """
+    del parser_name
+    if "<" not in document or ">" not in document:
+        return []
+
+    parser = _DynamicHtmlParser()
+    try:
+        parser.feed(document)
+        parser.close()
+    except Exception:
+        return []
+
+    nodes: list[_DynamicHtmlNode] = []
+    stack = [parser.root]
+    while stack:
+        node = stack.pop()
+        if node.tag not in {"script", "style", "noscript"}:
+            nodes.append(node)
+            stack.extend(reversed(node.children))
+
+    tab_nodes = [
+        node
+        for node in nodes
+        if node.attrs.get("id") == _AA_MACAU_TAB_ID
+        and _AA_MACAU_TAB_LABEL in _dynamic_node_text_in_order(node)
+    ]
+    block_nodes = [
+        node for node in nodes if node.attrs.get("id") == _AA_MACAU_BLOCK_ID
+    ]
+    if len(tab_nodes) != 1 or len(block_nodes) != 1:
+        return []
+    if context.chunk_keywords and not any(
+        normalize_text(keyword) == normalize_text(_AA_MACAU_TAB_LABEL)
+        and normalize_text(keyword) in _dynamic_node_text_in_order(tab_nodes[0])
+        for keyword in context.chunk_keywords
+        if keyword
+    ):
+        return []
+
+    rows: list[_DynamicHtmlNode] = []
+    stack = [block_nodes[0]]
+    while stack:
+        node = stack.pop()
+        if node.tag in {"script", "style", "noscript"}:
+            continue
+        if node.tag == "tr":
+            rows.append(node)
+            continue
+        stack.extend(reversed(node.children))
+
+    records: list[Record] = []
+    invalid_by_period: dict[int, str] = {}
+    for row_node in rows:
+        row_text = normalize_text(_dynamic_node_text_in_order(row_node))
+        period_match = PERIOD_RE.match(row_text)
+        if period_match is None or _AA_MACAU_ROW_LABEL not in row_text:
+            continue
+        if context.exclude_keywords and not contains_none(row_text, context.exclude_keywords):
+            continue
+        if context.require_draw_signal and not _has_draw_signal(row_text):
+            continue
+        value_match = _AA_MACAU_TWO_TAIL_RE.search(row_text)
+        if value_match is None:
+            invalid_by_period[int(period_match.group(1))] = row_text
+            continue
+        values = tuple(int(value) for value in value_match.groups())
+        records.append(
+            Record(
+                tail=values[0],
+                tail_values=values,
+                period=int(period_match.group(1)),
+                site_name=site_name,
+                draw_text=extract_draw_text(row_text),
+                source_snippet=_compact_snippet(
+                    f"{site_name} {_AA_MACAU_TAB_LABEL} {row_text}",
+                    max(80, context.max_chunk_span),
+                ),
+            )
+        )
+
+    if context.target_period in invalid_by_period:
+        raise LookupError(
+            f"{context.target_period}期澳门绝杀二尾字段无效: "
+            f"{invalid_by_period[context.target_period]}"
+        )
+    return records
+
+
 def _parse_ttss_list_article(
     document: str,
     site_name: str,
@@ -772,7 +898,6 @@ def _parse_kaijiangfacai_table(
         return []
 
     records: list[Record] = []
-    invalid_by_period: dict[int, str] = {}
     values_by_period: dict[int, set[int]] = {}
     seen_presentations: set[tuple[int, int]] = set()
     for row in parser.rows[1:]:
@@ -783,9 +908,27 @@ def _parse_kaijiangfacai_table(
             continue
         period = int(period_match.group(1))
         raw_tail = normalize_text(row[1])
+        # User-approved URL-specific exception: this table publishes the next
+        # period as "?尾" before its value exists, so it is not a bottom row.
+        if raw_tail == "?尾":
+            continue
         tail_match = re.fullmatch(r"([0-9])尾", raw_tail)
+        row_text = " ".join(normalize_text(cell) for cell in row)
         if tail_match is None:
-            invalid_by_period[period] = raw_tail or "空值"
+            invalid_value = raw_tail or "空值"
+            records.append(
+                Record(
+                    tail=-1,
+                    period=period,
+                    site_name=site_name,
+                    value_text=invalid_value,
+                    draw_text=normalize_text(row[5]),
+                    source_snippet=_compact_snippet(
+                        f"{site_name} {_KAIJIANGFACAI_TITLE} {row_text}"
+                    ),
+                    validation_error=f"{period}期杀尾字段无效: {invalid_value}",
+                )
+            )
             continue
         tail = int(tail_match.group(1))
         values_by_period.setdefault(period, set()).add(tail)
@@ -796,7 +939,6 @@ def _parse_kaijiangfacai_table(
         if presentation in seen_presentations:
             continue
         seen_presentations.add(presentation)
-        row_text = " ".join(normalize_text(cell) for cell in row)
         records.append(
             Record(
                 tail=tail,
@@ -809,11 +951,6 @@ def _parse_kaijiangfacai_table(
             )
         )
 
-    if context.target_period in invalid_by_period:
-        raw_tail = invalid_by_period[context.target_period]
-        raise LookupError(
-            f"{context.target_period}期杀尾字段无效: {raw_tail}"
-        )
     return records
 
 
@@ -867,6 +1004,107 @@ def _parse_published_topic_body(document: str, site_name: str, parser_name: str,
         context.target_period,
         context.pick,
         context.allow_same_period_records,
+    )
+
+
+def _parse_special_body(document: str, site_name: str, parser_name: str, context: DedicatedContext) -> list[Record]:
+    if not context.chunk_keywords:
+        return []
+    return extract_special_body_records(
+        document,
+        site_name,
+        context.chunk_keywords[0],
+        parser_name,
+        context.exclude_keywords,
+        context.max_chunk_span,
+        context.require_draw_signal,
+        context.target_period,
+        context.pick,
+        context.allow_same_period_records,
+    )
+
+
+_XINGCHA_TWO_TAIL_RE = re.compile(
+    r"精\s*杀\s*二\s*尾\s*专区\s*◆\s*(\d)\s*[.．]\s*(\d)\s*尾"
+)
+
+
+def _parse_xingcha_two_tail(
+    document: str,
+    site_name: str,
+    parser_name: str,
+    context: DedicatedContext,
+) -> list[Record]:
+    del parser_name
+    if normalize_text(site_name) != "星槎渡海" or "<" not in document:
+        return []
+    parser = _DynamicHtmlParser()
+    try:
+        parser.feed(document)
+        parser.close()
+    except Exception:
+        return []
+
+    records: list[Record] = []
+    stack = [parser.root]
+    while stack:
+        node = stack.pop()
+        if node.tag in {"script", "style", "noscript"}:
+            continue
+        if _dynamic_class_tokens(node) & {"topic-content", "d-content", "content"}:
+            if not _topic_body_has_author_anchor(node, site_name):
+                stack.extend(reversed(node.children))
+                continue
+            for child in node.children:
+                row_text = normalize_text(_dynamic_node_text_in_order(child))
+                period_match = PERIOD_RE.match(row_text)
+                value_match = _XINGCHA_TWO_TAIL_RE.search(row_text)
+                if period_match is None or value_match is None:
+                    continue
+                if context.exclude_keywords and not contains_none(
+                    row_text, context.exclude_keywords
+                ):
+                    continue
+                if context.require_draw_signal and not _has_draw_signal(row_text):
+                    continue
+                values = tuple(int(value) for value in value_match.groups())
+                records.append(
+                    Record(
+                        tail=values[0],
+                        tail_values=values,
+                        period=int(period_match.group(1)),
+                        site_name=site_name,
+                        draw_text=extract_draw_text(row_text),
+                        source_snippet=_compact_snippet(
+                            f"{site_name} 精杀二尾专区 {row_text}",
+                            max(80, context.max_chunk_span),
+                        ),
+                    )
+                )
+        stack.extend(reversed(node.children))
+    values_by_period: dict[int, set[str]] = {}
+    for record in records:
+        values_by_period.setdefault(record.period, set()).add(record.value())
+    for period, values in values_by_period.items():
+        if len(values) > 1:
+            raise LookupError(
+                f"{period}期存在多个候选且数据冲突: {'、'.join(sorted(values))}"
+            )
+    if context.target_period is not None:
+        return records
+    return _select_contiguous_record_segment(records, context.pick)
+
+
+def _parse_static_article_body(document: str, site_name: str, parser_name: str, context: DedicatedContext) -> list[Record]:
+    return extract_static_article_body_records(
+        document,
+        site_name,
+        context.chunk_keywords,
+        two_tail=parser_name == "article_static_two_tail",
+        exclude_keywords=context.exclude_keywords,
+        max_chunk_span=context.max_chunk_span,
+        require_draw_signal=context.require_draw_signal,
+        require_site_keyword=context.require_site_keyword,
     )
 
 
@@ -975,10 +1213,18 @@ DEDICATED_PARSER_HANDLERS["huishouqiankun_topic_tail"] = _parse_huishouqiankun
 DEDICATED_PARSER_HANDLERS["jiangyu_bottom_cycle_tail"] = _parse_jiangyu_bottom_cycle
 DEDICATED_PARSER_HANDLERS["caifu_gaoshou_kill_table"] = _parse_caifu_table
 DEDICATED_PARSER_HANDLERS["ttss_list_article_top_tail"] = _parse_ttss_list_article
+DEDICATED_PARSER_HANDLERS["aa_macau_two_tail_block"] = _parse_aa_macau_two_tail_block
+DEDICATED_PARSER_HANDLERS["nalawanzhi_bottom_tail"] = _parse_nalawanzhi_bottom
 DEDICATED_PARSER_HANDLERS["kaijiangfacai_combined_kill_table"] = _parse_kaijiangfacai_table
 DEDICATED_PARSER_HANDLERS.update({name: _parse_exact_current_topic for name in _EXACT_CURRENT_TOPIC_PATTERNS})
 DEDICATED_PARSER_HANDLERS.update({name: _parse_topic_main for name in TOPIC_MAIN_DEDICATED_PARSERS})
 DEDICATED_PARSER_HANDLERS["topic_published_body_tail"] = _parse_published_topic_body
+DEDICATED_PARSER_HANDLERS["topic_body_single_tail"] = _parse_special_body
+DEDICATED_PARSER_HANDLERS["topic_body_two_tail"] = _parse_special_body
+DEDICATED_PARSER_HANDLERS["xingcha_topic_two_tail"] = _parse_xingcha_two_tail
+DEDICATED_PARSER_HANDLERS["root_two_tail_block"] = _parse_special_body
+DEDICATED_PARSER_HANDLERS["article_static_single_tail"] = _parse_static_article_body
+DEDICATED_PARSER_HANDLERS["article_static_two_tail"] = _parse_static_article_body
 DEDICATED_PARSER_HANDLERS["qingqingdandan_topic_tail"] = _parse_qingqingdandan_topic
 DEDICATED_PARSER_HANDLERS.update({name: _parse_generic_dedicated for name in GENERIC_DEDICATED_PARSER_NAMES})
 

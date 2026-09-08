@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 import json
-from collections import defaultdict
+import re
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from shawei.config.paths import RECENT_CACHE_PATH
 from shawei.config.sites import load_sites
 from shawei.domain.models import Record
 from shawei.domain.text import canonical_pick, normalize_text
 from shawei.parsers.common import is_two_tail_site_url, is_valid_tail_record, record_value
-from shawei.persistence.cache_repository import is_valid_result_value
+from shawei.persistence.cache_repository import (
+    _cache_identity,
+    configuration_fingerprint,
+    is_valid_result_value,
+)
 from shawei.services import crawl_site
 
 
@@ -19,12 +24,6 @@ class Site:
     name: str
     url: str
     pick: str = "top"
-
-
-@dataclass(frozen=True)
-class SiteFingerprint:
-    site: Site
-    fingerprint: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -44,14 +43,6 @@ class NewSiteAdmission:
     duplicates: tuple[AdmissionDuplicate, ...] = ()
     fail_lines: tuple[str, ...] = ()
     suspicions: tuple[AdmissionDuplicate, ...] = ()
-
-
-@dataclass(frozen=True)
-class SiteCheckResult:
-    index: int
-    fingerprint: SiteFingerprint | None
-    fail_line: str | None
-    messages: list[str]
 
 
 def configured_sites() -> list[Site]:
@@ -77,6 +68,15 @@ def load_recent_cache_vectors(
         raise LookupError(f"最近10期缓存格式错误: {path}") from exc
     if not isinstance(payload, dict):
         raise LookupError(f"最近10期缓存格式错误: {path}")
+    if payload.get("schema") != 2:
+        raise LookupError("最近10期缓存schema必须为2")
+    configured = configured_sites()
+    try:
+        expected_fingerprint = configuration_fingerprint(configured)
+    except Exception as exc:
+        raise LookupError(f"无法生成当前缓存配置指纹: {exc}") from exc
+    if payload.get("config_fingerprint") != expected_fingerprint:
+        raise LookupError("最近10期缓存配置指纹缺失或不匹配，请先全站刷新缓存")
     try:
         period = int(payload["period"])
         window = int(payload.get("window") or 10)
@@ -84,9 +84,21 @@ def load_recent_cache_vectors(
         raise LookupError("最近10期缓存缺少有效 period/window") from exc
     if window != 10:
         raise LookupError("最近10期缓存的window必须为10")
+    if period <= 0:
+        raise LookupError("最近10期缓存的period必须大于0")
     items = payload.get("sites")
     if not isinstance(items, list) or not items:
         raise LookupError("最近10期缓存没有有效站点数据")
+    seen_identities: set[tuple[str, str, str]] = set()
+    for item in items:
+        if not isinstance(item, dict):
+            raise LookupError("最近10期缓存站点身份格式错误")
+        identity = _cache_identity(item.get("name"), item.get("url"), item.get("pick"))
+        if identity is None:
+            raise LookupError("最近10期缓存站点身份格式错误")
+        if identity in seen_identities:
+            raise LookupError("最近10期缓存存在重复站点身份")
+        seen_identities.add(identity)
     active_items = [item for item in items if isinstance(item, dict) and not item.get("archived")]
     if not active_items:
         raise LookupError("最近10期缓存没有有效活动站点数据")
@@ -113,21 +125,35 @@ def load_recent_cache_vectors(
             periods = [int(value) for value in item["periods"]]
             values = [str(value) for value in item["values"]]
         except (KeyError, TypeError, ValueError):
-            incomplete_sites.append(name)
-            continue
+            raise LookupError(f"最近10期缓存站点{name}的期数或结果格式错误")
+        raw_failed_periods = item.get("failed_periods", [])
+        raw_failure_reasons = item.get("failure_reasons", {})
+        if not isinstance(raw_failed_periods, list) or not isinstance(raw_failure_reasons, dict):
+            raise LookupError(f"最近10期缓存站点{name}的失败状态格式错误")
+        try:
+            failed_periods = [int(value) for value in raw_failed_periods]
+            reason_periods = [int(value) for value in raw_failure_reasons]
+        except (TypeError, ValueError):
+            raise LookupError(f"最近10期缓存站点{name}的失败期数格式错误") from None
         if (
             len(periods) != len(values)
-            or len(periods) != 10
-            or len(set(periods)) != 10
-            or item.get("failed_periods")
+            or len(set(periods)) != len(periods)
+            or periods != sorted(periods, reverse=True)
+            or any(period not in expected_periods for period in periods)
             or any(not is_valid_result_value(value, url) for value in values)
+            or len(set(failed_periods)) != len(failed_periods)
+            or set(failed_periods) != set(reason_periods)
+            or set(periods) & set(failed_periods)
+            or set(periods) | set(failed_periods) != expected_periods
+            or any(not str(reason).strip() for reason in raw_failure_reasons.values())
         ):
+            raise LookupError(f"最近10期缓存站点{name}的向量或失败状态不一致")
+        if failed_periods:
             incomplete_sites.append(name)
             continue
+        if periods != issue_window(period, window):
+            raise LookupError(f"最近10期缓存站点{name}的期数顺序错误")
         period_values = dict(zip(periods, values))
-        if set(period_values) != expected_periods:
-            incomplete_sites.append(name)
-            continue
         vectors.append((Site(name, url, pick), period_values))
     if not vectors:
         raise LookupError("最近10期缓存没有完整近10期向量，不能作为新增判重依据，请先全站刷新缓存")
@@ -137,13 +163,13 @@ def load_recent_cache_vectors(
         raise LookupError(
             f"最近10期缓存存在不完整站点: {sample}{suffix}，不能作为新增判重依据，请先全站刷新缓存"
         )
-    if not allow_incomplete and payload.get("vector_count") != len(vectors):
+    if payload.get("vector_count") != len(vectors):
         raise LookupError("最近10期缓存向量数量与元数据不一致，不能作为新增判重依据")
-    cached_snapshot.sort()
-    configured_snapshot = sorted(
-        (site.name, site.url, canonical_pick(site.pick))
-        for site in configured_sites()
-    )
+    if payload.get("fail_count") != len(incomplete_sites):
+        raise LookupError("最近10期缓存失败站点数量与元数据不一致，不能作为新增判重依据")
+    configured_snapshot = [
+        (site.name, site.url, canonical_pick(site.pick)) for site in configured
+    ]
     if cached_snapshot != configured_snapshot:
         raise LookupError(
             "最近10期缓存与当前 sites.json 的 name/url/pick 配置快照不一致，请先全站刷新缓存"
@@ -156,33 +182,76 @@ def find_existing_site(
 ) -> Site | None:
     normalized_name = normalize_text(name)
     normalized_url = (url or "").strip()
+    normalized_url_identity = _normalized_url_identity(normalized_url)
+    source_identity = _source_identity(normalized_url)
     for site in sites if sites is not None else configured_sites():
-        if normalize_text(site.name) == normalized_name or site.url.strip() == normalized_url:
+        if (
+            normalize_text(site.name) == normalized_name
+            or _normalized_url_identity(site.url) == normalized_url_identity
+            or (
+                source_identity is not None
+                and _source_identity(site.url) == source_identity
+            )
+        ):
             return site
     return None
 
 
-def fingerprint_from_records(
-    records: list[Record], period: int, periods: int
-) -> tuple[tuple[str, ...] | None, list[int]]:
-    by_period = {record.period: record for record in records}
-    wanted = issue_window(period, periods)
-    missing = [item for item in wanted if item not in by_period]
-    if missing:
-        return None, missing
-    invalid = [item for item in wanted if not is_valid_tail_record(by_period[item])]
-    if invalid:
-        return None, invalid
-    return tuple(record_value(by_period[item]) for item in wanted), []
+def _normalized_url_identity(url: str) -> tuple[str, str, str, str, str, str] | None:
+    parsed = urlparse(url.strip())
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    return (
+        parsed.scheme.lower(),
+        parsed.netloc.lower(),
+        parsed.path or "/",
+        parsed.params,
+        parsed.query,
+        (parsed.fragment or "").rstrip("/"),
+    )
 
 
-def period_values_from_records(
-    records: list[Record], period: int, periods: int
-) -> tuple[dict[int, str] | None, list[int]]:
-    fingerprint, missing = fingerprint_from_records(records, period, periods)
-    if fingerprint is None:
-        return None, missing
-    return dict(zip(issue_window(period, periods), fingerprint)), []
+def _source_identity(url: str) -> tuple[str, str, str] | None:
+    parsed = urlparse(url.strip())
+    host = parsed.netloc.lower()
+    if not host:
+        return None
+    fragment = (parsed.fragment or "").strip("/")
+    reference = re.fullmatch(r"users/(\d+)/references/(\d+)", fragment, re.IGNORECASE)
+    if reference:
+        return host, "spa-reference", "/".join(reference.groups())
+    forum = re.fullmatch(r"forums/(\d+)", fragment, re.IGNORECASE)
+    if forum:
+        return host, "spa-forum", forum.group(1)
+    user = re.fullmatch(r"users/(\d+)", fragment, re.IGNORECASE)
+    if user:
+        return host, "spa-user", user.group(1)
+    article = re.search(
+        r"/article/(?:admin|manager|lottery)/([^/?#]+)",
+        parsed.path,
+        re.IGNORECASE,
+    )
+    if article:
+        return host, "article", article.group(1).lower()
+    static_article = re.search(
+        r"/article/ar_content/id/([^/?#]+)",
+        parsed.path,
+        re.IGNORECASE,
+    )
+    if static_article:
+        return host, "static-article", static_article.group(1).lower()
+    topic = re.search(r"/topic/([^/?#]+)", parsed.path, re.IGNORECASE)
+    if topic:
+        topic_id = re.sub(r"\.html?$", "", topic.group(1), flags=re.IGNORECASE)
+        return host, "topic", topic_id.lower()
+    query = parse_qs(parsed.query)
+    endpoint = parsed.path.rstrip("/").lower()
+    if endpoint != "/list.aspx":
+        for key in ("tid", "id"):
+            values = query.get(key)
+            if values and values[0].strip():
+                return host, f"{endpoint}?{key}", values[0].strip().lower()
+    return None
 
 
 def _find_admission_matches(
@@ -246,9 +315,7 @@ def evaluate_new_site_admission(
     period: int,
     periods: int = 10,
     timeout: int = 20,
-    workers: int = 8,
 ) -> NewSiteAdmission:
-    del workers
     pick = canonical_pick(pick)
     candidate = Site(name, url, pick)
     sites = configured_sites()
@@ -268,8 +335,14 @@ def evaluate_new_site_admission(
         )
     periods = min(periods, cache_window)
     wanted_periods = issue_window(period, periods)
+
+    def valid_for_candidate(record: Record) -> bool:
+        value = record_value(record)
+        return is_valid_tail_record(record) and is_valid_result_value(value, url)
+
     with crawl_site.site_lock_for(url):
         base_ok = False
+        base_observation: tuple[int, str] | None = None
         base_errors: list[str] = []
         for base_period in (cache_period, cache_period - 1):
             try:
@@ -279,11 +352,18 @@ def evaluate_new_site_admission(
             except Exception as exc:
                 base_errors.append(f"{base_period}期:{type(exc).__name__}: {exc}")
                 continue
-            if any(
-                record.period == base_period and is_valid_tail_record(record)
-                for record in base_records
-            ):
+            period_records = [
+                record for record in base_records if record.period == base_period
+            ]
+            valid_records = [
+                record for record in period_records if valid_for_candidate(record)
+            ]
+            if len(period_records) == len(valid_records) == 1:
                 base_ok = True
+                base_observation = (
+                    base_period,
+                    record_value(valid_records[0]),
+                )
                 break
             base_errors.append(f"{base_period}期: 没有找到有效数据")
         if not base_ok:
@@ -293,37 +373,48 @@ def evaluate_new_site_admission(
                 + "；".join(base_errors),
                 candidate,
             )
-        candidate_records = crawl_site.collect_site_records(
-            url, name, pick=pick, timeout=timeout
-        )
-        available = {
-            record.period for record in candidate_records if is_valid_tail_record(record)
-        }
+        try:
+            candidate_records = crawl_site.collect_site_records(
+                url, name, pick=pick, timeout=timeout
+            )
+        except Exception as exc:
+            return NewSiteAdmission(
+                False,
+                f"新增站历史数据抓取/解析失败: {type(exc).__name__}: {exc}",
+                candidate,
+            )
         validated: dict[int, str] = {}
         errors: list[str] = []
         for target in wanted_periods:
-            try:
-                target_records = crawl_site.collect_site_records(
-                    url, name, pick=pick, timeout=timeout, target_period=target
-                )
-            except Exception as exc:
-                if target in available:
-                    errors.append(f"{target}期:{type(exc).__name__}: {exc}")
+            target_records = [
+                record for record in candidate_records if record.period == target
+            ]
+            if not target_records:
                 continue
             valid = [
                 record
                 for record in target_records
-                if record.period == target and is_valid_tail_record(record)
+                if valid_for_candidate(record)
             ]
-            if len(valid) != 1:
-                if target in available:
-                    errors.append(f"{target}期: 没有唯一有效数据")
+            if len(target_records) != len(valid) or len(valid) != 1:
+                errors.append(f"{target}期: 没有唯一有效数据")
                 continue
             validated[target] = record_value(valid[0])
         if errors:
             return NewSiteAdmission(
                 False, "新增站逐期精准校验失败: " + "；".join(errors), candidate
             )
+        if base_observation is not None:
+            base_period, base_value = base_observation
+            history_value = validated.get(base_period)
+            if history_value is not None and history_value != base_value:
+                return NewSiteAdmission(
+                    False,
+                    f"新增站基准定向抓取与历史模式同期冲突: "
+                    f"{base_period}期 {base_value} != {history_value}",
+                    candidate,
+                )
+            validated.setdefault(base_period, base_value)
     missing = [item for item in wanted_periods if item not in validated]
     if not validated:
         return NewSiteAdmission(
@@ -361,24 +452,3 @@ def evaluate_new_site_admission(
     return NewSiteAdmission(
         True, f"新增站{detail}且不重复，可添加后抽抓验证", candidate, fingerprint
     )
-
-
-def group_duplicate_sites(items: list[SiteFingerprint]) -> list[list[Site]]:
-    groups: dict[tuple[bool, tuple[str, ...]], list[Site]] = defaultdict(list)
-    seen: dict[tuple[bool, tuple[str, ...]], set[str]] = defaultdict(set)
-    for item in items:
-        key = (is_two_tail_site_url(item.site.url), item.fingerprint)
-        if item.site.url not in seen[key]:
-            seen[key].add(item.site.url)
-            groups[key].append(item.site)
-    return [sites for sites in groups.values() if len(sites) >= 2]
-
-
-def format_duplicate_groups(groups: list[list[Site]]) -> list[str]:
-    lines: list[str] = []
-    for index, sites in enumerate(groups, start=1):
-        if lines:
-            lines.append("")
-        lines.append(f"重复组{index}")
-        lines.extend(site.name for site in sites)
-    return lines

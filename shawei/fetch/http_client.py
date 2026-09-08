@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import gzip
+import re
 import ssl
 import subprocess
 import sys
 import threading
-import time
 import zlib
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -41,7 +41,7 @@ RUNTIME_CACHE_LOCK = threading.Lock()
 
 def _looks_like_placeholder_response(text: str) -> bool:
     stripped = (text or "").strip().strip("'\"").lower()
-    return stripped in {"abcabc", "ok", "success"} or (len(stripped) <= 12 and "<" not in stripped and "期" not in stripped)
+    return stripped in {"", "abcabc", "ok", "success"}
 
 
 def _decode_http_body(raw: bytes, encoding: str = "", charset: str | None = None) -> str:
@@ -50,7 +50,10 @@ def _decode_http_body(raw: bytes, encoding: str = "", charset: str | None = None
         raw = gzip.decompress(raw)
     elif content_encoding == "deflate":
         raw = zlib.decompress(raw)
-    return raw.decode(charset or detect_html_charset(raw) or "utf-8", errors="replace")
+    selected_charset = (charset or detect_html_charset(raw) or "utf-8").lower()
+    if selected_charset in {"gb2312", "gbk"}:
+        selected_charset = "gb18030"
+    return raw.decode(selected_charset, errors="replace")
 
 
 def _cache_fetch_result(url: str, text: str) -> str:
@@ -64,7 +67,7 @@ def _curl_executable() -> str:
     return "curl.exe" if sys.platform.startswith("win") else "curl"
 
 
-def _curl_fetch_text(url: str, headers: dict[str, str], timeout: int, extra_args: tuple[str, ...] = ()) -> str:
+def _curl_fetch_text(url: str, headers: dict[str, str], timeout: int) -> str:
     command = [
         _curl_executable(),
         "-L",
@@ -77,7 +80,6 @@ def _curl_fetch_text(url: str, headers: dict[str, str], timeout: int, extra_args
         str(max(3, timeout)),
         "--max-time",
         str(max(5, timeout + 3)),
-        *extra_args,
     ]
     for key, value in headers.items():
         if key.lower() == "accept-encoding":
@@ -91,61 +93,49 @@ def _curl_fetch_text(url: str, headers: dict[str, str], timeout: int, extra_args
     return _decode_http_body(completed.stdout)
 
 
-def _curl_fallback_variants(error: Exception) -> list[tuple[str, ...]]:
-    lowered = str(error).lower()
-    variants: list[tuple[str, ...]] = [
-        ("--http1.1",),
-        ("--http1.1", "--ssl-no-revoke"),
-    ]
-    if "schannel" in lowered or "ssl" in lowered or "tls" in lowered or "handshake" in lowered or "eof occurred" in lowered:
-        variants.extend(
-            [
-                ("--http1.1", "--ssl-no-revoke", "--tlsv1.2"),
-                ("--http1.1", "--tlsv1.2"),
-            ]
-        )
-    if "http error 502" in lowered or "bad gateway" in lowered:
-        variants.extend([("--http1.1", "--retry", "1", "--retry-delay", "1")])
-    return variants
-
-
 def fetch_text(url: str, timeout: int = 8) -> str:
     with FETCH_CACHE_LOCK:
         cached = FETCH_CACHE.get(url)
     if cached is not None:
         return cached
 
-    last_error: Exception | None = None
-    header_variants = [DEFAULT_HEADERS, {key: value for key, value in DEFAULT_HEADERS.items() if key.lower() != "accept-encoding"}]
-    for headers in header_variants:
-        for attempt in range(2):
-            request = Request(url, headers=headers)
-            context = ssl._create_unverified_context()
-            try:
-                with urlopen(request, timeout=timeout, context=context) as response:
-                    raw = response.read()
-                    encoding = (response.headers.get("Content-Encoding") or "").lower()
-                    header_charset = response.headers.get_content_charset()
-                text = _decode_http_body(raw, encoding, header_charset)
-                if _looks_like_placeholder_response(text) and headers is DEFAULT_HEADERS:
-                    break
-                return _cache_fetch_result(url, text)
-            except Exception as exc:
-                last_error = exc
-                if attempt >= 1:
-                    break
-                time.sleep(0.3 * (attempt + 1))
+    primary_error: Exception | None = None
+    request = Request(url, headers=DEFAULT_HEADERS)
+    context = ssl._create_unverified_context()
+    try:
+        with urlopen(request, timeout=timeout, context=context) as response:
+            raw = response.read()
+            encoding = (response.headers.get("Content-Encoding") or "").lower()
+            get_charset = getattr(response.headers, "get_content_charset", None)
+            header_charset = get_charset() if get_charset is not None else None
+        text = _decode_http_body(raw, encoding, header_charset)
+        if not _looks_like_placeholder_response(text):
+            return _cache_fetch_result(url, text)
+        primary_error = RuntimeError("HTTP响应是占位内容")
+    except HTTPError as exc:
+        with FETCH_CACHE_LOCK:
+            FETCH_STATUS[url] = (
+                "404"
+                if _is_http_404_error(exc)
+                else f"error:{type(exc).__name__}: {exc}"
+            )
+        raise
+    except Exception as exc:
+        if _is_http_404_error(exc):
+            with FETCH_CACHE_LOCK:
+                FETCH_STATUS[url] = "404"
+            raise
+        primary_error = exc
 
-    for headers in header_variants:
-        for extra_args in _curl_fallback_variants(last_error or RuntimeError("fetch failed")):
-            try:
-                text = _curl_fetch_text(url, headers, timeout, extra_args)
-                if _looks_like_placeholder_response(text) and headers is DEFAULT_HEADERS:
-                    continue
-                return _cache_fetch_result(url, text)
-            except Exception as exc:
-                last_error = exc
-    final_error = last_error or RuntimeError("fetch failed")
+    # A single fixed transport fallback keeps the one known compatibility path
+    # without turning a failed request into a header/TLS/retry matrix.
+    try:
+        text = _curl_fetch_text(url, DEFAULT_HEADERS, timeout)
+        if _looks_like_placeholder_response(text):
+            raise RuntimeError("curl响应是占位内容")
+        return _cache_fetch_result(url, text)
+    except Exception as fallback_error:
+        final_error = primary_error or fallback_error
     with FETCH_CACHE_LOCK:
         FETCH_STATUS[url] = "404" if _is_http_404_error(final_error) else f"error:{type(final_error).__name__}: {final_error}"
     raise final_error
@@ -207,4 +197,4 @@ def _is_http_404_error(exc: Exception) -> bool:
     if isinstance(exc, HTTPError) and exc.code == 404:
         return True
     text = str(exc).lower()
-    return "http error 404" in text or "returned error: 404" in text or " 404" in text
+    return bool(re.search(r"(?:http error|returned error:)\s*404\b", text))

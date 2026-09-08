@@ -4,7 +4,7 @@ import hashlib
 from collections.abc import Iterable
 from dataclasses import replace
 
-from shawei.config.constants import TWO_TAIL_SITE_NAMES
+from shawei.config.constants import TWO_TAIL_SITE_URLS
 from shawei.config.rules import DEFAULT_STRICT_RULE
 from shawei.domain.models import Candidate, Document, Record, StrictRule, ValidationDecision
 from shawei.domain.text import is_bottom_pick, normalize_text
@@ -80,12 +80,6 @@ _SOURCE_KWARGS_CACHE: dict[
     tuple[str, int, int | None, str], tuple[StrictRule, dict]
 ] = {}
 
-# The draw result is independent from the published kill-tail prediction.
-# ``开0000`` means the draw is pending; it must not invalidate an otherwise
-# legal period + kill-tail value at the configured direction boundary.
-_NON_FATAL_RECORD_DIAGNOSTICS = frozenset({"开0000占位记录"})
-
-
 def _source_kwargs(
     source: str,
     rule: StrictRule,
@@ -103,7 +97,17 @@ def _source_kwargs(
     return kwargs
 
 
-def _validate_value_contract(record: Record, site_name: str) -> None:
+# The draw result is independent from the published kill-tail prediction.
+# ``开0000`` means the draw is pending; it remains a boundary record but does
+# not invalidate an otherwise legal period + kill-tail value.
+_NON_FATAL_RECORD_DIAGNOSTICS = frozenset({"开0000占位记录"})
+
+
+def _validate_value_contract(
+    record: Record,
+    site_name: str,
+    source_url: str = "",
+) -> None:
     if (
         record.validation_error
         and record.validation_error not in _NON_FATAL_RECORD_DIAGNOSTICS
@@ -113,12 +117,15 @@ def _validate_value_contract(record: Record, site_name: str) -> None:
         raise LookupError(
             f"候选站名不匹配: 请求{site_name}，候选{record.site_name or '为空'}"
         )
-    if site_name in TWO_TAIL_SITE_NAMES:
+    authorized_two_tail = source_url.strip() in TWO_TAIL_SITE_URLS
+    if authorized_two_tail:
         if len(record.tail_values) != 2 or any(value < 0 or value > 9 for value in record.tail_values):
             raise LookupError(f"{site_name}必须是两个0-9尾数")
         return
     if record.tail_values:
-        raise LookupError(f"{site_name}只允许单尾数据")
+        raise LookupError(
+            f"{site_name}双尾授权URL不匹配: {source_url.strip() or '为空'}"
+        )
     if record.value_text or record.tail < 0 or record.tail > 9:
         raise LookupError(f"{site_name}必须是一个0-9尾数")
 
@@ -156,10 +163,20 @@ def _parse_candidates(
     target_period: int | None,
 ) -> list[Candidate]:
     candidates: list[Candidate] = []
+    expected_url = rule.site_url
     normalized_documents = [_document_for_input(document, index) for index, document in enumerate(documents)]
     for input_order, document in enumerate(normalized_documents):
+        if expected_url and document.source_url and document.source_url != expected_url:
+            raise LookupError(
+                f"候选来源URL不匹配: 规则{expected_url}，文档{document.source_url}"
+            )
         document_order = document.order if document.order else input_order
-        for parser_id in rule.allowed_sources:
+        parser_ids = (
+            ("dedicated",)
+            if rule.dedicated_parser and "dedicated" in rule.allowed_sources
+            else rule.allowed_sources
+        )
+        for parser_id in parser_ids:
             source_records = registry.parse_source(
                 parser_id,
                 document.content,
@@ -343,6 +360,7 @@ def _require_target_authority_consistency(
     target_period: int,
     use_bottom: bool,
     site_name: str,
+    expected_url: str = "",
 ) -> tuple[Candidate, ...]:
     """Validate and compare each independent authority's direction edge.
 
@@ -379,7 +397,11 @@ def _require_target_authority_consistency(
                 f"绝对{direction}边界是{boundary.record.period}期，不是指定{target_period}期"
             )
         try:
-            _validate_value_contract(boundary.record, site_name)
+            _validate_value_contract(
+                boundary.record,
+                site_name,
+                boundary.source_url.strip() or expected_url,
+            )
         except LookupError as exc:
             raise LookupError(f"绝对{direction}边界记录无效: {exc}") from exc
         boundaries.append(boundary)
@@ -407,12 +429,14 @@ def _deduplicate_same_period_presentations(
     for candidate in sorted(candidates, key=_candidate_order_key):
         raw_block = normalize_text(candidate.raw_block)
         if raw_block:
+            record_scope = candidate.record_id
             key = (
                 "block",
                 candidate.record.period,
                 candidate.record.value(),
                 raw_block,
                 candidate.original_position,
+                record_scope,
             )
         else:
             key = (
@@ -420,6 +444,7 @@ def _deduplicate_same_period_presentations(
                 candidate.record.period,
                 candidate.record.value(),
                 candidate.document_id,
+                candidate.record_id,
                 candidate.parser_id,
                 candidate.original_position,
             )
@@ -435,13 +460,14 @@ def _records_by_period(
     target_period: int | None,
     use_bottom: bool,
     allow_same_period_records: bool = False,
-) -> tuple[dict[int, Record], list[Candidate]]:
+) -> tuple[dict[int, Record], list[Candidate], dict[int, Candidate]]:
     records = list(candidates)
     grouped: dict[int, list[Candidate]] = {}
     for candidate in records:
         grouped.setdefault(candidate.record.period, []).append(candidate)
 
     selected: dict[int, Record] = {}
+    selected_candidates: dict[int, Candidate] = {}
     numbered_candidates: list[Candidate] = []
     for period, period_records in grouped.items():
         if allow_same_period_records:
@@ -469,6 +495,7 @@ def _records_by_period(
             numbered_candidates.extend(numbered)
             selected_candidate = numbered[-1] if use_bottom else numbered[0]
             selected[period] = selected_candidate.record
+            selected_candidates[period] = selected_candidate
             continue
 
         values = {candidate.record.value() for candidate in period_records}
@@ -476,8 +503,9 @@ def _records_by_period(
             raise LookupError(f"{period}期存在多个候选且数据冲突: {'、'.join(sorted(values))}")
         selected_candidate = period_records[-1] if use_bottom else period_records[0]
         selected[period] = selected_candidate.record
+        selected_candidates[period] = selected_candidate
         numbered_candidates.extend(period_records)
-    return selected, numbered_candidates
+    return selected, numbered_candidates, selected_candidates
 
 
 def validate_documents(
@@ -489,6 +517,7 @@ def validate_documents(
     target_period: int | None = None,
 ) -> ValidationDecision:
     active_rule = rule or DEFAULT_STRICT_RULE
+    identity_url = active_rule.site_url
     use_bottom = is_bottom_pick(pick)
     candidates = _parse_candidates(documents, site_name, pick, active_rule, target_period)
     all_candidates = list(candidates)
@@ -499,65 +528,90 @@ def validate_documents(
     )
     if active_rule.same_period_record_selection:
         candidates = _deduplicate_same_period_presentations(candidates)
+    selected_candidates: dict[int, Candidate] = {}
     if target_period is not None:
-        boundary_candidate = _require_absolute_target_boundary(
-            candidates, target_period, use_bottom
-        )
         target_candidates = [
             candidate for candidate in candidates if candidate.record.period == target_period
         ]
-        if boundary_candidate is None:
-            # Preserve the historical no-candidate contract: callers receive
-            # an empty decision and can report the missing period themselves.
+        if not target_candidates:
+            authority_groups: dict[tuple[object, ...], list[Candidate]] = {}
+            for candidate in candidates:
+                authority_groups.setdefault(
+                    _candidate_authority_key(candidate), []
+                ).append(candidate)
+            authority_boundary_periods = {
+                (ordered[-1] if use_bottom else ordered[0]).record.period
+                for authority_candidates in authority_groups.values()
+                if (ordered := sorted(authority_candidates, key=_candidate_order_key))
+            }
+            if len(authority_boundary_periods) == 1:
+                boundary_period = next(iter(authority_boundary_periods))
+                direction = "bottom" if use_bottom else "top"
+                raise LookupError(
+                    f"绝对{direction}边界是{boundary_period}期，不是指定{target_period}期"
+                )
             records: list[Record] = []
             numbered_candidates: list[Candidate] = []
-        else:
+        elif active_rule.same_period_record_selection:
+            boundary_candidate = _require_absolute_target_boundary(
+                candidates, target_period, use_bottom
+            )
+            assert boundary_candidate is not None
             # Validate the selected edge before considering any other target
             # row.  An invalid edge is a hard failure; another same-period row
             # can never be used as a fallback.
             boundary_record = boundary_candidate.record
-            # Rows from the same document/parser block are retained as
-            # evidence, but every independent authority edge must be valid and
-            # all authority edges must agree.  Explicit same-period sites are
-            # the exception: their independent records are deliberately
-            # numbered across documents and selected by direction.
-            if not active_rule.same_period_record_selection:
-                _require_target_authority_consistency(
-                    candidates,
-                    target_period,
-                    use_bottom,
+            try:
+                _validate_value_contract(
+                    boundary_record,
                     site_name,
+                    boundary_candidate.source_url.strip() or identity_url,
                 )
-            else:
-                # Special sites number independent same-period rows, but the
-                # selected absolute edge is still a hard validation boundary.
-                try:
-                    _validate_value_contract(boundary_record, site_name)
-                except LookupError as exc:
-                    direction = "bottom" if use_bottom else "top"
-                    raise LookupError(f"绝对{direction}边界记录无效: {exc}") from exc
-
-            if active_rule.same_period_record_selection:
-                selected, numbered_candidates = _records_by_period(
-                    target_candidates,
-                    target_period,
-                    use_bottom,
-                    allow_same_period_records=True,
-                )
-                records = [selected[target_period]]
-            else:
-                numbered_candidates = target_candidates
-                records = [boundary_record]
+            except LookupError as exc:
+                direction = "bottom" if use_bottom else "top"
+                raise LookupError(f"绝对{direction}边界记录无效: {exc}") from exc
+            selected, numbered_candidates, selected_candidates = _records_by_period(
+                target_candidates,
+                target_period,
+                use_bottom,
+                allow_same_period_records=True,
+            )
+            records = [selected[target_period]]
+        else:
+            boundaries = _require_target_authority_consistency(
+                candidates,
+                target_period,
+                use_bottom,
+                site_name,
+                identity_url,
+            )
+            boundary_candidate = boundaries[0]
+            numbered_candidates = target_candidates
+            records = [boundary_candidate.record]
+            selected_candidates = {target_period: boundary_candidate}
     else:
-        selected, numbered_candidates = _records_by_period(
+        selected, numbered_candidates, selected_candidates = _records_by_period(
             candidates,
             target_period,
             use_bottom,
             active_rule.same_period_record_selection,
         )
         records = list(selected.values())
-        for record in records:
-            _validate_value_contract(record, site_name)
+    if target_period is None:
+        for period, record in selected.items():
+            candidate = selected_candidates[period]
+            _validate_value_contract(
+                record,
+                site_name,
+                candidate.source_url.strip() or identity_url,
+            )
+    elif selected_candidates:
+        selected_candidate = selected_candidates[target_period]
+        _validate_value_contract(
+            records[0],
+            site_name,
+            selected_candidate.source_url.strip() or identity_url,
+        )
     if limit is None or limit <= 0:
         limited = records
     else:
@@ -584,26 +638,6 @@ def collect_candidates(
         pick,
         rule or DEFAULT_STRICT_RULE,
         target_period,
-    )
-
-
-def extract_records(
-    documents: Iterable[str | Document],
-    site_name: str,
-    limit: int | None = None,
-    pick: str = "top",
-    rule: StrictRule | None = None,
-    target_period: int | None = None,
-) -> list[Record]:
-    return list(
-        validate_documents(
-            documents,
-            site_name,
-            limit=limit,
-            pick=pick,
-            rule=rule,
-            target_period=target_period,
-        ).records
     )
 
 

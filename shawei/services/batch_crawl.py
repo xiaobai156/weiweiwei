@@ -32,39 +32,13 @@ def _write_progress(
     sys.stdout.flush()
 
 
-def crawl_sites(
-    sites: Iterable[SiteLike],
-    period: int,
-    timeout: int,
-    retries: int = 2,
-    workers: int = 8,
-    missing_retries: int = 2,
-    missing_retry_delay: int = 6,
-    show_progress: bool = False,
-) -> list[CurrentRunResult]:
-    indexed_sites = list(enumerate(sites, start=1))
-    return crawl_indexed_sites(
-        indexed_sites,
-        len(indexed_sites),
-        period,
-        timeout,
-        retries=retries,
-        workers=workers,
-        missing_retries=missing_retries,
-        missing_retry_delay=missing_retry_delay,
-        show_progress=show_progress,
-    )
-
-
 def crawl_indexed_sites(
     indexed_sites: Iterable[tuple[int, SiteLike]],
     total: int,
     period: int,
     timeout: int,
-    retries: int = 2,
+    retries: int = 1,
     workers: int = 8,
-    missing_retries: int = 2,
-    missing_retry_delay: int = 6,
     show_progress: bool = False,
 ) -> list[CurrentRunResult]:
     indexed_sites = list(indexed_sites)
@@ -99,8 +73,6 @@ def crawl_indexed_sites(
                     period,
                     timeout,
                     retries=retries,
-                    missing_retries=missing_retries,
-                    missing_retry_delay=missing_retry_delay,
                 ): (index, site)
                 for index, site in site_group
             }
@@ -114,8 +86,8 @@ def crawl_indexed_sites(
                         index=index,
                         success_line=None,
                         fail_line=(
-                            f"失败 {site.name} {site.url} 原因: "
-                            f"批量编排失败({reason})"
+                            f"失败 {site.name} {site.url} 方向: {site.pick} "
+                            f"期数: {period} 阶段: 批量编排 原因: {reason}"
                         ),
                         ranking_value=None,
                         messages=[

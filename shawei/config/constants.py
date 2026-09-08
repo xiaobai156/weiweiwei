@@ -105,15 +105,6 @@ CHINESE_DIGITS = {
 }
 
 
-BOTTOM_PICK_VALUES = {"bottom", "尾部", "底部", "下", "buttom"}
-
-
-TOP_PICK_VALUES = {"top", "顶部", "上"}
-
-
-TWO_TAIL_SITE_NAMES = frozenset({"强烈招牌", "华丽恶梦", "专注凯子", "唯一火势"})
-
-
 TWO_TAIL_SITE_PARSERS = {
     "强烈招牌": "qvuu_qiangli_zhaopai_two_tail",
     "华丽恶梦": "qvuu_huali_emeng_two_tail",
@@ -151,6 +142,23 @@ TWO_TAIL_SITE_URLS = frozenset({
     "https://qvuuqqs.8imf7-hteuh-ylwuqv.xyz/#/users/3753",
     "https://qvuuqqs.8imf7-hteuh-ylwuqv.xyz/#/users/46140",
     "https://qvuuqqs.8imf7-hteuh-ylwuqv.xyz/#/users/5976",
+    "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/topic/470055.html",
+    "https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/",
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/677675.html",
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682113.html",
+    "https://ykeejph.z9koz-18xjn-pvglgy.xyz:16677/topic/682100.html",
+    "https://4.48kk49.com:1888/Article/ar_content/id/1469/tid/82.html",
+    "https://4.48kk49.com:1888/Article/ar_content/id/1452/tid/82.html",
+    "https://aa.373785d.com:1888/",
+    "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a082c7108adb5ed7357ef3b?url=lhw",
+    "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a083d1308adb5ed7357f036?url=lhw",
+    "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a09527a291caff3edcb8a33?url=lf",
+    "https://0130190827.673454.xyz/bbs/topic.php?id=20144",
+    "https://67806780827.234535.xyz/bbs/topic.php?id=22163",
+    "https://88888020827.833567.xyz/bbs/topic.php?id=22608",
+    "https://88888020827.833567.xyz/bbs/topic.php?id=20522",
+    "https://0130190827.657954.xyz/bbs/topic.php?id=20210",
+    "https://jtrmhar.cwdc3-r5vqn-qzqasa.work:17455/topic/741190.html",
 })
 
 

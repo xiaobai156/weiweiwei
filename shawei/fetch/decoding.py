@@ -18,9 +18,10 @@ def detect_html_charset(raw: bytes) -> str | None:
 
 def _decode_b64(value: str) -> str | None:
     try:
-        padded = value.strip() + ("=" * (-len(value.strip()) % 4))
-        return base64.b64decode(padded).decode("utf-8", errors="replace")
-    except Exception:
+        stripped = value.strip()
+        padded = stripped + ("=" * (-len(stripped) % 4))
+        return base64.b64decode(padded, validate=True).decode("utf-8")
+    except (ValueError, UnicodeDecodeError):
         return None
 
 

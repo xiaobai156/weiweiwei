@@ -10,7 +10,6 @@ from shawei.config.constants import (
     PERIOD_RE,
     QVUU_TWO_TAIL_PATTERNS,
     QVUU_TWO_TAIL_PROFILE_TOPICS,
-    TWO_TAIL_SITE_NAMES,
     TWO_TAIL_SITE_PARSERS,
 )
 from shawei.domain.text import is_bottom_pick, normalize_text
@@ -93,7 +92,7 @@ def _profile_item_document(item: dict, site_name: str) -> str:
 def _profile_topic_keyword(parser_name: str, site_name: str) -> str:
     if parser_name == "zcphjs_user_forums":
         return {"独特招牌": "精杀一尾", "朱红豆浆": "绝杀1尾"}.get(site_name, "绝杀一尾")
-    if site_name in TWO_TAIL_SITE_NAMES:
+    if parser_name in QVUU_TWO_TAIL_PROFILE_TOPICS:
         return "二尾"
     return "绝杀一尾"
 
@@ -105,23 +104,15 @@ def _qvuu_two_tail_target_values(
     if pattern is None:
         raise LookupError(f"未知Qvuu二尾格式解析器: {parser_name}")
     text = normalize_text(re.sub(r"<[^>]+>", " ", document))
-    matches: list[tuple[int, int]] = []
     for chunk in (part.strip() for part in PERIOD_CHUNK_RE.split(text) if part.strip()):
         period_match = PERIOD_RE.match(chunk)
         if period_match is None or int(period_match.group(1)) != target_period:
             continue
         match = pattern.search(chunk)
-        if match is not None:
-            matches.append((int(match.group(1)), int(match.group(2))))
-    if not matches:
-        raise LookupError(f"目标文章没有找到{target_period}期有效二尾数据")
-    unique_matches = set(matches)
-    if len(unique_matches) > 1:
-        values = "、".join("、".join(str(value) for value in item) for item in sorted(unique_matches))
-        raise LookupError(f"{target_period}期目标文章存在冲突二尾数据: {values}")
-    if len(matches) != 1:
-        raise LookupError(f"{target_period}期目标文章存在重复二尾候选")
-    return matches[0]
+        if match is None:
+            raise LookupError(f"目标文章没有找到{target_period}期有效二尾数据")
+        return int(match.group(1)), int(match.group(2))
+    raise LookupError(f"目标文章没有找到{target_period}期有效二尾数据")
 
 
 def _decode_qvuu_two_tail_profile_feed_json(
@@ -550,72 +541,3 @@ def decode_forum_detail_json(
     if docs:
         docs.append("\n".join(docs))
     return docs
-
-
-def decode_user_release_json(
-    text: str,
-    target_id: str | None = None,
-    expected_author: str = "",
-) -> list[str]:
-    try:
-        payload = json.loads(text)
-    except json.JSONDecodeError:
-        return []
-    data = payload.get("data") if isinstance(payload, dict) else None
-    items = data.get("list") if isinstance(data, dict) else None
-    if not isinstance(items, list):
-        return []
-    if not target_id:
-        raise LookupError("用户发布聚合接口缺少目标ID，禁止扫描整个响应")
-    matches = [
-        item
-        for item in items
-        if isinstance(item, dict) and _payload_id(item) == str(target_id)
-    ]
-    if len(matches) != 1:
-        raise LookupError(f"用户发布目标ID {target_id} 未匹配到唯一记录: {len(matches)} 条")
-    item = matches[0]
-    title = item.get("title")
-    body = item.get("content") or item.get("body")
-    if not isinstance(title, str) or not title.strip():
-        raise LookupError(f"用户发布目标ID {target_id} 标题字段缺失")
-    if not isinstance(body, str) or not body.strip():
-        raise LookupError(f"用户发布目标ID {target_id} 正文字段缺失")
-    author = item.get("authorNickname") or item.get("author")
-    if expected_author and (not isinstance(author, str) or normalize_text(author) != normalize_text(expected_author)):
-        raise LookupError(f"用户发布目标ID {target_id} 作者不匹配: {author or '缺失'}")
-    return [title, body, f"{title}\n{body}"]
-
-
-def decode_spa_user_forums_json(text: str, target_id: str | None = None) -> list[str]:
-    try:
-        payload = json.loads(text)
-    except json.JSONDecodeError:
-        return []
-    if not isinstance(payload, list):
-        return []
-    if not target_id:
-        raise LookupError("用户论坛聚合接口缺少目标ID，禁止扫描整个响应")
-    items = [item for item in payload if isinstance(item, dict) and str(item.get("id") or "") == str(target_id)]
-    if len(items) != 1:
-        raise LookupError(f"论坛目标ID {target_id} 未匹配到唯一记录: {len(items)} 条")
-    docs: list[str] = []
-    for item in items:
-        if not isinstance(item, dict):
-            continue
-        parts = [
-            str(value)
-            for key in ("draw", "topic", "content")
-            if (value := item.get(key)) is not None and str(value)
-        ]
-        user = item.get("user")
-        if isinstance(user, dict) and isinstance(user.get("nickname"), str):
-            parts.insert(0, user["nickname"])
-        if parts:
-            docs.append("\n".join(parts))
-    if docs:
-        docs.append("\n".join(docs))
-    return docs
-
-
-_QVUU_TWO_TAIL_PATTERNS = QVUU_TWO_TAIL_PATTERNS

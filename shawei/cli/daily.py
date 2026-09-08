@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-import time
 
 from shawei.config import sites as site_config
 from shawei.config.paths import RECENT_CACHE_PATH
@@ -11,14 +10,24 @@ from shawei.persistence.atomic_file import atomic_write_text
 from shawei.services import batch_crawl
 
 
-CACHE_UPDATE_SUCCESS_PERCENT = 85
-
-
 def should_update_cache(success_count: int, total_sites: int) -> bool:
-    """Allow a cache roll only when the live success ratio is strictly above 85%."""
-    if total_sites <= 0 or success_count < 0:
+    """Allow a cache roll for any valid finalized live-result count."""
+    if total_sites <= 0 or success_count < 0 or success_count > total_sites:
         return False
-    return success_count * 100 > total_sites * CACHE_UPDATE_SUCCESS_PERCENT
+    return True
+
+
+def _result_matches_site(site, result) -> bool:
+    if result.success_line:
+        if result.fail_line or not result.ranking_value:
+            return False
+        parsed = txt_writer.parse_success_line(result.success_line)
+        return bool(
+            parsed
+            and parsed[0] == site.name
+            and parsed[2] == result.ranking_value
+        )
+    return bool(result.fail_line) and result.ranking_value is None
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -32,12 +41,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # crawler clears the URL cache before this retry; a genuinely newer page
     # still fails the absolute top/bottom boundary check.
     parser.add_argument("--retries", default=1, type=int)
-    parser.add_argument("--missing-retries", default=2, type=int)
-    parser.add_argument("--missing-retry-delay", default=2, type=int)
-    parser.add_argument("--retry-failed-delay", default=0, type=int)
-    parser.add_argument("--retry-failed-workers", default=4, type=int)
-    parser.add_argument("--no-retry-failed", action="store_true", default=True)
-    parser.add_argument("--retry-failed", action="store_false", dest="no_retry_failed")
     parser.add_argument("--no-update-cache", action="store_true")
     return parser.parse_args(argv)
 
@@ -56,8 +59,6 @@ def _crawl(
         args.timeout,
         retries=retries,
         workers=workers,
-        missing_retries=args.missing_retries,
-        missing_retry_delay=args.missing_retry_delay,
         show_progress=True,
     )
 
@@ -67,9 +68,13 @@ def _write_outputs(period: int, args: argparse.Namespace, results):
     success_path = txt_writer.resolve_success_path(args.success or default_success)
     failure_path = txt_writer.resolve_failure_path(args.fail or default_failure)
     success_lines = [result.success_line for result in results if result.success_line]
-    ranking_values = [result.ranking_value for result in results if result.ranking_value]
+    ranking_values = [
+        result.ranking_value
+        for result in results
+        if result.success_line and result.ranking_value
+    ]
     failure_lines = [result.fail_line for result in results if result.fail_line]
-    ranked = txt_writer.format_ranking(success_lines, ranking_values)
+    ranked = txt_writer.format_single_period_success(success_lines, ranking_values)
     atomic_write_text(
         success_path,
         "\n".join(ranked) + ("\n" if ranked else ""),
@@ -108,34 +113,27 @@ def main(argv: list[str] | None = None) -> int:
     indexed = list(enumerate(sites, start=1))
     # The live crawl and unified validation decide success/failure from this
     # run's documents only; the disk cache is not consulted in this phase.
-    results_by_index = {
-        result.index: result
-        for result in _crawl(indexed, len(sites), args, args.retries, max(1, args.workers))
-    }
-
-    if not args.no_retry_failed:
-        failed_indexes = sorted(
-            index
-            for index, result in results_by_index.items()
-            if result.fail_line and txt_writer.is_retryable_failure_line(result.fail_line)
-        )
-        if failed_indexes:
-            delay = max(0, int(args.retry_failed_delay or 0))
-            print(f"\n失败站点二次补跑: {len(failed_indexes)} 条")
-            if delay:
-                print(f"等待 {delay} 秒后开始补跑...")
-                time.sleep(delay)
-            retry_sites = [(index, sites[index - 1]) for index in failed_indexes]
-            for result in _crawl(
-                retry_sites,
-                len(sites),
-                args,
-                max(args.retries, 1),
-                max(1, args.retry_failed_workers),
-            ):
-                results_by_index[result.index] = result
-
-    ordered = [results_by_index[index] for index in sorted(results_by_index)]
+    results = _crawl(indexed, len(sites), args, args.retries, max(1, args.workers))
+    if len(results) != len(sites):
+        print("批量抓取结果不完整、重复或索引越界，拒绝覆盖正式输出", file=sys.stderr)
+        return 1
+    result_indexes: list[int] = []
+    for result in results:
+        index = getattr(result, "index", None)
+        if type(index) is not int:
+            print("批量抓取结果不完整、重复或索引越界，拒绝覆盖正式输出", file=sys.stderr)
+            return 1
+        result_indexes.append(index)
+    if sorted(result_indexes) != list(range(1, len(sites) + 1)):
+        print("批量抓取结果不完整、重复或索引越界，拒绝覆盖正式输出", file=sys.stderr)
+        return 1
+    ordered = sorted(results, key=lambda result: result.index)
+    if any(
+        not _result_matches_site(site, result)
+        for site, result in zip(sites, ordered)
+    ):
+        print("批量抓取结果字段矛盾或站点身份不匹配，拒绝覆盖正式输出", file=sys.stderr)
+        return 1
     # Finalize the current run's TXT outputs before any cache persistence.
     success_path, failure_path, wrote_failure, successes, failures = _write_outputs(
         args.period, args, ordered
@@ -153,11 +151,7 @@ def main(argv: list[str] | None = None) -> int:
         print("最近10期缓存: 本次按参数要求不更新")
         return 0
     if not should_update_cache(len(successes), len(sites)):
-        success_percent = (len(successes) / len(sites) * 100) if sites else 0
-        print(
-            f"最近10期缓存: 成功 {len(successes)}/{len(sites)} "
-            f"({success_percent:.2f}%) 未超过85%，本次不更新"
-        )
+        print("最近10期缓存: 实时结果计数无效，本次不更新")
         return 0
     # Cache is updated only after realtime judgement/output is complete.  It
     # is used for new-site duplicate detection, never to alter this run.  The

@@ -42,19 +42,28 @@ def parse_fail_file(path: Path) -> dict[str, str]:
         return {}
     failures: dict[str, str] = {}
     for line in lines:
-        match = re.match(r"失败\s+(.+?)\s+(\S+)\s+原因:\s*(.*)$", line.strip())
-        if match:
-            name, _url, reason = match.groups()
-            failures[name] = reason or "失败原因为空"
+        text = line.strip()
+        if not text.startswith("失败 "):
+            continue
+        body = text[len("失败 "):]
+        if " 原因:" not in body:
+            continue
+        prefix, reason = body.rsplit(" 原因:", 1)
+        if " 方向:" in prefix:
+            name_url, metadata = prefix.split(" 方向:", 1)
+            if not re.fullmatch(r"\s*\S+\s+期数:\s*\d+\s+阶段:\s*\S.*", metadata):
+                continue
+        else:
+            name_url = prefix
+        parts = name_url.strip().rsplit(None, 1)
+        if len(parts) != 2:
+            continue
+        name, _url = parts
+        failures[name] = reason.strip() or "失败原因为空"
     return failures
 
 
 def run_period(period: int, timeout: int | None, workers: int | None) -> int:
-    success_name, failure_name = txt_writer.default_current_output_names(period)
-    success_path = txt_writer._resolve_path(success_name)
-    failure_path = txt_writer._resolve_failure_path(failure_name)
-    success_path.unlink(missing_ok=True)
-    failure_path.unlink(missing_ok=True)
     command = [
         sys.executable,
         str(ROOT_DIR / "shawei_crawler.py"),
@@ -70,15 +79,27 @@ def run_period(period: int, timeout: int | None, workers: int | None) -> int:
     return int(completed.returncode)
 
 
-def build_summary(periods: list[int], output: Path | None = None) -> Path:
+def build_summary(
+    periods: list[int],
+    output: Path | None = None,
+    run_codes: dict[int, int] | None = None,
+) -> Path:
     sites = duplicate_check.configured_sites()
     successes_by_period: dict[int, set[str]] = {}
     failures_by_period: dict[int, dict[str, str]] = {}
     for period in periods:
+        code = (run_codes or {}).get(period, 0)
+        if code != 0:
+            successes_by_period[period] = set()
+            failures_by_period[period] = {
+                site.name: f"单期子进程退出码{code}，本轮输出无效"
+                for site in sites
+            }
+            continue
         success_name, failure_name = txt_writer.default_current_output_names(period)
-        success_path = txt_writer._resolve_path(success_name)
-        failure_path = txt_writer._resolve_failure_path(failure_name)
-        successes_by_period[period] = set(txt_writer._read_existing_successes(success_path))
+        success_path = txt_writer.resolve_success_path(success_name)
+        failure_path = txt_writer.resolve_failure_path(failure_name)
+        successes_by_period[period] = set(txt_writer.read_existing_successes(success_path))
         failures_by_period[period] = parse_fail_file(failure_path)
 
     lines = [

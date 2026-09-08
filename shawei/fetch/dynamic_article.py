@@ -8,14 +8,18 @@ from shawei.domain.text import normalize_text
 from shawei.fetch.decoding import _decode_b64, strip_html_tags
 
 
+class DynamicArticleEmptyShellError(LookupError):
+    """The target article identity is known, but its API body is empty."""
+
+
+class DynamicArticleNotFoundError(LookupError):
+    """Every configured API endpoint returned HTTP 404 for the target article."""
+
+
 def dynamic_article_id(url: str) -> str:
     parsed = urlparse(url)
-    match = re.search(r"/article/(?:admin|manager)/([^/?#]+)", parsed.path)
+    match = re.search(r"/article/(?:admin|manager|lottery)/([^/?#]+)", parsed.path)
     return match.group(1) if match else ""
-
-
-def is_manager_article_url(url: str) -> bool:
-    return bool(re.search(r"/article/manager/[^/?#]+", urlparse(url).path))
 
 
 def is_dynamic_article_url(url: str) -> bool:
@@ -71,7 +75,7 @@ def _validate_article_payload(article: dict, target_id: str, expected_author: st
     if not isinstance(title, str) or not title.strip():
         raise LookupError(f"目标ID {target_id} 标题字段缺失")
     if not isinstance(body, str) or not body.strip():
-        raise LookupError(f"目标ID {target_id} 正文字段缺失")
+        raise DynamicArticleEmptyShellError(f"目标ID {target_id} 正文字段缺失")
     if expected_author and normalize_text(author) != normalize_text(expected_author):
         raise LookupError(f"目标ID {target_id} 作者不匹配: {author}")
 
@@ -100,10 +104,14 @@ def admin_article_api_urls(url: str) -> list[str]:
 
 def manager_article_api_urls(url: str) -> list[str]:
     parsed = urlparse(url)
-    match = re.search(r"/article/(?:admin|manager)/([^/?#]+)", parsed.path)
+    match = re.search(r"/article/(?:admin|manager|lottery)/([^/?#]+)", parsed.path)
     if not match:
         return []
     return [f"{parsed.scheme}://{parsed.netloc}/api/proxy/manager-articles/{match.group(1)}"]
+
+
+def dynamic_article_api_urls(url: str) -> list[str]:
+    return list(dict.fromkeys(admin_article_api_urls(url) + manager_article_api_urls(url)))
 
 
 def is_admin_article_url(url: str) -> bool:
@@ -160,13 +168,13 @@ def decode_landing_page_admin_article_json(
 ) -> list[str]:
     try:
         payload = json.loads(text)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise LookupError(f"目标ID {target_id} 接口响应不是有效JSON") from exc
     if not isinstance(payload, dict):
-        return []
+        raise LookupError(f"目标ID {target_id} 接口响应不是JSON对象")
     section_data = payload.get("sectionData")
     if not isinstance(section_data, dict):
-        return []
+        raise LookupError(f"目标ID {target_id} 栏目数据缺失")
 
     matches: list[tuple[str, dict]] = []
     for section_key, section in section_data.items():
