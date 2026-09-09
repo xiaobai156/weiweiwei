@@ -48,7 +48,7 @@ _DEDICATED_EXACT_EVIDENCE_PARSERS = frozenset(
         "liuxuan_zhjs_tail",
         "caifu_gaoshou_kill_table",
         "ttss_list_article_top_tail",
-        "kaijiangfacai_table_tail",
+        "kaijiangfacai_combined_kill_table",
     }
 )
 
