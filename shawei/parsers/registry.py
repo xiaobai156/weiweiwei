@@ -10,6 +10,7 @@ from shawei.parsers.common import (
     extract_user_feed_records,
 )
 from shawei.parsers.dedicated import extract_dedicated_records
+from shawei.parsers.safe_static_article import extract_safe_static_article_body_records
 
 
 Parser = Callable[..., list]
@@ -25,8 +26,26 @@ SOURCE_PARSERS: dict[str, Parser] = {
 }
 
 
+_STATIC_ARTICLE_PARSERS = frozenset({
+    "article_static_single_tail",
+    "article_static_two_tail",
+})
+
+
 def parse_source(source: str, document: str, site_name: str, **kwargs):
     parser = SOURCE_PARSERS.get(source)
     if parser is None:
         raise LookupError(f"未知解析来源，拒绝兜底: {source}")
+    parser_name = str(kwargs.get("parser_name") or "")
+    if source == "dedicated" and parser_name in _STATIC_ARTICLE_PARSERS:
+        return extract_safe_static_article_body_records(
+            document,
+            site_name,
+            kwargs.get("chunk_keywords") or (),
+            two_tail=parser_name == "article_static_two_tail",
+            exclude_keywords=kwargs.get("exclude_keywords") or (),
+            max_chunk_span=int(kwargs.get("max_chunk_span") or 240),
+            require_draw_signal=bool(kwargs.get("require_draw_signal", True)),
+            require_site_keyword=bool(kwargs.get("require_site_keyword", True)),
+        )
     return parser(document, site_name, **kwargs)
