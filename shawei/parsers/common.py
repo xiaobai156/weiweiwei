@@ -16,12 +16,19 @@ class TableParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.rows: list[list[str]] = []
+        self.tables: list[list[list[str]]] = []
         self._row: list[str] | None = None
         self._cell: list[str] | None = None
+        self._table: list[list[str]] | None = None
+        self._table_depth = 0
 
     def handle_starttag(self, tag: str, attrs) -> None:
         lowered = tag.lower()
-        if lowered == "tr":
+        if lowered == "table":
+            if self._table_depth == 0:
+                self._table = []
+            self._table_depth += 1
+        elif lowered == "tr":
             self._row = []
         elif lowered in {"td", "th"} and self._row is not None:
             self._cell = []
@@ -34,8 +41,16 @@ class TableParser(HTMLParser):
         elif lowered == "tr" and self._row is not None:
             if self._row:
                 self.rows.append(self._row)
+                if self._table is not None:
+                    self._table.append(self._row)
             self._row = None
             self._cell = None
+        elif lowered == "table" and self._table_depth:
+            self._table_depth -= 1
+            if self._table_depth == 0:
+                if self._table:
+                    self.tables.append(self._table)
+                self._table = None
 
     def handle_data(self, data: str) -> None:
         if self._cell is not None:
@@ -43,14 +58,18 @@ class TableParser(HTMLParser):
 
 
 def extract_tail_number(text: str) -> int | None:
+    """Return exactly one tail digit from one field; never truncate ambiguity."""
     normalized = normalize_text(text)
-    match = TAIL_RE.search(normalized)
-    if match:
-        return int(match.group(1)[-1])
-    bracket_match = re.fullmatch(r"[\[\(【《]?\s*(\d{1,3})\s*[\]\)】》]?", normalized)
-    if bracket_match:
-        return int(bracket_match.group(1)[-1])
-    chinese_match = re.search(r"([零〇一二三四五六七八九])\s*尾", normalized)
+    numeric_match = re.fullmatch(
+        r"[\[\(]?\s*(\d)\s*(?:尾)?\s*[\]\)]?",
+        normalized,
+    )
+    if numeric_match:
+        return int(numeric_match.group(1))
+    chinese_match = re.fullmatch(
+        r"[\[\(]?\s*([零〇一二三四五六七八九])\s*尾\s*[\]\)]?",
+        normalized,
+    )
     if chinese_match:
         return CHINESE_DIGITS[chinese_match.group(1)]
     return None
@@ -112,8 +131,16 @@ def is_two_tail_site_url(url: str) -> bool:
 
 
 def _prediction_text(chunk: str) -> str:
-    head = re.split(r"\b开\s*[:：?\uff1f]?", normalize_text(chunk), maxsplit=1)[0]
-    return head.strip()
+    normalized = normalize_text(chunk)
+    # Only a real draw marker ends the prediction.  This avoids treating the
+    # draw number as a tail while not cutting ordinary words such as 开奖栏目.
+    draw_boundary = re.search(
+        r"开\s*[:：?？]?\s*(?=(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪]\s*)?\d|\?)",
+        normalized,
+    )
+    if draw_boundary is not None:
+        normalized = normalized[: draw_boundary.start()]
+    return normalized.strip()
 
 
 def _extract_tail_value(chunk: str) -> int | None:
@@ -122,11 +149,20 @@ def _extract_tail_value(chunk: str) -> int | None:
         return None
     for pattern in TAIL_PATTERNS:
         match = pattern.search(prediction)
-        if match:
-            matched_text = normalize_text(match.group(0)).replace(" ", "")
-            if match.group(1) == "1" and re.fullmatch(r"(?:绝杀|精准杀|稳杀|狠杀|主杀|课杀|杀掉|禁|杀)1尾", matched_text):
-                continue
-            return int(match.group(1)[-1])
+        if not match:
+            continue
+        raw_value = match.group(1)
+        if re.fullmatch(r"\d", raw_value) is None:
+            continue
+        matched_text = normalize_text(match.group(0)).replace(" ", "")
+        if raw_value == "1" and re.fullmatch(r"(?:绝杀|精准杀|稳杀|狠杀|主杀|课杀|杀掉|禁|杀)1尾", matched_text):
+            continue
+        # A single-tail parser must not silently select one value from a
+        # multi-tail field such as 2、3尾 or 1尾 8尾.
+        suffix = prediction[match.end() : match.end() + 16]
+        if re.match(r"\s*(?:尾\s*)?(?:[、,，.．+＋/]\s*)?\d\s*尾", suffix):
+            continue
+        return int(raw_value)
     return None
 
 
@@ -199,44 +235,51 @@ def extract_table_records(
         return []
 
     records: list[Record] = []
-    tail_index: int | None = None
-    draw_index: int | None = None
+    table_groups = parser.tables or ([parser.rows] if parser.rows else [])
 
-    for row in parser.rows:
-        row_text = " ".join(normalize_text(cell) for cell in row)
-        if tail_index is None:
+    for table_rows in table_groups:
+        tail_index: int | None = None
+        draw_index: int | None = None
+        for row in table_rows:
+            row_text = " ".join(normalize_text(cell) for cell in row)
+            detected_tail: int | None = None
+            detected_draw: int | None = None
             for index, cell in enumerate(row):
                 normalized = normalize_text(cell)
                 if contains_any(normalized, table_headers) or ("禁" in normalized and "尾" in normalized):
-                    tail_index = index
+                    detected_tail = index
                 if "开奖结果" in normalized or "开奖" in normalized:
-                    draw_index = index
-            if table_required_headers and not contains_any(row_text, table_required_headers):
-                tail_index = None
-                draw_index = None
+                    detected_draw = index
+
+            if detected_tail is not None:
+                if table_required_headers and not all(
+                    header in row_text for header in table_required_headers
+                ):
+                    tail_index = None
+                    draw_index = None
+                    continue
+                tail_index = detected_tail
+                draw_index = detected_draw
                 continue
-            if table_required_headers and not all(header in row_text for header in table_required_headers):
-                tail_index = None
-                draw_index = None
-            continue
-        if tail_index is None or tail_index >= len(row):
-            continue
-        if exclude_keywords and not contains_none(row_text, exclude_keywords):
-            continue
-        period_match = PERIOD_RE.search(" ".join(row[:1]))
-        tail_number = extract_tail_number(row[tail_index])
-        if not period_match or tail_number is None:
-            continue
-        draw_source = row[draw_index] if draw_index is not None and draw_index < len(row) else " ".join(row)
-        records.append(
-            Record(
-                tail=tail_number,
-                period=int(period_match.group(1)),
-                site_name=site_name,
-                draw_text=extract_draw_text(draw_source),
-                source_snippet=_compact_snippet(row_text),
+
+            if tail_index is None or tail_index >= len(row):
+                continue
+            if exclude_keywords and not contains_none(row_text, exclude_keywords):
+                continue
+            period_match = PERIOD_RE.search(" ".join(row[:1]))
+            tail_number = extract_tail_number(row[tail_index])
+            if not period_match or tail_number is None:
+                continue
+            draw_source = row[draw_index] if draw_index is not None and draw_index < len(row) else " ".join(row)
+            records.append(
+                Record(
+                    tail=tail_number,
+                    period=int(period_match.group(1)),
+                    site_name=site_name,
+                    draw_text=extract_draw_text(draw_source),
+                    source_snippet=_compact_snippet(row_text),
+                )
             )
-        )
     return records
 
 
@@ -391,10 +434,13 @@ def extract_user_feed_records(
             continue
         if exclude_keywords and not contains_none(snippet, exclude_keywords):
             continue
+        raw_tail = match.group(2)
+        if re.fullmatch(r"\d", raw_tail) is None:
+            continue
         draw_text = extract_draw_text(snippet)
         records.append(
             Record(
-                tail=int(match.group(2)[-1]),
+                tail=int(raw_tail),
                 period=int(match.group(1)),
                 site_name=site_name,
                 draw_text=draw_text,
