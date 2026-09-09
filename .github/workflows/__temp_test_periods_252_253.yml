@@ -25,7 +25,7 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Validate configured sites for 253 or 252
-        run: python tools/validate_periods_252_253.py
+        run: PYTHONPATH=. python tools/validate_periods_252_253.py
 
       - name: Upload validation report
         if: always()
