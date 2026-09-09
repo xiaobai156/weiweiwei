@@ -24,6 +24,8 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Validate configured sites for 253 or 252
+        env:
+          PYTHONPATH: .
         run: python tools/validate_periods_252_253.py
 
       - name: Upload validation report
