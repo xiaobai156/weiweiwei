@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from shawei.parsers import topic as topic_parser_module
 from shawei.parsers.common import (
     extract_absolute_kill_section_records,
     extract_compact_records,
@@ -9,8 +10,15 @@ from shawei.parsers.common import (
     extract_table_records,
     extract_user_feed_records,
 )
+
+# Every topic parser that consumes DOM text must see source order.  The legacy
+# helper grouped parent text before child text and could reorder period/value
+# pairs.  Keep one authoritative implementation for all existing topic paths.
+topic_parser_module._dynamic_node_text = topic_parser_module._dynamic_node_text_in_order
+
 from shawei.parsers.dedicated import extract_dedicated_records
 from shawei.parsers.safe_static_article import extract_safe_static_article_body_records
+from shawei.parsers.safety_guards import enforce_parsed_records
 
 
 Parser = Callable[..., list]
@@ -38,7 +46,7 @@ def parse_source(source: str, document: str, site_name: str, **kwargs):
         raise LookupError(f"未知解析来源，拒绝兜底: {source}")
     parser_name = str(kwargs.get("parser_name") or "")
     if source == "dedicated" and parser_name in _STATIC_ARTICLE_PARSERS:
-        return extract_safe_static_article_body_records(
+        records = extract_safe_static_article_body_records(
             document,
             site_name,
             kwargs.get("chunk_keywords") or (),
@@ -48,4 +56,12 @@ def parse_source(source: str, document: str, site_name: str, **kwargs):
             require_draw_signal=bool(kwargs.get("require_draw_signal", True)),
             require_site_keyword=bool(kwargs.get("require_site_keyword", True)),
         )
-    return parser(document, site_name, **kwargs)
+    else:
+        records = parser(document, site_name, **kwargs)
+    return enforce_parsed_records(
+        records,
+        source=source,
+        parser_name=parser_name,
+        document=document,
+        site_name=site_name,
+    )

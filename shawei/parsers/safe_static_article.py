@@ -17,11 +17,10 @@ _SINGLE_VALUE_RE = re.compile(r"\s*(\d)\s*尾?\s*")
 _TWO_VALUE_RE = re.compile(
     r"\s*(\d)\s*尾?\s*(?:[,，、.]|．)\s*(\d)\s*尾?\s*"
 )
-_OTHER_FIELD_RE = re.compile(
-    r"(?:杀|禁)\s*(?:一|1)?\s*(?:肖|头|半波)|"
-    r"(?:杀|禁)\s*(?:肖|头|半波)|平特一肖|尾数统计|开\s*[:：?？]?"
-)
 _BRACKET_RE = re.compile(r"[\[(]([^\]\)]{1,40})[\])]")
+_ALLOWED_VALUE_PREFIX_RE = re.compile(
+    r"^[\s:：=◆◇〓\-—_~*#、，,.．。+＋]*$"
+)
 
 
 def _split_period_rows(row: str) -> list[str]:
@@ -61,10 +60,10 @@ def _value_after_keyword(
     bracket = _BRACKET_RE.search(suffix)
     if bracket is None:
         return None
-    prefix = suffix[: bracket.start()]
-    # Once another field or the draw marker begins, later brackets can never
-    # be borrowed as this tail field's value.
-    if _OTHER_FIELD_RE.search(prefix):
+    prefix = normalize_text(suffix[: bracket.start()])
+    # The target value must immediately follow the tail field.  Arbitrary
+    # words such as 推荐/杀码/杀头 cannot sit between the tail label and value.
+    if _ALLOWED_VALUE_PREFIX_RE.fullmatch(prefix) is None:
         return None
 
     value_text = normalize_text(bracket.group(1))
