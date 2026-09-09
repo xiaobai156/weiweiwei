@@ -21,7 +21,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install chromium
 
       - name: Validate configured sites for 253 or 252
         env:
