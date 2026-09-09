@@ -1,7 +1,9 @@
 import pytest
+from urllib.error import URLError
 
 from shawei.config.rules import effective_rule_for
 from shawei.domain.models import Document
+from shawei.fetch import document_discovery
 from shawei.fetch.profile import _qvuu_two_tail_target_values
 from shawei.parsers.dedicated import extract_dedicated_records
 from shawei.validation.validator import validate_documents
@@ -16,6 +18,42 @@ WANXIANG_URL = "https://mm.676626m.com:1888/bbs/8023"
 RENZENG_URL = "https://mm.676626m.com:1888/bbs/8030"
 NALAWANZHI_URL = "https://sfch0f.ky3r5-0b4c9-yudwqy.work/topic/240474.html"
 SAODI_URL = "https://rh2fgz.a96ub-s6g0d-mfbdwp.work/topic/225941.html"
+LIUXUAN_URL = "https://lx11.www87127b.com:8443/#87127"
+
+
+def test_liuxuan_retries_transient_tls_failure_per_document(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    loader_url = "https://lx11.www87127b.com:8443/yjjy/wenzhang.js"
+    detail_url = "https://lx11.www87127b.com:8443/915577.html"
+    zhjs_url = "https://lx11.www87127b.com:8443/cj/zhjs.js"
+    documents = {
+        LIUXUAN_URL: '<script src="/yjjy/wenzhang.js"></script>',
+        loader_url: "loader",
+        detail_url: '<title>六玄网论坛</title><div id="zhjs"><script src="/cj/zhjs.js"></script></div>',
+        zhjs_url: "澳彩六玄网[综合绝杀] 澳彩最准开奖:87127.com",
+    }
+    calls: list[str] = []
+    attempts: dict[str, int] = {}
+
+    def flaky_fetch(url: str, _timeout: int) -> str:
+        calls.append(url)
+        attempts[url] = attempts.get(url, 0) + 1
+        if url == LIUXUAN_URL and attempts[url] == 1:
+            raise URLError("EOF")
+        return documents[url]
+
+    monkeypatch.setattr(document_discovery, "fetch_text", flaky_fetch)
+    monkeypatch.setattr(
+        document_discovery,
+        "decode_document_writeln_html",
+        lambda text: '<iframe src="/915577.html"></iframe>' if text == "loader" else text,
+    )
+
+    result = document_discovery.collect_liuxuan_documents(LIUXUAN_URL, timeout=8)
+
+    assert len(result) == 5
+    assert calls[:2] == [LIUXUAN_URL, LIUXUAN_URL]
 
 
 def test_shenshan_uses_only_the_published_topic_body_parser() -> None:

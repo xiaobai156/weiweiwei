@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import html
 import re
+from urllib.error import URLError
 from urllib.parse import parse_qs, urljoin, urlparse
 
 from shawei.config.constants import LIUXUAN_SITE_URL, SCRIPT_SRC_RE, STRICT_BOUNDARY_WINDOW
@@ -125,7 +126,16 @@ def collect_followed_link_documents(
 
 
 def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
-    page = fetch_text(url, timeout)
+    def fetch_liuxuan_text(target_url: str) -> str:
+        for attempt in range(2):
+            try:
+                return fetch_text(target_url, timeout)
+            except (ConnectionError, TimeoutError, URLError):
+                if attempt == 1:
+                    raise
+        raise AssertionError("六玄网传输重试未返回")
+
+    page = fetch_liuxuan_text(url)
     loader_urls = [
         urljoin(url, match.group(2))
         for match in SCRIPT_SRC_RE.finditer(page)
@@ -135,7 +145,7 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
         raise LookupError(f"六玄网入口脚本未唯一匹配: {len(loader_urls)} 条")
 
     loader_url = loader_urls[0]
-    loader = fetch_text(loader_url, timeout)
+    loader = fetch_liuxuan_text(loader_url)
     loader_html = decode_document_writeln_html(loader)
     iframe_matches = re.findall(
         r"<iframe\b[^>]*\bsrc\s*=\s*['\"]([^'\"]+)['\"]",
@@ -150,7 +160,7 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
     if (detail.scheme, detail.netloc) != (root.scheme, root.netloc):
         raise LookupError("六玄网正文iframe越出原始站点边界")
 
-    detail_page = fetch_text(detail_url, timeout)
+    detail_page = fetch_liuxuan_text(detail_url)
     if "六玄网论坛" not in normalize_text(detail_page):
         raise LookupError("六玄网正文页标题锚点不匹配")
     zhjs_match = re.search(
@@ -165,7 +175,7 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
     if (urlparse(zhjs_url).scheme, urlparse(zhjs_url).netloc) != (root.scheme, root.netloc):
         raise LookupError("六玄网综合绝杀脚本越出原始站点边界")
 
-    zhjs_script = fetch_text(zhjs_url, timeout)
+    zhjs_script = fetch_liuxuan_text(zhjs_url)
     zhjs_html = decode_document_writeln_html(zhjs_script)
     normalized = normalize_text(re.sub(r"<[^>]+>", " ", zhjs_html))
     compact = normalized.replace(" ", "")
