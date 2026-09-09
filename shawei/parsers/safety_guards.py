@@ -25,9 +25,6 @@ _STRICT_SINGLE_TAIL_PATTERNS = (
         rf"[\[(]?\s*(\d)\s*[\])]?\s*尾"
     ),
 )
-_CUSTOM_MULTI_DIGIT_TAIL_RE = re.compile(
-    rf"{_ACTION}[^开\r\n]{{0,28}}?(\d{{2,3}})\s*尾?"
-)
 
 
 def _prediction_only(text: str) -> str:
@@ -63,8 +60,7 @@ def _has_ambiguous_multi_digit_tail(text: str) -> bool:
             value = match.group(1)
             if isinstance(value, str) and len(value) > 1:
                 return True
-    custom = _CUSTOM_MULTI_DIGIT_TAIL_RE.search(prediction)
-    return bool(custom and len(custom.group(1)) > 1)
+    return False
 
 
 def _has_strict_single_tail_evidence(text: str, expected_tail: int) -> bool:
