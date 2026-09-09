@@ -135,6 +135,10 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
                     raise
         raise AssertionError("六玄网传输重试未返回")
 
+    def register_child(target_url: str) -> None:
+        with FETCH_CACHE_LOCK:
+            FETCH_CHILDREN.setdefault(url, set()).add(target_url)
+
     page = fetch_liuxuan_text(url)
     loader_urls = [
         urljoin(url, match.group(2))
@@ -145,6 +149,7 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
         raise LookupError(f"六玄网入口脚本未唯一匹配: {len(loader_urls)} 条")
 
     loader_url = loader_urls[0]
+    register_child(loader_url)
     loader = fetch_liuxuan_text(loader_url)
     loader_html = decode_document_writeln_html(loader)
     iframe_matches = re.findall(
@@ -159,6 +164,7 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
     detail = urlparse(detail_url)
     if (detail.scheme, detail.netloc) != (root.scheme, root.netloc):
         raise LookupError("六玄网正文iframe越出原始站点边界")
+    register_child(detail_url)
 
     detail_page = fetch_liuxuan_text(detail_url)
     if "六玄网论坛" not in normalize_text(detail_page):
@@ -174,6 +180,7 @@ def collect_liuxuan_documents(url: str, timeout: int) -> list[str]:
     zhjs_url = urljoin(detail_url, zhjs_match.group(2))
     if (urlparse(zhjs_url).scheme, urlparse(zhjs_url).netloc) != (root.scheme, root.netloc):
         raise LookupError("六玄网综合绝杀脚本越出原始站点边界")
+    register_child(zhjs_url)
 
     zhjs_script = fetch_liuxuan_text(zhjs_url)
     zhjs_html = decode_document_writeln_html(zhjs_script)
