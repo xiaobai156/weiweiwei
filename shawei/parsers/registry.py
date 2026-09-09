@@ -2,19 +2,26 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from shawei.parsers import common as common_parser_module
 from shawei.parsers import topic as topic_parser_module
 from shawei.parsers.common import (
     extract_absolute_kill_section_records,
     extract_compact_records,
     extract_lead_compact_records,
-    extract_table_records,
     extract_user_feed_records,
 )
+from shawei.parsers.safe_table import StrictTableParser, extract_strict_table_records
 
 # Every topic parser that consumes DOM text must see source order.  The legacy
 # helper grouped parent text before child text and could reorder period/value
 # pairs.  Keep one authoritative implementation for all existing topic paths.
 topic_parser_module._dynamic_node_text = topic_parser_module._dynamic_node_text_in_order
+
+# Dedicated parsers import TableParser/extract_table_records from common at
+# module import time.  Patch those shared entry points before importing
+# dedicated so every table path gets the strict table-scope implementation.
+common_parser_module.TableParser = StrictTableParser
+common_parser_module.extract_table_records = extract_strict_table_records
 
 from shawei.parsers.dedicated import extract_dedicated_records
 from shawei.parsers.safe_static_article import extract_safe_static_article_body_records
@@ -26,7 +33,7 @@ Parser = Callable[..., list]
 
 SOURCE_PARSERS: dict[str, Parser] = {
     "section": extract_absolute_kill_section_records,
-    "table": extract_table_records,
+    "table": extract_strict_table_records,
     "compact": extract_compact_records,
     "dedicated": extract_dedicated_records,
     "user_feed": extract_user_feed_records,
