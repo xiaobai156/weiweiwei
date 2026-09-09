@@ -1,0 +1,36 @@
+name: temp-test-periods-252-253
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test/periods-252-253-20260910
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install browser runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Validate configured sites for 253 or 252
+        run: python tools/validate_periods_252_253.py
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: periods-252-253-report
+          path: periods_252_253_report.json
+          if-no-files-found: warn
