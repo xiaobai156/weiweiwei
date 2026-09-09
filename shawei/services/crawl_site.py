@@ -37,7 +37,11 @@ from shawei.fetch.profile import (
     is_dynamic_scoped_url,
 )
 from shawei.parsers.common import extract_tail_value, is_valid_tail_record
-from shawei.parsers.topic import _DynamicHtmlNode, _DynamicHtmlParser, _dynamic_node_text
+from shawei.parsers.topic import (
+    _DynamicHtmlNode,
+    _DynamicHtmlParser,
+    _dynamic_node_text_in_order,
+)
 from shawei.validation.validator import select_current_record, validate_documents
 
 
@@ -155,25 +159,59 @@ def _article_admin_failure_reason(
     return "article/admin专属抓取失败(" + "；".join(reasons) + ")"
 
 
-def _dynamic_node_has_target(node: _DynamicHtmlNode, target_id: str) -> bool:
-    identity_attributes = {
-        "id",
-        "data-id",
-        "data-article-id",
-        "data-articleid",
-        "data-topic-id",
-        "data-record-id",
-        "data-post-id",
-        "href",
-    }
-    return any(
-        key in identity_attributes
-        and (
-            value == target_id
-            or re.search(rf"(?<![A-Za-z0-9]){re.escape(target_id)}(?![A-Za-z0-9])", value)
+_DYNAMIC_IDENTITY_ATTRIBUTES = {
+    "id",
+    "data-id",
+    "data-article-id",
+    "data-articleid",
+    "data-topic-id",
+    "data-record-id",
+    "data-post-id",
+}
+_DYNAMIC_EXPLICIT_RECORD_ID_ATTRIBUTES = {
+    "data-id",
+    "data-article-id",
+    "data-articleid",
+    "data-topic-id",
+    "data-record-id",
+    "data-post-id",
+}
+
+
+def _attribute_matches_target(value: str, target_id: str) -> bool:
+    return bool(
+        value == target_id
+        or re.search(
+            rf"(?<![A-Za-z0-9]){re.escape(target_id)}(?![A-Za-z0-9])",
+            value,
         )
+    )
+
+
+def _dynamic_node_has_target(node: _DynamicHtmlNode, target_id: str) -> bool:
+    # A navigation/link href is not article identity.  Only identity carried by
+    # the DOM record itself can authorize a browser-fallback block.
+    if node.tag == "a":
+        return False
+    return any(
+        key in _DYNAMIC_IDENTITY_ATTRIBUTES
+        and _attribute_matches_target(value, target_id)
         for key, value in node.attrs.items()
     )
+
+
+def _dynamic_explicit_record_ids(node: _DynamicHtmlNode) -> set[str]:
+    values: set[str] = set()
+    pending = [node]
+    while pending:
+        current = pending.pop()
+        if current.tag in {"script", "style", "noscript"}:
+            continue
+        for key, value in current.attrs.items():
+            if key in _DYNAMIC_EXPLICIT_RECORD_ID_ATTRIBUTES and value.strip():
+                values.add(value.strip())
+        pending.extend(current.children)
+    return values
 
 
 def _dynamic_target_blocks(document: str, target_id: str) -> list[str]:
@@ -184,7 +222,7 @@ def _dynamic_target_blocks(document: str, target_id: str) -> list[str]:
     except Exception:
         return []
     blocks: list[str] = []
-    block_tags = {"article", "section", "li", "div", "main"}
+    block_tags = {"article", "section", "li", "div"}
     pending = [parser.root]
     while pending:
         node = pending.pop()
@@ -194,7 +232,16 @@ def _dynamic_target_blocks(document: str, target_id: str) -> list[str]:
             candidate = node
             while candidate.parent is not None and candidate.tag not in block_tags:
                 candidate = candidate.parent
-            text = _dynamic_node_text(candidate)
+            if candidate.tag not in block_tags:
+                pending.extend(reversed(node.children))
+                continue
+            explicit_ids = _dynamic_explicit_record_ids(candidate)
+            if explicit_ids and (
+                target_id not in explicit_ids or len(explicit_ids) != 1
+            ):
+                pending.extend(reversed(node.children))
+                continue
+            text = _dynamic_node_text_in_order(candidate)
             if text and text not in blocks:
                 blocks.append(text)
         pending.extend(reversed(node.children))
@@ -212,16 +259,11 @@ def _validate_dynamic_render_documents(
     matched: list[str] = []
     for document in documents:
         content = _document_content(document)
-        if not content:
+        if not content or "<" not in content or ">" not in content:
+            # Plain body text can mention an ID without proving which article
+            # owns the surrounding content, so it is never identity evidence.
             continue
-        if "<" in content and ">" in content:
-            candidates = _dynamic_target_blocks(content, target_id)
-        else:
-            candidates = (
-                [content]
-                if re.search(rf"(?<![A-Za-z0-9]){re.escape(target_id)}(?![A-Za-z0-9])", content)
-                else []
-            )
+        candidates = _dynamic_target_blocks(content, target_id)
         for candidate in candidates:
             if expected_author and normalize_text(expected_author) not in normalize_text(candidate):
                 continue
@@ -447,6 +489,8 @@ def collect_site_records(
         ordered, site_name, pick, rule, target_period
     )
     return _cache_records(cache_key, records)
+
+
 def _site_failure(
     index: int,
     site: SiteLike,
