@@ -33,11 +33,11 @@ _LIUXUAN_VALUE_RE = re.compile(
     r"绝\s*杀\s*[【\[]\s*\d\s*头\s*[.．]\s*(\d)\s*尾"
 )
 
-_ALLOWED_INFIX_WORDS_BY_PARSER: dict[str, tuple[str, ...]] = {
-    "zao_che_kill_tail": ("杀",),
-    "topic_published_body_tail": ("杀",),
-    "dute_zhaopai_profile_tail": ("专区",),
-}
+# Literal formatting words that some verified formats place between the field
+# label and value. Removing these still leaves labels such as 杀码/杀头 with
+# meaningful text, so they remain rejected as a different field.
+_ALWAYS_ALLOWED_INFIX_WORDS = ("杀", "专区")
+_ALLOWED_INFIX_WORDS_BY_PARSER: dict[str, tuple[str, ...]] = {}
 _ALLOWED_FORMATTING_RE = re.compile(
     r"^[\s:：=＝◆◇〓\-—_~*#、，,.．。+＋!?！？"
     r"【\[\(（〖《】\]\)）〗》/\\]*$"
@@ -112,7 +112,10 @@ def _has_ambiguous_multi_digit_tail(text: str) -> bool:
 
 def _prefix_is_safe(prefix: str, parser_name: str) -> bool:
     cleaned = normalize_text(prefix)
-    for word in _ALLOWED_INFIX_WORDS_BY_PARSER.get(parser_name, ()):
+    for word in (
+        *_ALWAYS_ALLOWED_INFIX_WORDS,
+        *_ALLOWED_INFIX_WORDS_BY_PARSER.get(parser_name, ()),
+    ):
         cleaned = cleaned.replace(word, "")
     return _ALLOWED_FORMATTING_RE.fullmatch(cleaned) is not None
 
