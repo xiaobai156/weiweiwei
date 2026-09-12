@@ -4,6 +4,7 @@ import atexit
 import asyncio
 import re
 import threading
+from dataclasses import dataclass
 from urllib.parse import urlparse
 
 from shawei.fetch.http_client import RENDER_CACHE, RENDER_STATUS, RUNTIME_CACHE_LOCK
@@ -13,6 +14,24 @@ RENDER_FLIGHTS: dict[tuple[str, int], threading.Event] = {}
 RENDER_FLIGHTS_LOCK = threading.Lock()
 _BROWSER_RUNTIME: "_BrowserRuntime | None" = None
 _BROWSER_RUNTIME_LOCK = threading.Lock()
+
+
+@dataclass(frozen=True)
+class BrowserRenderOptions:
+    wait_for_network_idle: bool = True
+    post_load_wait_ms: int = 1200
+    scroll_count: int = 6
+    scroll_wait_ms: int = 200
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("post_load_wait_ms", self.post_load_wait_ms),
+            ("scroll_count", self.scroll_count),
+            ("scroll_wait_ms", self.scroll_wait_ms),
+        ):
+            if value < 0:
+                raise ValueError(f"{name}不能为负数")
+
 
 class _BrowserRuntime:
     def __init__(self) -> None:
@@ -81,8 +100,14 @@ class _BrowserRuntime:
             except Exception:
                 pass
 
-    async def _render_page(self, url: str, timeout: int) -> tuple[list[str], str]:
+    async def _render_page(
+        self,
+        url: str,
+        timeout: int,
+        options: BrowserRenderOptions | None = None,
+    ) -> tuple[list[str], str]:
         page = None
+        options = options or BrowserRenderOptions()
         try:
             context = self._context
             if context is None:
@@ -90,11 +115,12 @@ class _BrowserRuntime:
             page = await context.new_page()
             wait_ms = max(5000, int(timeout * 1000))
             await page.goto(url, wait_until="domcontentloaded", timeout=wait_ms)
-            try:
-                await page.wait_for_load_state("networkidle", timeout=min(wait_ms, 15000))
-            except Exception:
-                pass
-            await page.wait_for_timeout(1200)
+            if options.wait_for_network_idle:
+                try:
+                    await page.wait_for_load_state("networkidle", timeout=min(wait_ms, 15000))
+                except Exception:
+                    pass
+            await page.wait_for_timeout(options.post_load_wait_ms)
             if "/references/" in (urlparse(url).fragment or ""):
                 try:
                     await page.get_by_text(re.compile(r"\d+\s*期\s*绝杀一尾")).first.click(
@@ -109,9 +135,9 @@ class _BrowserRuntime:
                     await page.wait_for_timeout(1200)
                 except Exception:
                     pass
-            for _ in range(6):
+            for _ in range(options.scroll_count):
                 await page.mouse.wheel(0, 1400)
-                await page.wait_for_timeout(200)
+                await page.wait_for_timeout(options.scroll_wait_ms)
             return [await page.locator("body").inner_text(), await page.content()], ""
         except Exception as exc:
             return [], f"{type(exc).__name__}: {exc}"
@@ -122,16 +148,25 @@ class _BrowserRuntime:
                 except Exception:
                     pass
 
-    def render(self, url: str, timeout: int) -> tuple[list[str], str]:
+    def render(
+        self,
+        url: str,
+        timeout: int,
+        options: BrowserRenderOptions | None = None,
+    ) -> tuple[list[str], str]:
         if self._startup_error is not None:
             raise self._startup_error
         loop = self._loop
         if loop is None or not loop.is_running():
             raise RuntimeError("Playwright运行时未运行")
         future = asyncio.run_coroutine_threadsafe(
-            self._render_page(url, timeout), loop
+            self._render_page(url, timeout, options), loop
         )
-        return future.result()
+        try:
+            return future.result(timeout=max(30, int(timeout) + 20))
+        except TimeoutError as exc:
+            future.cancel()
+            raise TimeoutError(f"浏览器渲染总超时: {url}") from exc
 
     def close(self) -> None:
         loop = self._loop

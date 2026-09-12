@@ -78,23 +78,23 @@ def _prediction_only(text: str) -> str:
     return normalized
 
 
-def _period_evidence(document: str, period: int) -> str:
+def _period_evidence_by_period(document: str) -> dict[int, str]:
     text = normalize_text(document)
     chunks = [chunk.strip() for chunk in PERIOD_CHUNK_RE.split(text) if chunk.strip()]
-    matched = []
+    evidence: dict[int, list[str]] = {}
     for chunk in chunks:
         period_match = PERIOD_RE.match(chunk)
-        if period_match is not None and int(period_match.group(1)) == period:
-            matched.append(chunk)
-    return " ".join(matched)
+        if period_match is not None:
+            evidence.setdefault(int(period_match.group(1)), []).append(chunk)
+    return {period: " ".join(chunks) for period, chunks in evidence.items()}
 
 
-def _record_evidence(record: Record, document: str) -> str:
+def _record_evidence(record: Record, period_evidence: dict[int, str]) -> str:
     snippet = normalize_text(record.source_snippet)
-    period_evidence = _period_evidence(document, record.period)
-    if snippet and period_evidence and period_evidence not in snippet:
-        return f"{snippet} {period_evidence}"
-    return snippet or period_evidence
+    evidence = period_evidence.get(record.period, "")
+    if snippet and evidence and evidence not in snippet:
+        return f"{snippet} {evidence}"
+    return snippet or evidence
 
 
 def _has_ambiguous_multi_digit_tail(text: str) -> bool:
@@ -192,13 +192,14 @@ def enforce_parsed_records(
 ) -> list[Record]:
     """Fail closed when a single-tail record cannot prove one exact source value."""
 
+    period_evidence = _period_evidence_by_period(document)
     for record in records:
         if record.tail_values or record.value_text:
             continue
         if source not in _SINGLE_TAIL_SOURCES:
             continue
 
-        evidence = _record_evidence(record, document)
+        evidence = _record_evidence(record, period_evidence)
         if _has_ambiguous_multi_digit_tail(evidence):
             raise LookupError(
                 f"{site_name}{record.period}期单尾字段出现多位值，拒绝截断为{record.tail}尾"
