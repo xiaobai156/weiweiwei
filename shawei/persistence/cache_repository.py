@@ -157,23 +157,14 @@ def _update_recent_cache_from_current_results(
     except Exception as exc:
         print(f"最近10期缓存更新失败: 无法生成当前配置指纹({type(exc).__name__}: {exc})", file=sys.stderr)
         return False
-    if payload.get("config_fingerprint") != current_fingerprint:
-        print("最近10期缓存更新失败: 缓存配置指纹缺失或不匹配", file=sys.stderr)
-        return False
-
     try:
-        previous_period = int(payload["period"])
         window = int(payload.get("window") or 10)
-    except (KeyError, TypeError, ValueError):
-        print("最近10期缓存更新失败: 现有缓存缺少有效 period/window", file=sys.stderr)
+    except (TypeError, ValueError):
+        print("最近10期缓存更新失败: 现有缓存缺少有效 window", file=sys.stderr)
         return False
     if payload.get("schema") != 2 or window != 10:
         print("最近10期缓存更新失败: 缓存schema或10期窗口不匹配", file=sys.stderr)
         return False
-    if previous_period > period:
-        print(f"最近10期缓存更新失败: 缓存最新期{previous_period}大于本次{period}期", file=sys.stderr)
-        return False
-
     old_items = payload.get("sites")
     if not isinstance(old_items, list):
         print("最近10期缓存更新失败: 现有缓存没有站点数据", file=sys.stderr)
@@ -195,19 +186,15 @@ def _update_recent_cache_from_current_results(
         if not old_item.get("archived"):
             old_active_identities.append(identity)
 
-    previous_periods = list(
-        range(previous_period, previous_period - window, -1)
-    )
-    previous_period_set = set(previous_periods)
+    wanted_periods = list(range(period, period - window, -1))
     validated_values: dict[tuple[str, str, str], dict[int, str]] = {}
     validated_failures: dict[
         tuple[str, str, str], tuple[list[int], dict[int, str]]
     ] = {}
-    complete_old_count = 0
     for identity in old_active_identities:
         old_item = old_by_identity[identity]
-        values = _valid_old_values(old_item, identity[1], previous_periods)
-        failure_state = _valid_old_failure_state(old_item, previous_periods)
+        values = _valid_old_values(old_item, identity[1], wanted_periods)
+        failure_state = _valid_old_failure_state(old_item, wanted_periods)
         if values is None or failure_state is None:
             print(
                 f"最近10期缓存更新失败: 站点{identity[0]}的历史状态损坏",
@@ -215,39 +202,8 @@ def _update_recent_cache_from_current_results(
             )
             return False
         failed_periods, reasons = failure_state
-        raw_value_periods = {int(value) for value in old_item.get("periods", [])}
-        raw_failed_periods = {
-            int(value) for value in old_item.get("failed_periods", [])
-        }
-        raw_reason_periods = {
-            int(value) for value in old_item.get("failure_reasons", {})
-        }
-        if (
-            raw_value_periods != set(values)
-            or raw_failed_periods != set(failed_periods)
-            or raw_reason_periods != set(reasons)
-            or set(values) & set(failed_periods)
-            or set(values) | set(failed_periods) != previous_period_set
-        ):
-            print(
-                f"最近10期缓存更新失败: 站点{identity[0]}的历史窗口不完整",
-                file=sys.stderr,
-            )
-            return False
         validated_values[identity] = values
         validated_failures[identity] = (failed_periods, reasons)
-        if not failed_periods:
-            complete_old_count += 1
-
-    old_fail_count = len(old_active_identities) - complete_old_count
-    if (
-        payload.get("site_count") != len(old_active_identities)
-        or payload.get("vector_count") != complete_old_count
-        or payload.get("fail_count") != old_fail_count
-        or not isinstance(payload.get("fail_lines"), list)
-    ):
-        print("最近10期缓存更新失败: 缓存汇总元数据不一致", file=sys.stderr)
-        return False
 
     configured_identities: list[tuple[str, str, str]] = []
     for site in sites:
@@ -256,11 +212,8 @@ def _update_recent_cache_from_current_results(
             getattr(site, "url", ""),
             getattr(site, "pick", "top"),
         )
-        assert identity is not None  # configuration_fingerprint validated this site
+        assert identity is not None  # load_sites validates each active site identity
         configured_identities.append(identity)
-    if old_active_identities != configured_identities:
-        print("最近10期缓存更新失败: 现有缓存活动站点身份或顺序不匹配", file=sys.stderr)
-        return False
     active_identities = set(configured_identities)
     archived_items = [
         dict(item)
@@ -308,7 +261,6 @@ def _update_recent_cache_from_current_results(
             print("最近10期缓存更新失败: 本轮失败结果字段不完整", file=sys.stderr)
             return False
     result_by_index = {result.index: result for result in results}
-    wanted_periods = list(range(period, period - window, -1))
     new_items: list[dict] = []
     fail_lines: list[str] = []
     complete_count = 0
@@ -320,12 +272,12 @@ def _update_recent_cache_from_current_results(
         pick = old_identity[2]
         old_values = {
             old_period: value
-            for old_period, value in validated_values[old_identity].items()
+            for old_period, value in validated_values.get(old_identity, {}).items()
             if old_period in wanted_periods
         }
         old_values.pop(period, None)
 
-        _, previous_reasons = validated_failures[old_identity]
+        _, previous_reasons = validated_failures.get(old_identity, ([], {}))
         reasons = {
             failed: reason
             for failed, reason in previous_reasons.items()

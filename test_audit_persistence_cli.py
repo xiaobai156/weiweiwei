@@ -186,6 +186,41 @@ def test_cache_roll_keeps_same_url_histories_separate_by_identity(tmp_path) -> N
     assert by_identity[("想次方", url, "top")]["values"][:2] == ["6", "3"]
 
 
+def test_cache_roll_overwrites_the_same_period(tmp_path) -> None:
+    site = SimpleNamespace(
+        name="同期期站", url="https://same-period.example/list", pick="top"
+    )
+    cache_path = tmp_path / "recent_10_cache.json"
+    cache_path.write_text(
+        json.dumps(_with_fingerprint({
+            "schema": 2,
+            "period": 200,
+            "window": 10,
+            "site_count": 1,
+            "vector_count": 1,
+            "fail_count": 0,
+            "fail_lines": [],
+            "sites": [{
+                "name": site.name,
+                "url": site.url,
+                "pick": site.pick,
+                "periods": list(range(200, 190, -1)),
+                "values": ["1"] * 10,
+            }],
+        }, [site]), ensure_ascii=False), encoding="utf-8"
+    )
+    result = cast(CurrentRunResult, SimpleNamespace(
+        index=1, success_line="9尾 同期期站", ranking_value="9", fail_line=None
+    ))
+
+    assert cache_repository.update_recent_cache_from_current_results(
+        cache_path, 200, [site], [result]
+    ) is True
+    payload = json.loads(cache_path.read_text(encoding="utf-8"))
+    assert payload["sites"][0]["periods"] == list(range(200, 190, -1))
+    assert payload["sites"][0]["values"] == ["9"] + ["1"] * 9
+
+
 @pytest.mark.parametrize("indexes", [(1, 1), (1, 2), (0,)])
 def test_cache_roll_rejects_duplicate_or_out_of_range_result_indexes(
     tmp_path, indexes: tuple[int, ...]
@@ -1124,7 +1159,7 @@ def test_admission_cache_reader_rejects_wrong_schema(tmp_path, monkeypatch) -> N
 
 
 @pytest.mark.parametrize("stored_fingerprint", [None, "wrong-fingerprint"])
-def test_cache_roll_rejects_missing_or_mismatched_configuration_fingerprint(
+def test_cache_roll_refreshes_missing_or_mismatched_configuration_fingerprint(
     tmp_path, monkeypatch, stored_fingerprint: str | None
 ) -> None:
     url = "https://fingerprint-roll.example/list"
@@ -1132,7 +1167,7 @@ def test_cache_roll_rejects_missing_or_mismatched_configuration_fingerprint(
     payload = {
         "schema": 2,
         "period": 200,
-        "window": 2,
+        "window": 10,
         "site_count": 1,
         "vector_count": 1,
         "fail_count": 0,
@@ -1142,8 +1177,8 @@ def test_cache_roll_rejects_missing_or_mismatched_configuration_fingerprint(
                 "name": "指纹站",
                 "url": url,
                 "pick": "top",
-                "periods": [200],
-                "values": ["1"],
+                "periods": list(range(200, 190, -1)),
+                "values": ["1"] * 10,
             }
         ],
     }
@@ -1163,7 +1198,11 @@ def test_cache_roll_rejects_missing_or_mismatched_configuration_fingerprint(
 
     assert cache_repository.update_recent_cache_from_current_results(
         cache_path, 201, [site], [result]
-    ) is False
+    ) is True
+    refreshed = json.loads(cache_path.read_text(encoding="utf-8"))
+    assert refreshed["period"] == 201
+    assert refreshed["sites"][0]["periods"] == list(range(201, 191, -1))
+    assert refreshed["sites"][0]["values"] == ["2"] + ["1"] * 9
 
 
 @pytest.mark.parametrize("stored_fingerprint", [None, "wrong-fingerprint"])
