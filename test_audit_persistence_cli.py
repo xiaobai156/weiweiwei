@@ -221,6 +221,24 @@ def test_cache_roll_overwrites_the_same_period(tmp_path) -> None:
     assert payload["sites"][0]["values"] == ["9"] + ["1"] * 9
 
 
+def test_cache_roll_rebuilds_after_cache_file_is_cleared(tmp_path) -> None:
+    site = SimpleNamespace(
+        name="清空重建站", url="https://cache-rebuild.example/list", pick="top"
+    )
+    result = cast(CurrentRunResult, SimpleNamespace(
+        index=1, success_line="8尾 清空重建站", ranking_value="8", fail_line=None
+    ))
+
+    cache_path = tmp_path / "recent_10_cache.json"
+    assert cache_repository.update_recent_cache_from_current_results(
+        cache_path, 256, [site], [result]
+    ) is True
+    payload = json.loads(cache_path.read_text(encoding="utf-8"))
+    assert payload["period"] == 256
+    assert payload["sites"][0]["periods"] == [256]
+    assert payload["sites"][0]["values"] == ["8"]
+
+
 @pytest.mark.parametrize("indexes", [(1, 1), (1, 2), (0,)])
 def test_cache_roll_rejects_duplicate_or_out_of_range_result_indexes(
     tmp_path, indexes: tuple[int, ...]

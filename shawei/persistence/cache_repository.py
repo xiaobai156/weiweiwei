@@ -144,11 +144,14 @@ def _update_recent_cache_from_current_results(
     sites: Sequence[object],
     results: Sequence[CurrentRunResult],
 ) -> bool:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8-sig"))
-    except (OSError, json.JSONDecodeError) as exc:
-        print(f"最近10期缓存更新失败: 无法读取现有缓存({type(exc).__name__}: {exc})", file=sys.stderr)
-        return False
+    if path.exists():
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8-sig"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"最近10期缓存更新失败: 无法读取现有缓存({type(exc).__name__}: {exc})", file=sys.stderr)
+            return False
+    else:
+        payload = {"schema": 2, "window": 10, "sites": []}
     if not isinstance(payload, dict):
         print("最近10期缓存更新失败: 现有缓存格式错误", file=sys.stderr)
         return False
