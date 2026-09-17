@@ -126,6 +126,10 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         allowed_sources=("compact",),
         chunk_keywords=("杀:",),
         prefer_rendered=False,
+        # 该页同时解码出另一位作者的 262/261/260 碎片区块，通用 compact 会把它
+        # 当成独立权威并报「绝对top边界是262期」。只采信解码顺序最靠前的
+        # 作者区块（260期:精选尉迟日轻），260 期取 5尾。
+        direction_document_scope="top",
     ),
     "https://zuymmv.k9lew-qbswr-jmnakh.xyz:16677/topic/472644.html": StrictRule(
         allowed_sources=("dedicated",),
