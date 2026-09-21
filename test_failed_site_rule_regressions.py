@@ -19,6 +19,7 @@ RENZENG_URL = "https://mm.676626m.com:1888/bbs/8030"
 NALAWANZHI_URL = "https://sfch0f.ky3r5-0b4c9-yudwqy.work/topic/240474.html"
 SAODI_URL = "https://rh2fgz.a96ub-s6g0d-mfbdwp.work/topic/225941.html"
 LIUXUAN_URL = "https://lx11.www87127b.com:8443/#87127"
+TANHUA_URL = "https://www.www144344.com/read.php?tid=1904"
 
 
 def test_liuxuan_retries_transient_tls_failure_per_document(
@@ -67,6 +68,40 @@ def test_saodi_topic_has_extended_render_timeout() -> None:
     rule = effective_rule_for(SAODI_URL, "扫地焚香")
 
     assert rule.render_timeout == 30
+
+
+def test_tanhua_read_page_uses_compact_bottom_rule() -> None:
+    rule = effective_rule_for(TANHUA_URL, "昙花一现")
+
+    assert rule.allowed_sources == ("compact",)
+    assert rule.chunk_keywords == ("昙花一现", "绝杀一尾")
+    assert rule.require_site_keyword is False
+
+
+def test_tanhua_bottom_265_selects_the_same_block() -> None:
+    text = (
+        "主题:[265期]满堂红→[绝杀一尾]←已更新 昙花一现 "
+        "256期: [昙花一现] 绝杀一尾 [0尾]开:马01准 "
+        "257期: [昙花一现] 绝杀一尾 [0尾]开:鼠07准 "
+        "258期: [昙花一现] 绝杀一尾 [4尾]开:鸡46准 "
+        "259期: [昙花一现] 绝杀一尾 [3尾]开:鸡22准 "
+        "260期: [昙花一现] 绝杀一尾 [6尾]开:猪20准 "
+        "261期: [昙花一现] 绝杀一尾 [6尾]开:羊24准 "
+        "262期: [昙花一现] 绝杀一尾 [1尾]开:牛30准 "
+        "263期: [昙花一现] 绝杀一尾 [6尾]开:狗09准 "
+        "264期: [昙花一现] 绝杀一尾 [6尾]开:狗21准 "
+        "265期: [昙花一现] 绝杀一尾 [7尾]开:? 00准"
+    )
+
+    decision = validate_documents(
+        [Document(TANHUA_URL, text, "page")],
+        "昙花一现",
+        pick="bottom",
+        rule=effective_rule_for(TANHUA_URL, "昙花一现"),
+        target_period=265,
+    )
+
+    assert [record.as_line() for record in decision.records] == ["7尾 昙花一现"]
 
 
 def test_jianren_prefers_rendered_body_text() -> None:
