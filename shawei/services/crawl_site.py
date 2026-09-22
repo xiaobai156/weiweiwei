@@ -515,6 +515,30 @@ def _site_failure(
     )
 
 
+def _is_retryable_transient_error(exc: Exception) -> bool:
+    """Retry transport/render interruptions, never semantic validation errors."""
+    text = str(exc).lower()
+    if any(marker in text for marker in (
+        "cert_authority_invalid",
+        "certificate verify failed",
+        "too_many_redirects",
+    )):
+        return False
+    if isinstance(exc, (TimeoutError, ConnectionError)):
+        return True
+    return any(marker in text for marker in (
+        "timeout",
+        "timed out",
+        "unexpected_eof",
+        "eof occurred",
+        "err_connection_closed",
+        "connection closed",
+        "connection reset",
+        "remote end closed",
+        "temporarily unavailable",
+    ))
+
+
 def crawl_current_site(
     index: int,
     total: int,
@@ -530,11 +554,12 @@ def crawl_current_site(
         with _domain_lock_for(site.url):
             for attempt in range(max(0, retries) + 1):
                 try:
+                    attempt_timeout = max(1, timeout) + (max(4, timeout * 2) * attempt)
                     records = collect_site_records(
                         site.url,
                         site.name,
                         pick=site.pick,
-                        timeout=timeout,
+                        timeout=attempt_timeout,
                         target_period=period,
                     )
                     record, _ = select_current_record(records, period, site.pick)
@@ -547,9 +572,11 @@ def crawl_current_site(
                         or f"没有找到{period}期" in message
                         or f"不是指定{period}期" in message
                     )
-                    if not boundary_or_missing or attempt >= max(0, retries):
+                    transient = _is_retryable_transient_error(exc)
+                    if not (boundary_or_missing or transient) or attempt >= max(0, retries):
                         raise
-                    messages.append(f"  未找到{period}期，清缓存后刷新第{attempt + 1}次")
+                    reason = "传输/渲染瞬时异常" if transient else f"未找到{period}期"
+                    messages.append(f"  {reason}，清缓存后刷新第{attempt + 1}次")
                     clear_fetch_cache(site.url)
                     time.sleep(min(8.0, 1.5 * (attempt + 1)))
     except Exception as exc:

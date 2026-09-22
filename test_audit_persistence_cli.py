@@ -1624,3 +1624,215 @@ def test_admission_cache_reader_rejects_duplicate_active_archived_identity(
 
     with pytest.raises(LookupError, match="重复"):
         duplicate_check.load_recent_cache_vectors(path)
+
+
+def _targeted_cache_fixture(tmp_path: Path, period: int = 263) -> tuple[Path, list, dict]:
+    sites = [
+        SimpleNamespace(name="定向甲", url="https://targeted-a.example", pick="top"),
+        SimpleNamespace(name="定向乙", url="https://targeted-b.example", pick="bottom"),
+        SimpleNamespace(name="定向丙", url="https://targeted-c.example", pick="top"),
+    ]
+    items = [
+        {
+            "name": sites[0].name,
+            "url": sites[0].url,
+            "pick": sites[0].pick,
+            "periods": list(range(period - 1, period - 10, -1)),
+            "values": ["4"] * 9,
+            "extended": 1,
+            "failed_periods": [period],
+            "failure_reasons": {
+                str(period): (
+                    f"失败 {sites[0].name} {sites[0].url} 方向: {sites[0].pick} "
+                    f"期数: {period} 阶段: 抓取/解析 原因: 抓取/解析失败(浏览器渲染为空)"
+                )
+            },
+        },
+        {
+            "name": sites[1].name,
+            "url": sites[1].url,
+            "pick": sites[1].pick,
+            "periods": list(range(period, period - 9, -1)),
+            "values": ["2"] * 9,
+            "extended": 1,
+            "failed_periods": [period - 9],
+            "failure_reasons": {str(period - 9): "缓存缺少旧期有效数据"},
+        },
+        {
+            "name": sites[2].name,
+            "url": sites[2].url,
+            "pick": sites[2].pick,
+            "periods": list(range(period, period - 10, -1)),
+            "values": ["3"] * 10,
+            "extended": 0,
+        },
+    ]
+    payload = _with_fingerprint(
+        {
+            "schema": 2,
+            "period": period,
+            "window": 10,
+            "site_count": 3,
+            "vector_count": 1,
+            "fail_count": 2,
+            "fail_lines": [
+                (
+                    f"失败 {sites[0].name} {sites[0].url} 方向: {sites[0].pick} "
+                    f"期数: {period} 阶段: 抓取/解析 原因: 抓取/解析失败(浏览器渲染为空)"
+                )
+            ],
+            "sites": items,
+        },
+        sites,
+    )
+    path = tmp_path / "recent_10_cache.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return path, sites, payload
+
+
+def test_targeted_cache_update_rewrites_only_the_named_site(tmp_path) -> None:
+    path, sites, payload = _targeted_cache_fixture(tmp_path)
+    untouched = [dict(item) for item in payload["sites"][1:]]
+    results = cast(list[CurrentRunResult], [
+        SimpleNamespace(
+            index=1, success_line="5尾 定向甲", ranking_value="5", fail_line=None
+        ),
+    ])
+
+    assert cache_repository.update_recent_cache_for_targeted_sites(
+        path, 263, sites, results
+    ) is True
+
+    updated = json.loads(path.read_text(encoding="utf-8"))
+    assert updated["sites"][0]["periods"] == list(range(263, 253, -1))
+    assert updated["sites"][0]["values"] == ["5"] + ["4"] * 9
+    assert "failed_periods" not in updated["sites"][0]
+    assert "failure_reasons" not in updated["sites"][0]
+    assert updated["sites"][1:] == untouched
+    assert updated["site_count"] == 3
+    assert updated["vector_count"] == 2
+    assert updated["fail_count"] == 1
+    assert updated["fail_lines"] == []
+    assert updated["period"] == 263
+    assert updated["config_fingerprint"] == payload["config_fingerprint"]
+
+
+def test_targeted_cache_update_keeps_failure_state_for_named_site(tmp_path) -> None:
+    path, sites, payload = _targeted_cache_fixture(tmp_path)
+    untouched = [dict(item) for item in payload["sites"][1:]]
+    fail_line = (
+        "失败 定向甲 https://targeted-a.example 方向: top 期数: 263 "
+        "阶段: 抓取/解析 原因: 抓取/解析失败(TimeoutError)"
+    )
+    results = cast(list[CurrentRunResult], [
+        SimpleNamespace(
+            index=1, success_line=None, ranking_value=None, fail_line=fail_line
+        ),
+    ])
+
+    assert cache_repository.update_recent_cache_for_targeted_sites(
+        path, 263, sites, results
+    ) is True
+
+    updated = json.loads(path.read_text(encoding="utf-8"))
+    assert updated["sites"][0]["failed_periods"] == [263]
+    assert updated["sites"][0]["failure_reasons"]["263"] == fail_line
+    assert updated["sites"][1:] == untouched
+    assert updated["fail_count"] == 2
+    assert updated["fail_lines"] == [fail_line]
+
+
+def test_targeted_cache_update_rejects_period_outside_window(tmp_path) -> None:
+    path, sites, _ = _targeted_cache_fixture(tmp_path)
+    before = path.read_bytes()
+    results = cast(list[CurrentRunResult], [
+        SimpleNamespace(
+            index=1, success_line="5尾 定向甲", ranking_value="5", fail_line=None
+        ),
+    ])
+
+    assert cache_repository.update_recent_cache_for_targeted_sites(
+        path, 263 - 10, sites, results
+    ) is False
+    assert path.read_bytes() == before
+
+
+def test_targeted_cache_update_rejects_site_outside_cache(tmp_path) -> None:
+    path, sites, _ = _targeted_cache_fixture(tmp_path)
+    before = path.read_bytes()
+    results = cast(list[CurrentRunResult], [
+        SimpleNamespace(
+            index=3, success_line="5尾 定向丙", ranking_value="5", fail_line=None
+        ),
+    ])
+    stranger = SimpleNamespace(name="定向丙", url="https://targeted-c.example", pick="bottom")
+
+    assert cache_repository.update_recent_cache_for_targeted_sites(
+        path, 263, [sites[0], sites[1], stranger], results
+    ) is False
+    assert path.read_bytes() == before
+
+
+def test_targeted_cache_update_stays_readable_by_admission_reader(
+    tmp_path, monkeypatch
+) -> None:
+    path, sites, payload = _targeted_cache_fixture(tmp_path)
+    results = cast(list[CurrentRunResult], [
+        SimpleNamespace(
+            index=1, success_line="5尾 定向甲", ranking_value="5", fail_line=None
+        ),
+    ])
+    monkeypatch.setattr(
+        duplicate_check, "configured_sites", lambda: list(sites), raising=False
+    )
+    monkeypatch.setattr(
+        duplicate_check,
+        "configuration_fingerprint",
+        lambda _sites: payload["config_fingerprint"],
+    )
+
+    assert cache_repository.update_recent_cache_for_targeted_sites(
+        path, 263, sites, results
+    ) is True
+
+    period, window, vectors = duplicate_check.load_recent_cache_vectors(
+        path, allow_incomplete=True
+    )
+    assert (period, window) == (263, 10)
+    assert [vector[0].name for vector in vectors] == ["定向甲", "定向丙"]
+
+
+def test_failed_recheck_keeps_failure_file_when_cache_write_fails(tmp_path, monkeypatch) -> None:
+    import shawei_failed_site_recheck as recheck
+
+    site = SimpleNamespace(
+        name="事务失败站", url="https://transaction-failure.example", pick="top"
+    )
+    failure_path = tmp_path / "265期-尾-失败.txt"
+    original = (
+        f"失败 {site.name} {site.url} 方向: top 期数: 265 阶段: 抓取/解析 原因: TimeoutError\n"
+    )
+    failure_path.write_text(original, encoding="utf-8-sig")
+    success_path = tmp_path / "265期-尾.txt"
+    success_path.write_text("1尾 其他站\n", encoding="utf-8-sig")
+
+    monkeypatch.setattr(recheck, "OUTPUT_DIR", tmp_path)
+    monkeypatch.setattr(recheck, "FAIL_OUTPUT_DIR", tmp_path)
+    monkeypatch.setattr(recheck, "RECENT_CACHE_PATH", tmp_path / "cache.json")
+    monkeypatch.setattr(recheck, "load_sites", lambda: [site])
+    monkeypatch.setattr(
+        recheck,
+        "crawl_current_site",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            index=1, success_line=f"2尾 {site.name}", ranking_value="2", fail_line=None
+        ),
+    )
+    monkeypatch.setattr(
+        recheck.cache_repository,
+        "update_recent_cache_for_targeted_sites",
+        lambda *_args, **_kwargs: False,
+    )
+
+    assert recheck.recheck_failed(265) == 1
+    assert failure_path.read_text(encoding="utf-8-sig") == original
+    assert success_path.read_text(encoding="utf-8-sig") == "1尾 其他站\n"

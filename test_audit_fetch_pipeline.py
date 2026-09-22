@@ -244,7 +244,7 @@ def _run_admin_article_case(monkeypatch, api_result) -> list[tuple[str, int]]:
 @pytest.mark.parametrize(
     "api_result",
     [
-        pytest.param(ssl.SSLError("TLS handshake failed"), id="tls-error"),
+        pytest.param(ssl.SSLError("TLS handshake failed"), id="tls-handshake"),
         pytest.param(
             _http_error(ARTICLE_API_URL, 500, "server error"),
             id="http-500",
@@ -461,6 +461,32 @@ def test_crawl_current_site_does_not_retry_non_boundary_failures(
     assert result.success_line is None
     assert len(calls) == 1
     assert sleeps == []
+
+
+def test_crawl_current_site_retries_transient_transport_errors(monkeypatch) -> None:
+    calls: list[tuple[int, int]] = []
+    clears: list[str] = []
+    sleeps: list[float] = []
+
+    def fail_then_succeed(*_args, **kwargs):
+        calls.append((kwargs["timeout"], 1))
+        if len(calls) == 1:
+            raise RuntimeError("浏览器渲染为空(Error: Page.goto: net::ERR_CONNECTION_CLOSED)")
+        return [Record(tail=7, period=TARGET_PERIOD, site_name=SITE_NAME)]
+
+    monkeypatch.setattr(crawl_site, "collect_site_records", fail_then_succeed)
+    monkeypatch.setattr(crawl_site, "clear_fetch_cache", clears.append)
+    monkeypatch.setattr(crawl_site.time, "sleep", sleeps.append)
+
+    result = crawl_site.crawl_current_site(
+        1, 1, SiteConfig(name=SITE_NAME, url=ARTICLE_URL, pick="top"),
+        TARGET_PERIOD, timeout=5, retries=1,
+    )
+
+    assert result.success_line == f"7尾 {SITE_NAME}"
+    assert [timeout for timeout, _ in calls] == [5, 15]
+    assert clears == [ARTICLE_URL]
+    assert sleeps == [1.5]
 
 
 @pytest.mark.parametrize(

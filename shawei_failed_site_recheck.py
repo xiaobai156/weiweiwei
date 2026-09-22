@@ -3,14 +3,14 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from pathlib import Path
 
+from shawei.config.paths import FAIL_OUTPUT_DIR, OUTPUT_DIR, RECENT_CACHE_PATH
 from shawei.config.sites import load_sites
-from shawei.config.paths import FAIL_OUTPUT_DIR, OUTPUT_DIR
-from shawei.persistence import txt_writer
+from shawei.persistence import cache_repository, txt_writer
 from shawei.persistence.atomic_file import atomic_write_text
 from shawei.services.crawl_site import crawl_current_site
-
 
 FAIL_RE = re.compile(
     r"^失败 (?P<name>.+?) (?P<url>https?://\S+) 方向: (?P<pick>top|bottom) "
@@ -44,13 +44,16 @@ def _read_existing_successes_strict(path: Path):
 def _targets(path: Path, period: int, sites):
     by_identity = {(site.name, site.url, site.pick): site for site in sites}
     targets = []
+    seen = set()
     for block in _failure_blocks(path):
         match = FAIL_RE.match(block.splitlines()[0].strip())
         if not match or int(match["period"]) != period:
             continue
-        site = by_identity.get((match["name"], match["url"], match["pick"]))
-        if site is not None:
+        identity = (match["name"], match["url"], match["pick"])
+        site = by_identity.get(identity)
+        if site is not None and identity not in seen:
             targets.append(site)
+            seen.add(identity)
     return targets
 
 
@@ -76,12 +79,24 @@ def recheck_failed(period: int, timeout: int = 8, workers: int = 1) -> int:
         print(str(exc))
         return 2
     passed = [result for result in results if result.success_line]
-    for result in passed:
-        name = sites[result.index - 1].name
-        existing[name] = (result.success_line, result.ranking_value)
-    lines = [line for line, _ in existing.values()]
-    values = [value for _, value in existing.values()]
-    atomic_write_text(success_path, "\n".join(txt_writer.format_ranking(lines, values)) + "\n", encoding="utf-8-sig")
+    cache_updated = cache_repository.update_recent_cache_for_targeted_sites(
+        RECENT_CACHE_PATH, period, sites, results
+    )
+    if not cache_updated:
+        print("缓存更新未完成: 最近10期缓存未按本次定向结果更新", file=sys.stderr)
+        return 1
+
+    if passed:
+        for result in passed:
+            name = sites[result.index - 1].name
+            existing[name] = (result.success_line, result.ranking_value)
+        lines = [line for line, _ in existing.values()]
+        values = [value for _, value in existing.values()]
+        atomic_write_text(
+            success_path,
+            "\n".join(txt_writer.format_ranking(lines, values)) + "\n",
+            encoding="utf-8-sig",
+        )
 
     passed_keys = {
         (sites[result.index - 1].name, sites[result.index - 1].url,
@@ -99,7 +114,7 @@ def recheck_failed(period: int, timeout: int = 8, workers: int = 1) -> int:
             kept.append(block)
     txt_writer.write_optional_fail_file(failure_path, kept)
     print(f"定向重抓完成: 目标 {len(targets)}，成功 {len(passed)}，仍失败 {len(targets) - len(passed)}")
-    return 0 if len(passed) == len(targets) else 1
+    return 0 if len(passed) == len(targets) and cache_updated else 1
 
 
 def main() -> int:

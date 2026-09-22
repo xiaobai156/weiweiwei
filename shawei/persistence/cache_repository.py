@@ -346,3 +346,209 @@ def _update_recent_cache_from_current_results(
         f"完整 {complete_count} 条, 标记失败 {cache_fail_count} 条"
     )
     return True
+
+
+def update_recent_cache_for_targeted_sites(
+    path: Path,
+    period: int,
+    sites: Sequence[object],
+    results: Sequence[CurrentRunResult],
+) -> bool:
+    """Rewrite only the named sites' records for ``period``.
+
+    A targeted repair must not roll the whole window: every site outside the
+    targeted identity set keeps its stored entry verbatim, including failure
+    state, so a partial run can never turn untouched sites into failures.
+    """
+    with file_lock(path):
+        return _update_recent_cache_for_targeted_sites(path, period, sites, results)
+
+
+def _update_recent_cache_for_targeted_sites(
+    path: Path,
+    period: int,
+    sites: Sequence[object],
+    results: Sequence[CurrentRunResult],
+) -> bool:
+    if period <= 0:
+        print("最近10期缓存更新失败: 定向期数必须大于0", file=sys.stderr)
+        return False
+    if path.exists():
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8-sig"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                f"最近10期缓存更新失败: 无法读取现有缓存({type(exc).__name__}: {exc})",
+                file=sys.stderr,
+            )
+            return False
+    else:
+        print("最近10期缓存更新失败: 定向更新要求已有缓存文件", file=sys.stderr)
+        return False
+    if not isinstance(payload, dict):
+        print("最近10期缓存更新失败: 现有缓存格式错误", file=sys.stderr)
+        return False
+    try:
+        window = int(payload.get("window") or 10)
+        cached_period = int(payload["period"])
+    except (KeyError, TypeError, ValueError):
+        print("最近10期缓存更新失败: 现有缓存缺少有效 period/window", file=sys.stderr)
+        return False
+    if payload.get("schema") != 2 or window != 10:
+        print("最近10期缓存更新失败: 缓存schema或10期窗口不匹配", file=sys.stderr)
+        return False
+    wanted_periods = list(range(cached_period, cached_period - window, -1))
+    if period not in wanted_periods:
+        print("最近10期缓存更新失败: 定向期数不在现有缓存窗口内", file=sys.stderr)
+        return False
+    old_items = payload.get("sites")
+    if not isinstance(old_items, list) or not old_items:
+        print("最近10期缓存更新失败: 现有缓存没有站点数据", file=sys.stderr)
+        return False
+
+    old_by_identity: dict[tuple[str, str, str], dict] = {}
+    for old_item in old_items:
+        identity = (
+            _cache_identity(old_item.get("name"), old_item.get("url"), old_item.get("pick"))
+            if isinstance(old_item, dict)
+            else None
+        )
+        if identity is None:
+            print("最近10期缓存更新失败: 现有缓存站点身份格式错误", file=sys.stderr)
+            return False
+        if identity in old_by_identity:
+            print("最近10期缓存更新失败: 现有缓存存在重复站点身份", file=sys.stderr)
+            return False
+        if not old_item.get("archived"):
+            values = _valid_old_values(old_item, identity[1], wanted_periods)
+            failure_state = _valid_old_failure_state(old_item, wanted_periods)
+            if values is None or failure_state is None:
+                print(
+                    f"最近10期缓存更新失败: 站点{identity[0]}的历史状态损坏",
+                    file=sys.stderr,
+                )
+                return False
+        old_by_identity[identity] = old_item
+
+    result_indexes = [getattr(result, "index", None) for result in results]
+    if (
+        not results
+        or any(
+            type(index) is not int or index < 1 or index > len(sites)
+            for index in result_indexes
+        )
+        or len(set(result_indexes)) != len(result_indexes)
+    ):
+        print("最近10期缓存更新失败: 定向结果索引重复或越界", file=sys.stderr)
+        return False
+
+    updates: dict[tuple[str, str, str], dict[str, object]] = {}
+    for result in results:
+        site = sites[result.index - 1]
+        identity = _cache_identity(
+            getattr(site, "name", ""),
+            getattr(site, "url", ""),
+            getattr(site, "pick", "top"),
+        )
+        stored = old_by_identity.get(identity) if identity is not None else None
+        if identity is None or stored is None or stored.get("archived"):
+            print("最近10期缓存更新失败: 定向站点与现有缓存不匹配", file=sys.stderr)
+            return False
+        url = identity[1]
+        if result.success_line is not None:
+            ranking_value = result.ranking_value
+            if (
+                result.fail_line is not None
+                or ranking_value is None
+                or not is_valid_result_value(ranking_value, url)
+            ):
+                print("最近10期缓存更新失败: 定向成功结果字段不一致", file=sys.stderr)
+                return False
+            labels = (
+                " ".join(f"{value}尾" for value in ranking_value.split("、"))
+                if url in TWO_TAIL_SITE_URLS
+                else f"{ranking_value}尾"
+            )
+            if result.success_line != f"{labels} {identity[0]}":
+                print("最近10期缓存更新失败: 定向成功结果字段不一致", file=sys.stderr)
+                return False
+        elif result.ranking_value is not None or not result.fail_line:
+            print("最近10期缓存更新失败: 定向失败结果字段不完整", file=sys.stderr)
+            return False
+        if identity in updates:
+            print("最近10期缓存更新失败: 定向站点重复出现", file=sys.stderr)
+            return False
+        updates[identity] = {
+            "value": result.ranking_value if result.success_line else None,
+            "fail_line": result.fail_line or "",
+        }
+
+    new_items: list[dict] = []
+    fresh_fail_lines: list[str] = []
+    complete_count = 0
+    cache_fail_count = 0
+    for old_item in old_items:
+        item = dict(old_item)
+        identity = _cache_identity(item.get("name"), item.get("url"), item.get("pick"))
+        update = updates.get(identity) if identity is not None else None
+        if update is not None:
+            old_values = {
+                int(old_period): str(old_value)
+                for old_period, old_value in zip(item["periods"], item["values"])
+                if int(old_period) in wanted_periods
+            }
+            old_values.pop(period, None)
+            reasons = {
+                int(old_period): str(reason)
+                for old_period, reason in (item.get("failure_reasons") or {}).items()
+                if int(old_period) in wanted_periods
+            }
+            reasons.pop(period, None)
+            if update["value"] is not None:
+                old_values[period] = str(update["value"])
+            else:
+                reasons[period] = str(update["fail_line"])
+            kept_periods = [item for item in wanted_periods if item in old_values]
+            item["periods"] = kept_periods
+            item["values"] = [old_values[item] for item in kept_periods]
+            item["extended"] = max(0, window - len(kept_periods))
+            if reasons:
+                failed_periods = sorted(reasons, reverse=True)
+                item["failed_periods"] = failed_periods
+                item["failure_reasons"] = {
+                    str(item): reasons[item] for item in failed_periods
+                }
+            else:
+                item.pop("failed_periods", None)
+                item.pop("failure_reasons", None)
+        if not item.get("archived"):
+            if item.get("failed_periods"):
+                cache_fail_count += 1
+                if identity in updates and update["value"] is None:
+                    fresh_fail_lines.append(str(update["fail_line"]))
+            else:
+                complete_count += 1
+        new_items.append(item)
+
+    touched_prefixes = tuple(
+        f"失败 {name} {url} 方向: {pick} " for name, url, pick in updates
+    )
+    kept_fail_lines = [
+        str(line)
+        for line in (payload.get("fail_lines") or [])
+        if line and not str(line).startswith(touched_prefixes)
+    ]
+    payload["generated_at"] = datetime.datetime.now().isoformat(timespec="seconds")
+    payload["site_count"] = sum(1 for item in new_items if not item.get("archived"))
+    payload["vector_count"] = complete_count
+    payload["fail_count"] = cache_fail_count
+    payload["fail_lines"] = kept_fail_lines + fresh_fail_lines
+    payload["sites"] = new_items
+    _atomic_write_text_unlocked(
+        path, json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(
+        f"最近10期缓存已定向更新{period}期: 目标 {len(updates)} 条, "
+        f"完整 {complete_count} 条, 标记失败 {cache_fail_count} 条"
+    )
+    return True
