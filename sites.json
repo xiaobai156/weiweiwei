@@ -1350,7 +1350,8 @@
   {
     "name": "猫咪尾巴",
     "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20150",
-    "pick": "bottom"
+    "pick": "bottom",
+    "archived": true
   },
   {
     "name": "马料发财",
