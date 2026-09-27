@@ -921,6 +921,14 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         chunk_keywords=("昙花一现", "绝杀一尾"),
         require_site_keyword=False,
     ),
+    'https://wwlhc.com/thread-87037-1-1.html': StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="forum_main_kill_tail",
+        chunk_keywords=("张天师", "绝杀一尾", "杀一尾"),
+        prefer_rendered=True,
+        prefer_rendered_body_text=True,
+        require_site_keyword=True,
+    ),
     'https://czcvzk.4n5g7-o871g-hqmkwz.work:29422/article/admin/6a095ef7291caff3edcb8ac6?url=tsp': StrictRule(
         allowed_sources=("compact",),
         chunk_keywords=('八喜临门', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
