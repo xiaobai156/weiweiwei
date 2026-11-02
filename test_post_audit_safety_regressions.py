@@ -85,6 +85,31 @@ def test_static_article_accepts_only_immediate_target_value() -> None:
     assert [(record.period, record.tail) for record in records] == [(251, 5)]
 
 
+def test_static_article_accepts_decorative_emoji_before_value() -> None:
+    records = extract_safe_static_article_body_records(
+        "255期 审计站 绝杀1尾🎆[4]开: 00 错",
+        "审计站",
+        ("绝杀1尾",),
+        exclude_keywords=(),
+        require_draw_signal=True,
+        require_site_keyword=True,
+    )
+    assert [(record.period, record.tail) for record in records] == [(255, 4)]
+
+
+def test_static_article_accepts_two_tail_with_decorative_emoji() -> None:
+    records = extract_safe_static_article_body_records(
+        "255期 审计站 绝杀②尾🈲[5.2]开: 00 错",
+        "审计站",
+        ("绝杀②尾",),
+        two_tail=True,
+        exclude_keywords=(),
+        require_draw_signal=True,
+        require_site_keyword=True,
+    )
+    assert [(record.period, record.value()) for record in records] == [(255, "5、2")]
+
+
 def test_generic_parser_rejects_cross_field_value(monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_parser(document: str, site_name: str, **kwargs):
         return [

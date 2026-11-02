@@ -63,13 +63,15 @@ USER_FEED_TAIL_RE = re.compile(
 )
 
 
+# 尾值允许 1~4 位：若干站点用「同数字重复」记法标注单个尾（如【3333尾】= 3 尾），
+# 该记法由 common.exact_tail_value 收敛为单尾，混合多位数字（如 12）仍被拒收。
 TAIL_PATTERNS = (
-    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*尾[^\d]{{0,6}}(\d{{1,3}})", re.S),
-    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*[:：]?\s*[\u3010\[\u300a\(\uff08]?\s*(\d{{1,3}})\s*[\u3011\]\u300b\)\uff09]?\s*尾", re.S),
-    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*尾\s*[\u3010\[\u300a\(\uff08]?\s*(\d{{1,3}})\s*[\u3011\]\u300b\)\uff09]?", re.S),
-    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*尾\s*[:：=]\s*(\d{{1,3}})", re.S),
-    re.compile(r"(?:绝|精)\s*(?:一|①|1)\s*尾[^\d]{0,6}(\d{1,3})", re.S),
-    re.compile(r"(?:绝|精)\s*(?:一|①|1)\s*[:：]?\s*[\u3010\[\u300a\(\uff08]?\s*(\d{1,3})\s*[\u3011\]\u300b\)\uff09]?\s*尾", re.S),
+    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*尾[^\d]{{0,6}}(\d{{1,4}})", re.S),
+    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*[:：]?\s*[\u3010\[\u300a\(\uff08]?\s*(\d{{1,4}})\s*[\u3011\]\u300b\)\uff09]?\s*尾", re.S),
+    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*尾\s*[\u3010\[\u300a\(\uff08]?\s*(\d{{1,4}})\s*[\u3011\]\u300b\)\uff09]?", re.S),
+    re.compile(rf"{TAIL_ACTION_PATTERN}\s*(?:一|①|1|一个)?\s*尾\s*[:：=]\s*(\d{{1,4}})", re.S),
+    re.compile(r"(?:绝|精)\s*(?:一|①|1)\s*尾[^\d]{0,6}(\d{1,4})", re.S),
+    re.compile(r"(?:绝|精)\s*(?:一|①|1)\s*[:：]?\s*[\u3010\[\u300a\(\uff08]?\s*(\d{1,4})\s*[\u3011\]\u300b\)\uff09]?\s*尾", re.S),
 )
 
 
@@ -153,7 +155,7 @@ TWO_TAIL_SITE_URLS = frozenset({
     "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a082c7108adb5ed7357ef3b?url=lhw",
     "https://aszmkf.c3z3l-qrlqm-mwgccr.work:29411/article/lottery/6a083d1308adb5ed7357f036?url=lhw",
     "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a09527a291caff3edcb8a33?url=lf",
-    "https://0130190827.673454.xyz/bbs/topic.php?id=20144",
+    "https://0130190827.673454.xyz/bbs/topic.php?id=20330",
     "https://67806780827.234535.xyz/bbs/topic.php?id=22163",
     "https://88888020827.833567.xyz/bbs/topic.php?id=22608",
     "https://88888020827.833567.xyz/bbs/topic.php?id=20522",

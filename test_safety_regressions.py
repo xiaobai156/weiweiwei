@@ -27,6 +27,14 @@ def test_single_tail_parser_rejects_draw_multi_digit_and_multi_tail_values() -> 
     assert extract_tail_value("251期绝杀一尾[5]开猴23准") == 5
 
 
+def test_repeated_same_digit_tail_presentation_is_accepted() -> None:
+    assert extract_tail_value("255期精杀一尾专区111尾开0000准") == 1
+    assert extract_tail_value("231期杀一尾〖555尾〗 开:?0?") == 5
+    assert extract_tail_value("255期杀掉一尾〖222尾〗开:0000准") == 2
+    assert extract_tail_value("255期杀一尾[999尾] 开?00") == 9
+    assert extract_tail_value("255期绝杀一尾 12尾 开:01准") is None
+
+
 def test_table_parser_does_not_reuse_tail_column_in_next_table() -> None:
     html = """
     <table>

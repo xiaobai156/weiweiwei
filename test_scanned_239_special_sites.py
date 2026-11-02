@@ -13,14 +13,14 @@ SPECIAL_SITES = {
     "顺流而下": ("https://buzsxio.821n4-hgj04-edkrft.xyz:29455/article/lottery/6a73f86e2822d465035fbb61?url=bxj", 239),
     "春云满望": ("https://pgyzulb.iwnn7-gyyip-pnpfqv.work:29477/article/lottery/6a58e7d2f447e21b02db8190?url=bflc", 239),
     "金帝护卫": ("https://herymche.x6l2j-h6kfu-qdresg.work:29466/article/lottery/6a0452504ea5c20141013e9b?url=txbb", 240),
-    "澳彩碼王": ("https://12388990827.794555.xyz/bbs/topic.php?id=21353", 240),
+    "澳彩碼王": ("https://12388990827.794555.xyz/bbs/topic.php?id=19959", 240),
     "饱食暖衣": ("https://12388990827.794555.xyz/bbs/topic.php?id=20270", 240),
-    "寻宝探码": ("https://12388990827.688756.xyz/bbs/topic.php?id=18520", 239),
-    "财源滚滚": ("https://12388990827.688756.xyz/bbs/topic.php?id=19930", 239),
+    "寻宝探码": ("https://12388990827.688756.xyz/bbs/topic.php?id=19155", 239),
+    "财源滚滚": ("https://12388990827.688756.xyz/bbs/topic.php?id=19128", 239),
     "潇洒人生": ("https://0130190827.767566.xyz/bbs/topic.php?id=30780", 239),
     "夜空无痕": ("https://88888020827.897657.xyz/bbs/topic.php?id=20207", 239),
     "安身立命": ("https://88888020827.897657.xyz/bbs/topic.php?id=20215", 239),
-    "海角天涯": ("https://88888020827.997595.xyz/bbs/topic.php?id=18490", 239),
+    "海角天涯": ("https://88888020827.997595.xyz/bbs/topic.php?id=19471", 239),
 }
 
 

@@ -18,9 +18,10 @@ _TWO_VALUE_RE = re.compile(
     r"\s*(\d)\s*尾?\s*(?:[,，、.]|．)\s*(\d)\s*尾?\s*"
 )
 _BRACKET_RE = re.compile(r"[\[(]([^\]\)]{1,40})[\])]")
-_ALLOWED_VALUE_PREFIX_RE = re.compile(
-    r"^[\s:：=◆◇〓\-—_~*#、，,.．。+＋]*$"
-)
+# The value must immediately follow the tail field.  Decorative symbols and
+# emoji (for example 🈲/🎆) are formatting only; any CJK text or ASCII letter
+# that survives normalization is a different field or an explanation.
+_CJK_OR_LETTER_RE = re.compile(r"[\u3400-\u9fff\uf900-\ufaffA-Za-z]")
 
 
 def _split_period_rows(row: str) -> list[str]:
@@ -63,7 +64,7 @@ def _value_after_keyword(
     prefix = normalize_text(suffix[: bracket.start()])
     # The target value must immediately follow the tail field.  Arbitrary
     # words such as 推荐/杀码/杀头 cannot sit between the tail label and value.
-    if _ALLOWED_VALUE_PREFIX_RE.fullmatch(prefix) is None:
+    if _CJK_OR_LETTER_RE.search(prefix) is not None:
         return None
 
     value_text = normalize_text(bracket.group(1))

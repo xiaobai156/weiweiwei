@@ -143,36 +143,130 @@ def _prediction_text(chunk: str) -> str:
     return normalized.strip()
 
 
+def exact_tail_value(raw_value: str) -> int | None:
+    """Return one exact single-tail digit.
+
+    Several verified pages display the predicted tail as the same digit
+    repeated two or more times (for example ``(777)`` or ``〖222尾〗``).
+    Mixed multi-digit tokens such as ``23`` stay rejected.
+    """
+
+    if re.fullmatch(r"\d", raw_value):
+        return int(raw_value)
+    if len(raw_value) > 1 and len(set(raw_value)) == 1:
+        return int(raw_value[0])
+    return None
+
+
 def _extract_tail_value(chunk: str) -> int | None:
+    """按「出现位置」取本期尾值，而不是按模式优先级。
+
+    原实现遍历 TAIL_PATTERNS，遇到第一个能匹配的模式就返回——于是
+    「本期杀:7尾: 0000 准 上期绝杀一尾5」会先命中「绝杀一尾」这个强模式，
+    把上期的 5 当本期值（块内跨期借值，且不产生同期冲突，校验层看不见）。
+
+    现在收集所有模式的全部匹配，按出现位置从前往后取第一个合法值：
+    真实站点一律把本期数据写在块首、上期/回顾写在后面，因此位置序等价于
+    时间序，能自然屏蔽块内上期值。
+    """
     prediction = normalize_text(_prediction_text(chunk))
     if "尾" not in prediction:
         return None
-    for pattern in TAIL_PATTERNS:
-        match = pattern.search(prediction)
-        if not match:
-            continue
+
+    candidates: list[tuple[int, int, str, re.Match[str]]] = []
+    for order, pattern in enumerate(TAIL_PATTERNS):
+        for match in pattern.finditer(prediction):
+            candidates.append((match.start(), order, pattern.pattern, match))
+    candidates.sort(key=lambda item: (item[0], item[1]))
+
+    for start, _order, _pattern, match in candidates:
         raw_value = match.group(1)
-        if re.fullmatch(r"\d", raw_value) is None:
+        value = exact_tail_value(raw_value)
+        if value is None:
             continue
         matched_text = normalize_text(match.group(0)).replace(" ", "")
-        if raw_value == "1" and re.fullmatch(r"(?:绝杀|精准杀|稳杀|狠杀|主杀|课杀|杀掉|禁|杀)1尾", matched_text):
+        if raw_value == "1" and re.fullmatch(
+            r"(?:绝杀|精准杀|稳杀|狠杀|主杀|课杀|杀掉|禁|杀)1尾", matched_text
+        ):
             continue
         # A single-tail parser must not silently select one value from a
         # multi-tail field such as 2、3尾 or 1尾 8尾.
         suffix = prediction[match.end() : match.end() + 16]
         if re.match(r"\s*(?:尾\s*)?(?:[、,，.．+＋/]\s*)?\d\s*尾", suffix):
             continue
-        return int(raw_value)
+        return value
     return None
 
 
 def _period_window(chunk: str, max_span: int = 240) -> str:
-    return normalize_text(chunk)[: max(80, max_span)]
+    """按跨度截取本期窗口，且绝不把数字/括号切断成另一个合法值。
+
+    硬切会把非法值「修」成合法值：例如 `[12]` 若切点落在 `[1` 与 `2` 之间，
+    窗口里就只剩 `[1]`，而 1 是合法尾数，会静默通过校验。
+    """
+    full = normalize_text(chunk)
+    text = full[: max(80, max_span)]
+    if len(text) >= len(full):
+        return text
+    # 截断点落在数字中间，或任一种括号未闭合时，回退到最近分隔处。
+    # 必须同时检查 [] 与 ()：normalize 会把全角括号转成半角 ()。
+    unbalanced = any(
+        text.count(open_ch) > text.count(close_ch)
+        for open_ch, close_ch in (("[", "]"), ("(", ")"), ("【", "】"))
+    )
+    if re.search(r"\d$", text) or unbalanced:
+        cut = max(text.rfind(" "), text.rfind("\t"), text.rfind("\n"))
+        if cut > 0:
+            text = text[:cut]
+        else:
+            # 没有分隔处可退时，宁可丢弃末尾不完整的数字/括号片段，
+            # 也不能让它变成另一个合法值。
+            text = re.sub(r"[\d\[\]()【】]+\s*$", "", text)
+    return text
+
+
+# 开奖字段：允许只写「准/错」不带号码（真实站点存在 `开准` 写法），
+# 也允许带号码/占位。`开奖结果 12 准` 同样属于开奖字段。
+# 另有站点把开奖写成「尾: 0000 准」「尾: 马13 准」，即尾值字段后直接跟
+# 开奖号与准/错，不带「开」字（如尉迟日轻 `298期杀:7尾: 0000 准`）。
+_DRAW_FIELD_RE = re.compile(
+    r"开(?:奖结果|奖号码|奖)?[ \t:：]*"
+    r"(?:"
+    r"(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪])?\d{1,4}"
+    r"|[?？]{1,2}\d{0,2}"
+    r"|准|错"
+    r")"
+    r"|(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪]\s*\d{2}\s*(?:准|错))"
+    r"|(?:[【\[]?\s*\d+\s*[】\]]?\s*[尾头肖]\s*[：:]\s*"
+    r"(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪]\s*\d{2}|[?？]{1,2}\d{0,2}|\d{1,4})\s*(?:准|错))"
+)
+
+# 噪声词：整词命中时先把词本身从待判文本里抹掉，避免 `公开12期` 里的
+# 「开」被当成开奖字段（它后面恰好跟着 12，单靠正则无法区分）。
+_DRAW_NOISE_WORDS = (
+    "公开", "开户", "开始", "开展", "开通", "开盘", "开奖栏目",
+    "开奖时间", "开奖直播", "开奖记录", "开奖走势", "开奖网", "开奖站",
+)
+
+# 站点把网址写成「开奖:87127.com」时，「开奖:数字」看起来像开奖号，
+# 但后面紧跟域名后缀，属噪声。
+_DRAW_URL_RE = re.compile(r"开奖\s*[:：]?\s*\d+\s*\.\s*[A-Za-z]{2,}")
 
 
 def _has_draw_signal(chunk: str) -> bool:
+    """判断本块是否含真正的开奖字段，避免「公开/准备/开奖栏目」误判。
+
+    仅出现「开」「准」「错」任一单字不足以证明这是开奖数据行，广告位与
+    导航文字同样会命中，从而把相邻期或栏目里的数字当本期值。
+
+    但真实站点确实存在 `开准`（只写准/错、不带号码）的写法，因此不能要求
+    必须有号码。做法：先抹掉噪声词与网址，再判断剩余文本里是否有开奖字段。
+    """
     normalized = normalize_text(chunk)
-    return any(signal in normalized for signal in ("开", "准", "错"))
+    cleaned = _DRAW_URL_RE.sub("　", normalized)
+    for word in _DRAW_NOISE_WORDS:
+        cleaned = cleaned.replace(word, "　")
+    return bool(_DRAW_FIELD_RE.search(cleaned))
 
 
 def _strong_tail_candidate_window(

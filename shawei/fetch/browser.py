@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import atexit
 import asyncio
+import os
 import re
 import threading
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
 
 from shawei.fetch.http_client import RENDER_CACHE, RENDER_STATUS, RUNTIME_CACHE_LOCK
@@ -14,6 +16,12 @@ RENDER_FLIGHTS: dict[tuple[str, int], threading.Event] = {}
 RENDER_FLIGHTS_LOCK = threading.Lock()
 _BROWSER_RUNTIME: "_BrowserRuntime | None" = None
 _BROWSER_RUNTIME_LOCK = threading.Lock()
+
+
+def browser_profile_dir() -> Path:
+    """Return the persistent Playwright profile used by crawler renders."""
+    configured = os.environ.get("SHAWEI_BROWSER_PROFILE")
+    return Path(configured) if configured else Path(__file__).resolve().parents[2] / "browser-profile"
 
 
 @dataclass(frozen=True)
@@ -75,10 +83,26 @@ class _BrowserRuntime:
         from playwright.async_api import async_playwright
 
         self._playwright = await async_playwright().start()
-        self._browser = await self._playwright.chromium.launch(headless=True)
-        self._context = await self._browser.new_context(
-            viewport={"width": 1280, "height": 2600}
+        profile_dir = browser_profile_dir()
+        profile_dir.mkdir(parents=True, exist_ok=True)
+        launch_persistent = getattr(
+            self._playwright.chromium, "launch_persistent_context", None
         )
+        # 与 HTTP 兜底路径（curl --insecure）保持一致：站方证书过期/自签时不阻断渲染，
+        # 否则 net::ERR_CERT_DATE_INVALID 会让整站当期被误判为抓取失败。
+        if launch_persistent is None:  # test doubles may expose only the legacy API
+            self._browser = await self._playwright.chromium.launch(headless=True)
+            self._context = await self._browser.new_context(
+                viewport={"width": 1280, "height": 2600},
+                ignore_https_errors=True,
+            )
+        else:
+            self._context = await launch_persistent(
+                str(profile_dir),
+                headless=True,
+                viewport={"width": 1280, "height": 2600},
+                ignore_https_errors=True,
+            )
 
     async def _close_resources(self) -> None:
         context, self._context = self._context, None
@@ -135,9 +159,21 @@ class _BrowserRuntime:
                     await page.wait_for_timeout(1200)
                 except Exception:
                     pass
-            for _ in range(options.scroll_count):
-                await page.mouse.wheel(0, 1400)
-                await page.wait_for_timeout(options.scroll_wait_ms)
+            # 滚动只用于触发懒加载；部分站点在滚动阶段会让渲染进程崩溃（Page crashed），
+            # 此时正文往往已经完整可读，先留存滚动前快照，崩溃时回退到该快照而不是整站判失败。
+            snapshot: list[str] = []
+            try:
+                snapshot = [await page.locator("body").inner_text(), await page.content()]
+            except Exception:
+                snapshot = []
+            try:
+                for _ in range(options.scroll_count):
+                    await page.mouse.wheel(0, 1400)
+                    await page.wait_for_timeout(options.scroll_wait_ms)
+            except Exception as scroll_error:
+                if any(document.strip() for document in snapshot):
+                    return snapshot, ""
+                return [], f"{type(scroll_error).__name__}: {scroll_error}"
             return [await page.locator("body").inner_text(), await page.content()], ""
         except Exception as exc:
             return [], f"{type(exc).__name__}: {exc}"

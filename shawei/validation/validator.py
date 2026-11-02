@@ -57,6 +57,7 @@ def _build_source_kwargs(
             "pick": pick,
             "anchor_span": rule.max_section_span,
             "allow_same_period_records": rule.same_period_record_selection,
+            "site_url": rule.site_url,
         }
     if source == "user_feed":
         return {
@@ -355,6 +356,39 @@ def _remove_subsumed_page_fragments(candidates: list[Candidate]) -> list[Candida
     ]
 
 
+def _require_no_conflicting_target_values(
+    candidates: Iterable[Candidate],
+    target_period: int,
+    site_name: str,
+) -> None:
+    """单期入口的跨来源同期冲突拦截。
+
+    每个站点在配置里已写死 top/bottom，同一区块内出现多行同期记录时，
+    按方向选对应那条是既定设计，不算冲突；因此这里只比较**不同权威块之间**
+    的目标期取值，块内多值放行。
+
+    这样既能拦住「同一期在两个不同来源给出不同值」的静默借值，
+    又不会推翻「按方向选择」的既有语义。
+    """
+    grouped: dict[tuple[object, ...], set[str]] = {}
+    for candidate in candidates:
+        if candidate.record.period != target_period:
+            continue
+        grouped.setdefault(
+            _candidate_authority_key(candidate), set()
+        ).add(candidate.record.value())
+    block_values = [values for values in grouped.values() if values]
+    if len(block_values) < 2:
+        return
+    first = block_values[0]
+    for values in block_values[1:]:
+        if not (first & values):
+            raise LookupError(
+                f"{site_name} {target_period}期存在多个候选且数据冲突: "
+                f"{'、'.join(sorted(set().union(*block_values)))}"
+            )
+
+
 def _require_target_authority_consistency(
     candidates: Iterable[Candidate],
     target_period: int,
@@ -585,6 +619,14 @@ def validate_documents(
                 site_name,
                 identity_url,
             )
+            # 边界校验通过后再拦同期冲突：单期入口此前完全不做这项检查，
+            # 同一文档出现两个不同的本期值时会静默取边界值通过。
+            # 放在边界之后，是为了保持「边界不对」优先报出的既有语义；
+            # 显式允许同期多记录按方向选择的站点除外。
+            if not active_rule.same_period_record_selection:
+                _require_no_conflicting_target_values(
+                    candidates, target_period, site_name
+                )
             boundary_candidate = boundaries[0]
             numbered_candidates = target_candidates
             records = [boundary_candidate.record]

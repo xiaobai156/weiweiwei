@@ -6,6 +6,7 @@ from shawei.domain.models import Document
 from shawei.fetch import document_discovery
 from shawei.fetch.profile import _qvuu_two_tail_target_values
 from shawei.parsers.dedicated import extract_dedicated_records
+from shawei.parsers.topic import extract_discuz_main_post_records
 from shawei.validation.validator import validate_documents
 
 
@@ -20,6 +21,8 @@ NALAWANZHI_URL = "https://sfch0f.ky3r5-0b4c9-yudwqy.work/topic/240474.html"
 SAODI_URL = "https://rh2fgz.a96ub-s6g0d-mfbdwp.work/topic/225941.html"
 LIUXUAN_URL = "https://lx11.www87127b.com:8443/#87127"
 TANHUA_URL = "https://www.www144344.com/read.php?tid=1904"
+QIANHUHUANHUAN_URL = "https://ryfbdty.p4a53-f1hew-diwcrg.xyz:16677/topic/497782.html"
+ZHANGSHI_URL = "https://wwlhc.com/thread-87037-1-1.html"
 
 
 def test_liuxuan_retries_transient_tls_failure_per_document(
@@ -328,3 +331,75 @@ def test_kaijiang_uses_rendered_table_instead_of_stale_http() -> None:
 
     assert rule.prefer_rendered is True
     assert rule.render_timeout == 20
+
+
+def _qianhuhuanhuan_rows(target_tail: str) -> str:
+    return (
+        "278期【绝杀一尾】 作者:千呼万唤\n"
+        f"278期:绝杀一尾=【{target_tail}尾】开？00对\n"
+        "277期:绝杀一尾=【222尾】开猴11对\n"
+        "276期:绝杀一尾=【000尾】开蛇14对"
+    )
+
+
+def test_qianhuhuanhuan_top_278_reads_four_repeated_digit_tail() -> None:
+    # 该站用「同数字重复」记法标注单尾（3333 = 3 尾），须与 222/000 同解析。
+    decision = validate_documents(
+        [Document(QIANHUHUANHUAN_URL, _qianhuhuanhuan_rows("3333"), "page")],
+        "千呼万唤",
+        pick="top",
+        rule=effective_rule_for(QIANHUHUANHUAN_URL, "千呼万唤"),
+        target_period=278,
+    )
+
+    assert [record.as_line() for record in decision.records] == ["3尾 千呼万唤"]
+
+
+def test_qianhuhuanhuan_rejects_mixed_four_digit_tail_token() -> None:
+    with pytest.raises(LookupError, match="绝对top边界是277期，不是指定278期"):
+        validate_documents(
+            [Document(QIANHUHUANHUAN_URL, _qianhuhuanhuan_rows("1234"), "page")],
+            "千呼万唤",
+            pick="top",
+            rule=effective_rule_for(QIANHUHUANHUAN_URL, "千呼万唤"),
+            target_period=278,
+        )
+
+
+def _discuz_main_post_fixture(rows: str) -> str:
+    return (
+        f'<link rel="canonical" href="{ZHANGSHI_URL}">'
+        '<span id="thread_subject">【280期】【张天师㊣新澳门】杀一尾</span>'
+        '<div id="post_1">'
+        '<div id="favatar1"><div class="authi"><a href="#">张天师</a></div></div>'
+        f'<div id="postmessage_1">{rows}</div>'
+        "</div>"
+    )
+
+
+def test_discuz_main_post_accepts_trailing_comment_after_draw_field() -> None:
+    # 作者在开奖字段后加自由说明（「开:10准 不杀就开了！…」）不应把该行判成无效，
+    # 否则无效占位行会触发安全门，连带阻断同帖已发布的目标期。
+    rows = (
+        "279期: ★★★张天师★★★绝杀一尾[5尾]开:10准 不杀就开了！还是挺牛的，哈哈。<br>"
+        "280期: ★★★张天师★★★绝杀一尾 本帖隐藏的内容 [8尾]开:"
+    )
+    records = extract_discuz_main_post_records(
+        _discuz_main_post_fixture(rows), "张天师", ("张天师", "绝杀一尾"), (),
+        True, 280, site_url=ZHANGSHI_URL,
+    )
+
+    assert [(record.period, record.tail) for record in records] == [(279, 5), (280, 8)]
+    assert all(record.validation_error == "" for record in records)
+
+
+def test_discuz_main_post_still_rejects_single_digit_draw_with_comment() -> None:
+    rows = "280期: ★★★张天师★★★绝杀一尾[8尾]开:1准 备注"
+    records = extract_discuz_main_post_records(
+        _discuz_main_post_fixture(rows), "张天师", ("张天师", "绝杀一尾"), (),
+        True, 280, site_url=ZHANGSHI_URL,
+    )
+
+    assert [(record.period, record.tail, bool(record.validation_error)) for record in records] == [
+        (280, -1, True)
+    ]

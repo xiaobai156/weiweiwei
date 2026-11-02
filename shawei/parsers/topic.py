@@ -979,10 +979,37 @@ def _topic_body_has_author_anchor(
     return False
 
 
+def _annual_delta(previous: int, current: int) -> int:
+    """把期号差归一成 ±1 或 0，跨年（365/366 → 001）视为相邻。
+
+    原实现只认字面差 ±1，跨年时 001→365 的差值是 364 会直接断段，
+    bottom 于是取到最老那一段（去年同号），属静默跨期借值。
+
+    跨年方向由差值符号决定：
+    - 365 → 1 差 -364：数值变小但实际是下一期，归一为 +1（递增）
+    - 1 → 365 差 +364：数值变大但实际是上一期，归一为 -1（递减）
+    """
+    delta = current - previous
+    if delta in {-1, 0, 1}:
+        return delta
+    if delta <= -300:
+        # 数值大幅变小 = 绕回年初，仍是递增方向
+        return 1
+    if delta >= 300:
+        # 数值大幅变大 = 退回去年末，仍是递减方向
+        return -1
+    return delta
+
+
 def _select_contiguous_record_segment(
-    records: list[Record], pick: str
+    records: list[Record], pick: str, target_period: int | None = None
 ) -> list[Record]:
-    """Keep one ordered annual cycle before applying the absolute direction."""
+    """Keep one ordered annual cycle before applying the absolute direction.
+
+    段切分按跨年归一后的期号差判定；若给出 target_period，优先返回包含目标期
+    的那一段（多段同时包含时取最靠文档开头的一段），避免无条件取首/末段而
+    选到去年循环。
+    """
     if not records:
         return records
 
@@ -990,7 +1017,7 @@ def _select_contiguous_record_segment(
     current = [records[0]]
     direction = 0
     for record in records[1:]:
-        delta = record.period - current[-1].period
+        delta = _annual_delta(current[-1].period, record.period)
         if delta in {-1, 1} and (direction == 0 or direction == delta):
             current.append(record)
             direction = delta
@@ -999,6 +1026,11 @@ def _select_contiguous_record_segment(
         current = [record]
         direction = 0
     segments.append(current)
+
+    if target_period is not None:
+        for segment in segments:
+            if any(record.period == target_period for record in segment):
+                return segment
     return segments[-1] if is_bottom_pick(pick) else segments[0]
 
 
@@ -1114,7 +1146,8 @@ def extract_lainan_yixin_bottom_records(
     current = [rows[0]]
     direction = 0
     for row in rows[1:]:
-        delta = row[0] - current[-1][0]
+        # 跨年（365→001）归一为相邻，避免被误判成断段而取到去年同号。
+        delta = _annual_delta(current[-1][0], row[0])
         if delta in {-1, 1} and (direction == 0 or direction == delta):
             current.append(row)
             direction = delta
@@ -1202,15 +1235,20 @@ def _topic_main_primary_rows(
 def _topic_main_select_contiguous_segment(
     rows: list[tuple[int, str]],
     pick: str,
+    target_period: int | None = None,
 ) -> list[tuple[int, str]]:
-    """Select one URL-specific contiguous history from repeated topic rows."""
+    """Select one URL-specific contiguous history from repeated topic rows.
+
+    与 ``_select_contiguous_record_segment`` 共用跨年归一的切段规则，
+    避免跨年（365→001）被误判为断段而取到去年同号。
+    """
     if not rows:
         return rows
     segments: list[list[tuple[int, str]]] = []
     current = [rows[0]]
     direction = 0
     for row in rows[1:]:
-        delta = row[0] - current[-1][0]
+        delta = _annual_delta(current[-1][0], row[0])
         if delta in {-1, 1} and (direction == 0 or direction == delta):
             current.append(row)
             direction = delta
@@ -1219,6 +1257,11 @@ def _topic_main_select_contiguous_segment(
         current = [row]
         direction = 0
     segments.append(current)
+
+    if target_period is not None:
+        for segment in segments:
+            if any(period == target_period for period, _ in segment):
+                return segment
     return segments[-1] if is_bottom_pick(pick) else segments[0]
 
 
@@ -1325,6 +1368,96 @@ def _topic_main_html_blocks(
                     blocks.append(candidate)
         stack.extend(reversed(node.children))
     return blocks
+
+
+def extract_discuz_main_post_records(
+    document: str,
+    site_name: str,
+    chunk_keywords: tuple[str, ...],
+    exclude_keywords: tuple[str, ...],
+    require_draw_signal: bool,
+    target_period: int | None,
+    site_url: str = "",
+) -> list[Record]:
+    """Preserve ordered rows within the canonical thread's author post."""
+    parser = _DynamicHtmlParser()
+    try:
+        parser.feed(document)
+        parser.close()
+    except Exception:
+        return []
+    nodes = []
+    stack = [parser.root]
+    while stack:
+        node = stack.pop()
+        nodes.append(node)
+        stack.extend(reversed(node.children))
+    canonicals = [n.attrs.get("href") for n in nodes
+                  if n.tag == "link" and n.attrs.get("rel") == "canonical"]
+    subjects = [n for n in nodes if n.attrs.get("id") == "thread_subject"]
+    if not site_url or canonicals != [site_url] or len(subjects) != 1:
+        raise LookupError("Discuz帖子URL/标题身份不唯一或不匹配")
+    title = _dynamic_node_text_in_order(subjects[0])
+    if site_name not in title or "杀一尾" not in title:
+        raise LookupError("Discuz帖子作者/栏目不匹配")
+    bodies = [n for n in nodes if re.fullmatch(r"postmessage_\d+", n.attrs.get("id", ""))]
+    if not bodies:
+        raise LookupError("Discuz主帖正文未找到")
+    body = bodies[0]
+    post_id = body.attrs["id"].removeprefix("postmessage_")
+    posts = [n for n in nodes if n.attrs.get("id") == f"post_{post_id}"]
+    if len(posts) != 1 or sum(n.attrs.get("id") == body.attrs["id"] for n in bodies) != 1:
+        raise LookupError("Discuz主帖区块不唯一")
+    parent = body.parent
+    while parent is not None and parent is not posts[0]:
+        parent = parent.parent
+    authors = [n for n in nodes if n.attrs.get("id") == f"favatar{post_id}"]
+    if parent is None or len(authors) != 1 or authors[0].parent is None:
+        raise LookupError("Discuz主帖作者锚点缺失")
+    author = authors[0]
+    parent = author.parent
+    while parent is not None and parent is not posts[0]:
+        parent = parent.parent
+    links = [n for n in author.children if "authi" in _dynamic_class_tokens(n)]
+    # Discuz nests the author link inside .pi/.authi; inspect that subtree only.
+    author_nodes = [author]
+    author_links = []
+    while author_nodes:
+        n = author_nodes.pop()
+        if n.tag == "a" and n.parent and "authi" in _dynamic_class_tokens(n.parent):
+            author_links.append(_dynamic_node_text_in_order(n).strip("★ "))
+        author_nodes.extend(n.children)
+    if parent is None or author_links != [site_name]:
+        raise LookupError("Discuz主帖作者不匹配")
+    text = _dynamic_node_text_in_order(body)
+    records: list[Record] = []
+    for chunk in PERIOD_CHUNK_RE.split(text):
+        chunk = normalize_text(chunk)
+        period_match = PERIOD_RE.match(chunk)
+        if period_match is None:
+            continue
+        period = int(period_match.group(1))
+        if site_name not in chunk or "绝杀一尾" not in chunk:
+            raise LookupError(f"Discuz主帖{period}期作者/字段不匹配")
+        suffix = chunk.split("绝杀一尾", 1)[1].strip()
+        if "游客" in suffix or "请回复" in suffix or "隐藏内容请" in suffix:
+            error = f"{period}期隐藏内容未解锁，需要已登录且有查看权限的会话"
+            records.append(Record(tail=-1, period=period, site_name=site_name,
+                                  source_snippet=chunk, validation_error=error))
+            continue
+        suffix = re.sub(r"^本帖隐藏的内容\s*", "", suffix)
+        # 作者常在开奖字段后跟一句自由说明（如「开:10准 不杀就开了！…」）；
+        # 只放宽「空白分隔的尾部说明」，尾值/开奖字段本身仍按原样严格匹配。
+        match = re.fullmatch(
+            r"\[(\d)尾\]\s*开\s*:\s*(?:\d{2}\s*(?:准|错)?)?(?:\s+.*)?", suffix
+        )
+        if match is None:
+            records.append(Record(tail=-1, period=period, site_name=site_name,
+                                  source_snippet=chunk, validation_error=f"{period}期尾数字段缺失/非法/冲突"))
+            continue
+        records.append(Record(tail=int(match.group(1)), period=period, site_name=site_name,
+                              draw_text=extract_draw_text(chunk), source_snippet=chunk))
+    return records
 
 
 def _extract_topic_main_dedicated_records(

@@ -18,12 +18,14 @@ from shawei.parsers.common import (
     extract_table_records,
 )
 from shawei.parsers.topic import (
-    TOPIC_MAIN_DEDICATED_PARSERS, _DynamicHtmlNode, _DynamicHtmlParser, _dynamic_class_tokens,
+    TOPIC_MAIN_DEDICATED_PARSERS, _DynamicHtmlNode, _DynamicHtmlParser, _annual_delta,
+    _dynamic_class_tokens,
     _dynamic_node_text_in_order, _extract_topic_main_dedicated_records,
     _select_contiguous_record_segment, _topic_body_has_author_anchor,
     _topic_main_select_contiguous_segment, extract_topic_published_body_records,
     extract_lainan_yixin_bottom_records, extract_qingqingdandan_topic_records,
     extract_special_body_records, extract_static_article_body_records,
+    extract_discuz_main_post_records,
 )
 
 
@@ -38,6 +40,7 @@ class DedicatedContext:
     pick: str = "top"
     anchor_span: int = 1500
     allow_same_period_records: bool = False
+    site_url: str = ""
 
 
 def _parse_nalawanzhi_bottom(
@@ -52,7 +55,66 @@ def _parse_nalawanzhi_bottom(
         require_draw_signal=context.require_draw_signal,
         require_site_keyword=context.require_site_keyword,
     )
+    # 本站固定取「最后一个连续年度段」的底部边界（站点自身只有一列绝杀一尾，
+    # 方向由配置锁定为 bottom），因此不按 target_period 提前挑段：
+    # 提前挑段会把目标期以外的段整段丢弃，掩盖真实的边界错位。
     return _select_contiguous_record_segment(records, "bottom")
+
+
+_KEJIANYIBAN_SECTION_KEYWORD = "绝杀一尾"
+
+# 可见一斑 只在当期块内发「NNN期:绝杀一尾[X] 开<开奖>准/错」这一种行。
+# 开奖位可能是真实开奖（狗21）或尚未开奖的占位（0000 / ?00），两者都属已发布行：
+# 同模板的兄弟站点一直按已发布行处理，这里保持一致，不额外打占位诊断。
+_KEJIANYIBAN_ROW_RE = re.compile(
+    r"(?<!\d)(\d{1,4})\s*期\s*[:：]?\s*绝\s*杀\s*一\s*尾\s*\[\s*(\d)\s*\]"
+    r"\s*开\s*[:：]?\s*(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪]\s*\d{2}|\?{0,2}0{2,4})\s*(?:准|错)"
+)
+
+
+def _parse_kejianyiban_bottom(
+    document: str, site_name: str, parser_name: str, context: DedicatedContext
+) -> list[Record]:
+    """可见一斑（/topic/241106.html）专属：只认同块行内完整形状的绝杀一尾行。
+
+    当期块尾部紧跟整片导航文字（含「三尾中特」等栏目名），通用 compact 解析按
+    整块做排除词过滤时会把当期块整块误伤，底部边界停在上期。这里改用行内完整
+    形状取证：期号、栏目「绝杀一尾」、合法尾数、开奖字段必须在同一行同一窗口内，
+    导航文字永远不参与取值，也就不再依赖排除词。
+    """
+    text = normalize_text(re.sub(r"<[^>]+>", " ", document))
+    if not text:
+        return []
+    if context.require_site_keyword and not _site_keyword_present(text, site_name):
+        return []
+    if _KEJIANYIBAN_SECTION_KEYWORD not in text:
+        return []
+
+    span = max(80, context.max_chunk_span)
+    records: list[Record] = []
+    seen: set[tuple[int, int]] = set()
+    for chunk in (part.strip() for part in PERIOD_CHUNK_RE.split(text) if part.strip()):
+        # 只在有界窗口内匹配：窗口外是广告/导航，不参与取值。
+        window = _period_window(chunk, span)
+        for match in _KEJIANYIBAN_ROW_RE.finditer(window):
+            period = int(match.group(1))
+            tail = int(match.group(2))
+            if (period, tail) in seen:
+                continue
+            seen.add((period, tail))
+            row_text = match.group(0)
+            records.append(
+                Record(
+                    tail=tail,
+                    period=period,
+                    site_name=site_name,
+                    draw_text=extract_draw_text(row_text),
+                    source_snippet=_compact_snippet(f"{site_name} {row_text}"),
+                )
+            )
+    # 与兄弟站点一致：不按 target_period 提前挑段，避免掩盖真实边界错位。
+    return _select_contiguous_record_segment(records, context.pick)
+
 
 
 _CURRENT_DRAW_ZODIAC = "鼠牛虎兔龙蛇马羊猴鸡狗猪"
@@ -445,7 +507,8 @@ def _extract_exact_current_topic_records(
         current_segment = [valid_rows[0]]
         direction = 0
         for row in valid_rows[1:]:
-            delta = row[0] - current_segment[-1][0]
+            # 跨年（365→001）归一为相邻，避免被误判成断段而取到去年同号。
+            delta = _annual_delta(current_segment[-1][0], row[0])
             if delta in {-1, 1} and (direction == 0 or direction == delta):
                 current_segment.append(row)
                 direction = delta
@@ -993,6 +1056,18 @@ def _parse_topic_main(document: str, site_name: str, parser_name: str, context: 
     )
 
 
+def _parse_discuz_main_post(document: str, site_name: str, parser_name: str, context: DedicatedContext) -> list[Record]:
+    return extract_discuz_main_post_records(
+        document,
+        site_name,
+        context.chunk_keywords,
+        context.exclude_keywords,
+        context.require_draw_signal,
+        context.target_period,
+        site_url=context.site_url,
+    )
+
+
 def _parse_published_topic_body(document: str, site_name: str, parser_name: str, context: DedicatedContext) -> list[Record]:
     return extract_topic_published_body_records(
         document,
@@ -1215,9 +1290,11 @@ DEDICATED_PARSER_HANDLERS["caifu_gaoshou_kill_table"] = _parse_caifu_table
 DEDICATED_PARSER_HANDLERS["ttss_list_article_top_tail"] = _parse_ttss_list_article
 DEDICATED_PARSER_HANDLERS["aa_macau_two_tail_block"] = _parse_aa_macau_two_tail_block
 DEDICATED_PARSER_HANDLERS["nalawanzhi_bottom_tail"] = _parse_nalawanzhi_bottom
+DEDICATED_PARSER_HANDLERS["kejianyiban_bottom_tail"] = _parse_kejianyiban_bottom
 DEDICATED_PARSER_HANDLERS["kaijiangfacai_combined_kill_table"] = _parse_kaijiangfacai_table
 DEDICATED_PARSER_HANDLERS.update({name: _parse_exact_current_topic for name in _EXACT_CURRENT_TOPIC_PATTERNS})
 DEDICATED_PARSER_HANDLERS.update({name: _parse_topic_main for name in TOPIC_MAIN_DEDICATED_PARSERS})
+DEDICATED_PARSER_HANDLERS["discuz_main_post_kill_tail"] = _parse_discuz_main_post
 DEDICATED_PARSER_HANDLERS["topic_published_body_tail"] = _parse_published_topic_body
 DEDICATED_PARSER_HANDLERS["topic_body_single_tail"] = _parse_special_body
 DEDICATED_PARSER_HANDLERS["topic_body_two_tail"] = _parse_special_body
@@ -1259,6 +1336,7 @@ def extract_dedicated_records(
     pick: str = "top",
     anchor_span: int = 1500,
     allow_same_period_records: bool = False,
+    site_url: str = "",
 ) -> list[Record]:
     handler = DEDICATED_PARSER_HANDLERS.get(parser_name)
     if handler is None:
@@ -1273,5 +1351,6 @@ def extract_dedicated_records(
         pick,
         anchor_span,
         allow_same_period_records,
+        site_url,
     )
     return handler(document, site_name, parser_name, context)

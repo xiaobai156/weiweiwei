@@ -5,6 +5,7 @@ import re
 from shawei.config.constants import PERIOD_CHUNK_RE, PERIOD_RE, TAIL_PATTERNS
 from shawei.domain.models import Record
 from shawei.domain.text import normalize_text
+from shawei.parsers.common import exact_tail_value as _exact_tail_value
 
 
 _GENERIC_STRICT_SOURCES = frozenset({"section", "compact", "lead_compact"})
@@ -19,7 +20,7 @@ _ACTION = (
 _DRAW_BOUNDARY_RE = re.compile(
     r"开\s*[:：?？]?\s*(?=(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪]\s*)?\d|\?)"
 )
-_VALUE_TOKEN_RE = re.compile(r"(?<!\d)(\d{1,3})(?!\d)")
+_VALUE_TOKEN_RE = re.compile(r"(?<!\d)(\d{1,4})(?!\d)")
 _MULTI_TAIL_AFTER_VALUE_RE = re.compile(
     r"^\s*(?:尾\s*)?(?:[、,，.．+＋/]\s*|\s+)(\d)(?:\s*尾)?"
 )
@@ -29,6 +30,28 @@ _LONG_TAIL_MARKER_RE = re.compile(
 _SHORT_KILL_VALUE_RE = re.compile(
     r"杀\s*[【\[(（〖《]\s*(\d{1,3})\s*[】\])）〗》]\s*尾"
 )
+_BRACKET_KILL_VALUE_RE = re.compile(
+    r"[【\[(（〖《]\s*杀\s*(\d{1,3})\s*尾\s*[】\])）〗》]"
+)
+# Verified URL-bound notations that place the single tail beside a zodiac
+# field inside one bracket scope.  The parser's own grammar is the authority;
+# these patterns only let the guard prove the same direct value.
+_SCOPE_TAIL_PATTERNS = (
+    re.compile(
+        r"杀\s*肖\s*杀\s*尾\s*[【\[(（][^\]】)）\r\n]{0,24}?[+＋.．]\s*(\d)\s*尾"
+    ),
+    re.compile(
+        r"杀\s*[龙蛇虎羊牛猴鼠鸡兔猪狗马]\s*肖\s*杀\s*(\d)\s*尾"
+    ),
+    re.compile(
+        r"[\]】)）]\s*一\s*[【\[(（]\s*(\d)\s*尾\s*[\]】)）]"
+    ),
+    re.compile(
+        r"[【\[(（]\s*(\d)(?:\s*\1){2}\s*尾\s*[】\])）]"
+    ),
+)
+_PERIOD_TOKEN_RE = re.compile(r"(?<!\d)\d{1,4}\s*期")
+_CJK_OR_LETTER_RE = re.compile(r"[\u3400-\u9fff\uf900-\ufaffA-Za-z]")
 _LIUXUAN_VALUE_RE = re.compile(
     r"绝\s*杀\s*[【\[]\s*\d\s*头\s*[.．]\s*(\d)\s*尾"
 )
@@ -36,12 +59,8 @@ _LIUXUAN_VALUE_RE = re.compile(
 # Literal formatting words that some verified formats place between the field
 # label and value. Removing these still leaves labels such as 杀码/杀头 with
 # meaningful text, so they remain rejected as a different field.
-_ALWAYS_ALLOWED_INFIX_WORDS = ("杀", "专区")
+_ALWAYS_ALLOWED_INFIX_WORDS = ("杀", "专区", "本帖隐藏的内容")
 _ALLOWED_INFIX_WORDS_BY_PARSER: dict[str, tuple[str, ...]] = {}
-_ALLOWED_FORMATTING_RE = re.compile(
-    r"^[\s:：=＝◆◇〓\-—_~*#、，,.．。+＋!?！？"
-    r"【\[\(（〖《】\]\)）〗》/\\]*$"
-)
 
 _DEDICATED_EXACT_EVIDENCE_PARSERS = frozenset(
     {
@@ -78,6 +97,10 @@ def _prediction_only(text: str) -> str:
     return normalized
 
 
+def _without_period_tokens(text: str) -> str:
+    return _PERIOD_TOKEN_RE.sub(" ", text)
+
+
 def _period_evidence_by_period(document: str) -> dict[int, str]:
     text = normalize_text(document)
     chunks = [chunk.strip() for chunk in PERIOD_CHUNK_RE.split(text) if chunk.strip()]
@@ -98,26 +121,33 @@ def _record_evidence(record: Record, period_evidence: dict[int, str]) -> str:
 
 
 def _has_ambiguous_multi_digit_tail(text: str) -> bool:
-    prediction = _prediction_only(text)
+    prediction = _prediction_only(_without_period_tokens(text))
     for pattern in TAIL_PATTERNS:
         for match in pattern.finditer(prediction):
-            value = match.group(1)
-            if isinstance(value, str) and len(value) > 1:
+            if _exact_tail_value(match.group(1)) is None:
                 return True
-    for match in _SHORT_KILL_VALUE_RE.finditer(prediction):
-        if len(match.group(1)) > 1:
-            return True
+    for pattern in (_SHORT_KILL_VALUE_RE, _BRACKET_KILL_VALUE_RE):
+        for match in pattern.finditer(prediction):
+            if _exact_tail_value(match.group(1)) is None:
+                return True
     return False
 
 
 def _prefix_is_safe(prefix: str, parser_name: str) -> bool:
+    """Reject other fields or descriptive words, not decorative symbols.
+
+    Prefixes such as ``✠(`` or ``👈[`` are formatting only.  Any CJK text or
+    ASCII letter that survives the literal-word removal is a different field
+    or an explanation, so it stays rejected.
+    """
+
     cleaned = normalize_text(prefix)
     for word in (
         *_ALWAYS_ALLOWED_INFIX_WORDS,
         *_ALLOWED_INFIX_WORDS_BY_PARSER.get(parser_name, ()),
     ):
         cleaned = cleaned.replace(word, "")
-    return _ALLOWED_FORMATTING_RE.fullmatch(cleaned) is not None
+    return _CJK_OR_LETTER_RE.search(cleaned) is None
 
 
 def _field_candidate_status(
@@ -127,16 +157,24 @@ def _field_candidate_status(
 ) -> tuple[bool, str]:
     """Return (has_safe_match, error_reason)."""
 
+    prediction = _without_period_tokens(prediction)
     safe_match = False
     errors: list[str] = []
 
-    for match in _SHORT_KILL_VALUE_RE.finditer(prediction):
-        raw = match.group(1)
-        if len(raw) != 1:
-            errors.append("单尾字段出现多位值")
-            continue
-        if int(raw) == expected_tail:
-            safe_match = True
+    for pattern in (_SHORT_KILL_VALUE_RE, _BRACKET_KILL_VALUE_RE):
+        for match in pattern.finditer(prediction):
+            raw = match.group(1)
+            value = _exact_tail_value(raw)
+            if value is None:
+                errors.append("单尾字段出现多位值")
+                continue
+            if value == expected_tail:
+                safe_match = True
+
+    for pattern in _SCOPE_TAIL_PATTERNS:
+        for match in pattern.finditer(prediction):
+            if int(match.group(1)) == expected_tail:
+                safe_match = True
 
     for match in _LIUXUAN_VALUE_RE.finditer(prediction):
         if int(match.group(1)) == expected_tail:
@@ -149,16 +187,21 @@ def _field_candidate_status(
         if next_marker is not None:
             segment = segment[: next_marker.start()]
 
+        context = prediction[max(0, marker.start() - 12) : marker.end() + 120]
+        if any(pattern.search(context) for pattern in _SCOPE_TAIL_PATTERNS):
+            continue
+
         value_match = _VALUE_TOKEN_RE.search(segment)
         if value_match is None:
             continue
 
         prefix = segment[: value_match.start()]
         raw = value_match.group(1)
+        value = _exact_tail_value(raw)
         if not _prefix_is_safe(prefix, parser_name):
             errors.append("单尾字段和值之间出现其他字段或说明文字")
             continue
-        if len(raw) != 1:
+        if value is None:
             errors.append("单尾字段出现多位值")
             continue
 
@@ -167,14 +210,14 @@ def _field_candidate_status(
             errors.append("单尾字段出现多个值")
             continue
 
-        if int(raw) == expected_tail:
+        if value == expected_tail:
             safe_match = True
 
     return safe_match, errors[0] if errors else ""
 
 
 def _has_strict_single_tail_evidence(text: str, expected_tail: int) -> bool:
-    prediction = _prediction_only(text)
+    prediction = _prediction_only(_without_period_tokens(text))
     for pattern in _STRICT_SINGLE_TAIL_PATTERNS:
         for match in pattern.finditer(prediction):
             if int(match.group(1)) == expected_tail:
@@ -216,8 +259,8 @@ def enforce_parsed_records(
                 raise LookupError(f"{site_name}{record.period}期{field_error}")
             if not safe_match:
                 recognized = bool(
-                    _LONG_TAIL_MARKER_RE.search(_prediction_only(evidence))
-                    or _SHORT_KILL_VALUE_RE.search(_prediction_only(evidence))
+                    _LONG_TAIL_MARKER_RE.search(_prediction_only(_without_period_tokens(evidence)))
+                    or _SHORT_KILL_VALUE_RE.search(_prediction_only(_without_period_tokens(evidence)))
                 )
                 if recognized:
                     raise LookupError(
@@ -226,8 +269,6 @@ def enforce_parsed_records(
             continue
 
         if source in _GENERIC_STRICT_SOURCES:
-            if field_error:
-                raise LookupError(f"{site_name}{record.period}期{field_error}")
             if not (
                 safe_match
                 or _has_strict_single_tail_evidence(evidence, record.tail)

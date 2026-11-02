@@ -1,8 +1,10 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from shawei.config.constants import TWO_TAIL_SITE_URLS
 from shawei.config.rules import effective_rule_for
-from shawei.config.sites import load_sites
 from shawei.persistence.cache_repository import is_valid_result_value
 from shawei.validation.validator import validate_documents
 
@@ -13,13 +15,13 @@ SCANNED_SITES = {
     "网开三面": ("https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a095a86291caff3edcb8a9d?url=lf", False),
     "拔地而起": ("https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/lottery/6a09527a291caff3edcb8a33?url=lf", True),
     "振奋人心": ("https://rwraojf.l54vq-9httr-cmdnip.work:29477/article/lottery/6a5271005e6c7637a3f55124?url=xdr", False),
-    "再度归来": ("https://0130190827.673454.xyz/bbs/topic.php?id=20144", True),
+    "再度归来": ("https://0130190827.673454.xyz/bbs/topic.php?id=20330", True),
     "猫咪尾巴": ("https://0130190827.673454.xyz/bbs/topic.php?id=20150", False),
     "马料发财": ("https://0130190827.673454.xyz/bbs/topic.php?id=20140", False),
-    "童颜鹤发": ("https://67806780827.325346.xyz/bbs/topic.php?id=19812", False),
+    "童颜鹤发": ("https://67806780827.325346.xyz/bbs/topic.php?id=19581", False),
     "暖夏少年": ("https://67806780827.234535.xyz/bbs/topic.php?id=22163", True),
     "劲爆猛料": ("https://67806780827.234535.xyz/bbs/topic.php?id=19587", False),
-    "一心为民": ("https://88888020827.983654.xyz/bbs/topic.php?id=20758", False),
+    "一心为民": ("https://88888020827.983654.xyz/bbs/topic.php?id=20915", False),
     "喜欢中奖": ("https://88888020827.833567.xyz/bbs/topic.php?id=22608", True),
     "推陈出新": ("https://88888020827.833567.xyz/bbs/topic.php?id=20522", True),
     "江山如画": ("https://88888020827.833567.xyz/bbs/topic.php?id=20972", False),
@@ -29,10 +31,13 @@ SCANNED_SITES = {
 
 
 def test_scanned_sites_have_bottom_dedicated_rules_and_value_contracts() -> None:
-    configured = {site.name: site for site in load_sites()}
+    configured = {
+        item["name"]: item
+        for item in json.loads(Path("sites.json").read_text(encoding="utf-8-sig"))
+    }
     for name, (url, two_tail) in SCANNED_SITES.items():
-        assert configured[name].url == url
-        assert configured[name].pick == "bottom"
+        assert configured[name]["url"] == url
+        assert configured[name]["pick"] == "bottom"
         rule = effective_rule_for(url, name)
         assert rule.allowed_sources == ("dedicated",)
         assert rule.dedicated_parser

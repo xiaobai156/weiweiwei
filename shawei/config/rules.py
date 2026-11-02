@@ -59,6 +59,7 @@ SAME_PERIOD_RECORD_SELECTION_URLS = frozenset({
     "https://jiduwjld.ogidr-jxu04-inikls.xyz:16677/topic/585936.html",
     "https://kxglojup.fao5v-9u0oz-okhubb.work:16677/topic/782057.html",
     "https://zdwcig.iyo4d-81klf-udwkqg.work:16677/topic/350485.html",
+    "https://bbjkbgbw.rqzf2-shxqn-jtrsyy.work:17488/topic/350485.html",
     "https://qvuuqqs.8imf7-hteuh-ylwuqv.xyz/#/users/3406",
     "https://qvuuqqs.8imf7-hteuh-ylwuqv.xyz/#/users/30112",
     "https://buzsxio.821n4-hgj04-edkrft.xyz:29455/article/manager/6a1303be5eabe2c9e91d873a?url=bxj",
@@ -70,6 +71,19 @@ SAME_PERIOD_RECORD_SELECTION_URLS = frozenset({
 
 
 STRICT_SITE_RULES: dict[str, StrictRule] = {
+    "https://ghegvfr.5n8r1-kurkd-esielp.cyou:17455/": StrictRule(
+        allowed_sources=("table",),
+        table_headers=("杀一尾",),
+        # 目标表格默认 display:none，但完整存在于渲染后的 HTML 中，
+        # 直接解析即可，不需要点击标签页（实测 21 期全部可取）。
+        # 不用 table_anchor_keywords 定位：「禁一段」首次出现在表头里，
+        # 截断后数据行全被切掉（实测 0 条）。
+        # required 只留核心列，站方若删「禁一段」这类附加列应降级而非整表跳过。
+        table_required_headers=("期数", "杀一尾", "开奖结果"),
+        prefer_rendered=True,
+        require_site_keyword=False,
+        render_timeout=45,
+    ),
     "https://smnwgqcm.vkk2k-rpbnk-qtocig.xyz:16677/": StrictRule(
         allowed_sources=("section",),
         section_keywords=("刘半仙↪️『绝杀一尾』", "刘半仙 『绝杀一尾』"),
@@ -368,15 +382,23 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         require_site_keyword=False,
     ),
     "https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html": StrictRule(
-        allowed_sources=("compact",),
+        allowed_sources=("dedicated",),
+        dedicated_parser="kejianyiban_bottom_tail",
         chunk_keywords=("可见一斑", "绝杀一尾", "绝杀1尾", "杀一尾"),
+        # 本站当期块尾部紧跟整片导航文字（含「三尾中特」等栏目名），通用口径
+        # 会把当期块整块误伤过滤，导致底部边界停在上期。改由专属解析只认行内
+        # 完整形状（期号+绝杀一尾+尾数+开奖字段同一行），导航文字不参与取值。
         prefer_rendered=True,
-        require_site_keyword=False,
+        require_site_keyword=True,
     ),
     "https://sfch0f.ky3r5-0b4c9-yudwqy.work/topic/240474.html": StrictRule(
         allowed_sources=("dedicated",),
         dedicated_parser="nalawanzhi_bottom_tail",
         chunk_keywords=("纳喇满职", "绝杀一尾", "绝杀1尾", "杀一尾"),
+        # 本站当期块尾部紧跟整片导航文字（含「三尾中特」等栏目名），
+        # 若沿用默认排除词会把当期块整块误伤过滤，导致边界停在上期。
+        # 本站只发「绝杀一尾」，用不到「X尾中特」类排除词，仅保留真正需要拦截的项。
+        exclude_keywords=("平特一尾", "尾数统计", "高手榜", "规律一尾", "公式平尾"),
         prefer_rendered=True,
         require_site_keyword=False,
     ),
@@ -921,12 +943,16 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         chunk_keywords=("昙花一现", "绝杀一尾"),
         require_site_keyword=False,
     ),
+    'http://38.177.253.132:31882/read.php?tid=1904': StrictRule(
+        allowed_sources=("compact",),
+        chunk_keywords=("昙花一现", "绝杀一尾"),
+        require_site_keyword=False,
+    ),
     'https://wwlhc.com/thread-87037-1-1.html': StrictRule(
         allowed_sources=("dedicated",),
-        dedicated_parser="forum_main_kill_tail",
+        dedicated_parser="discuz_main_post_kill_tail",
         chunk_keywords=("张天师", "绝杀一尾", "杀一尾"),
         prefer_rendered=True,
-        prefer_rendered_body_text=True,
         require_site_keyword=True,
     ),
     'https://czcvzk.4n5g7-o871g-hqmkwz.work:29422/article/admin/6a095ef7291caff3edcb8ac6?url=tsp': StrictRule(
@@ -1098,7 +1124,20 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         prefer_rendered=True,
         require_site_keyword=False,
     ),
+    'https://dzdsqxrw.1mppg-x8rsf-cxwlxc.cyou:17455/topic/324698.html': StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="topic_published_body_tail",
+        chunk_keywords=('龙凤呈祥', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
+        prefer_rendered=True,
+        require_site_keyword=False,
+    ),
     'https://jogavu.6bl6s-ilo1w-yfnvvl.work:16677/topic/678625.html': StrictRule(
+        allowed_sources=("compact",),
+        chunk_keywords=('可怜春天', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
+        prefer_rendered=True,
+        require_site_keyword=False,
+    ),
+    'https://dzdsqxrw.1mppg-x8rsf-cxwlxc.cyou:17455/topic/678625.html': StrictRule(
         allowed_sources=("compact",),
         chunk_keywords=('可怜春天', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
         prefer_rendered=True,
@@ -1151,7 +1190,20 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         prefer_rendered=True,
         require_site_keyword=False,
     ),
+    'https://dzdsqxrw.1mppg-x8rsf-cxwlxc.cyou:17455/topic/248009.html': StrictRule(
+        allowed_sources=("compact",),
+        chunk_keywords=('正气凛然', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
+        prefer_rendered=True,
+        require_site_keyword=False,
+    ),
     'https://tulprhfc.wghcb-bnmgm-hyymaz.work:16655/topic/305414.html': StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="forum_main_kill_tail",
+        chunk_keywords=('违背烟蒂', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
+        prefer_rendered=True,
+        require_site_keyword=True,
+    ),
+    'https://dzdsqxrw.1mppg-x8rsf-cxwlxc.cyou:17455/topic/305414.html': StrictRule(
         allowed_sources=("dedicated",),
         dedicated_parser="forum_main_kill_tail",
         chunk_keywords=('违背烟蒂', "绝杀一尾", "绝杀1尾", "杀一尾", "精准杀尾", "精杀一尾"),
@@ -1187,6 +1239,13 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         require_site_keyword=False,
     ),
     'https://iboatq.pjgpm-epbf7-lxpezb.work:16677/topic/324703.html': StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="qingqingdandan_topic_tail",
+        chunk_keywords=("杀1尾",),
+        prefer_rendered=True,
+        require_site_keyword=True,
+    ),
+    'https://dzdsqxrw.1mppg-x8rsf-cxwlxc.cyou:17455/topic/324703.html': StrictRule(
         allowed_sources=("dedicated",),
         dedicated_parser="qingqingdandan_topic_tail",
         chunk_keywords=("杀1尾",),
@@ -1550,6 +1609,12 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         chunk_keywords=("故里春意", "杀肖杀尾"),
         require_site_keyword=True,
     ),
+    "https://bbjkbgbw.rqzf2-shxqn-jtrsyy.work:17488/topic/350485.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="gulichunyi_topic_tail",
+        chunk_keywords=("故里春意", "杀肖杀尾"),
+        require_site_keyword=True,
+    ),
     "https://pa4dwcnd64.772149.shop/bbs/topic.php?id=726": StrictRule(
         allowed_sources=("dedicated",),
         dedicated_parser="huishouqiankun_topic_tail",
@@ -1617,6 +1682,12 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
         require_site_keyword=True,
     ),
     "https://pvxiftuf.yumkw-u4s81-hpytyz.work:16677/topic/559099.html": StrictRule(
+        allowed_sources=("dedicated",),
+        dedicated_parser="bamian_shifeng_topic_tail",
+        chunk_keywords=("八面驶风", "稳杀一尾", "杀1尾"),
+        require_site_keyword=True,
+    ),
+    "https://dzdsqxrw.1mppg-x8rsf-cxwlxc.cyou:17455/topic/559099.html": StrictRule(
         allowed_sources=("dedicated",),
         dedicated_parser="bamian_shifeng_topic_tail",
         chunk_keywords=("八面驶风", "稳杀一尾", "杀1尾"),
@@ -1813,12 +1884,15 @@ STRICT_SITE_RULES.update(
         "https://rwraojf.l54vq-9httr-cmdnip.work:29477/article/lottery/6a5271005e6c7637a3f55124?url=xdr": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
         "https://oofsukyp.7u9l0-zq8hd-obpxwe.work:29455/article/lottery/6a3a2dec018539c611cba03e?url=home": _SCANNED_ARTICLE_TWO_TAIL_RULE,
         "https://0130190827.673454.xyz/bbs/topic.php?id=20144": _SCANNED_TOPIC_TWO_TAIL_RULE,
+        "https://0130190827.673454.xyz/bbs/topic.php?id=20330": _SCANNED_TOPIC_TWO_TAIL_RULE,
         "https://0130190827.673454.xyz/bbs/topic.php?id=20150": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://0130190827.673454.xyz/bbs/topic.php?id=20140": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://67806780827.325346.xyz/bbs/topic.php?id=19812": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://67806780827.325346.xyz/bbs/topic.php?id=19581": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://67806780827.234535.xyz/bbs/topic.php?id=22163": _SCANNED_TOPIC_TWO_TAIL_RULE,
         "https://67806780827.234535.xyz/bbs/topic.php?id=19587": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://88888020827.983654.xyz/bbs/topic.php?id=20758": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.983654.xyz/bbs/topic.php?id=20915": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://88888020827.833567.xyz/bbs/topic.php?id=22608": _SCANNED_TOPIC_TWO_TAIL_RULE,
         "https://88888020827.833567.xyz/bbs/topic.php?id=20522": _SCANNED_TOPIC_TWO_TAIL_RULE,
         "https://88888020827.833567.xyz/bbs/topic.php?id=20972": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
@@ -1832,13 +1906,17 @@ STRICT_SITE_RULES.update(
         "https://pgyzulb.iwnn7-gyyip-pnpfqv.work:29477/article/lottery/6a58e7d2f447e21b02db8190?url=bflc": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
         "https://herymche.x6l2j-h6kfu-qdresg.work:29466/article/lottery/6a0452504ea5c20141013e9b?url=txbb": _SCANNED_ARTICLE_SINGLE_TAIL_RULE,
         "https://12388990827.794555.xyz/bbs/topic.php?id=21353": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://12388990827.794555.xyz/bbs/topic.php?id=19959": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://12388990827.794555.xyz/bbs/topic.php?id=20270": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://12388990827.688756.xyz/bbs/topic.php?id=18520": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://12388990827.688756.xyz/bbs/topic.php?id=19155": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://12388990827.688756.xyz/bbs/topic.php?id=19930": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://12388990827.688756.xyz/bbs/topic.php?id=19128": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://0130190827.767566.xyz/bbs/topic.php?id=30780": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://88888020827.897657.xyz/bbs/topic.php?id=20207": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://88888020827.897657.xyz/bbs/topic.php?id=20215": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://88888020827.997595.xyz/bbs/topic.php?id=18490": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
+        "https://88888020827.997595.xyz/bbs/topic.php?id=19471": _SCANNED_TOPIC_SINGLE_TAIL_RULE,
         "https://jtrmhar.cwdc3-r5vqn-qzqasa.work:17455/topic/741190.html": StrictRule(
             allowed_sources=("dedicated",),
             dedicated_parser="xingcha_topic_two_tail",
