@@ -6,3 +6,28 @@ __pycache__/
 .mypy_cache/
 .pyright/
 browser-profile/
+
+# --- 生成物与本地临时文件（统一清理时补充） ---
+# Python / runtime artifacts
+.coverage
+.coverage.*
+# Local locks, temp files, logs and backups
+*.lock
+*.tmp
+*.log
+*.bak
+*.before
+*.before_*
+*.orig
+*.rej
+nul
+# Browser profiles and build outputs
+build/
+dist/
+dist_*/
+.paddleocr-cpu-venv/
+
+# --- 生成物与本地临时文件（统一清理时补充） ---
+_validation/
+_shadow/
+audit/
