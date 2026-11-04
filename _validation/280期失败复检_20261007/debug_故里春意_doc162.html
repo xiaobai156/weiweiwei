@@ -1,0 +1,10 @@
+                },
+                on: {
+                    transitionStart: function() {
+                        activeIndex = this.activeIndex
+                        navActiveSlideLeft = mySwiper1.slides[activeIndex].offsetLeft //activeSlide距左边的距离
+
+                        mySwiper1.setTransition(200);
+                        if (navActiveSlideLeft < (clientWidth - parseInt(navSlideWidth)) / 2) {
+                            mySwiper1.setTranslate(0)
+                        } else if (navActiveSlideLeft > navWidth - (parseInt(navSlideWidth) + clientWidth) / 2) {

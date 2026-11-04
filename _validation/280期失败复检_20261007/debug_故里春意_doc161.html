@@ -1,0 +1,10 @@
+                clickIndex = this.clickedIndex;
+                mySwiper2.slideTo(clickIndex);
+                mySwiper2.autoplay.stop();
+            });
+
+            var mySwiper2 = new Swiper('#' + id2, {
+                autoplay: autoplay,
+                disableOnInteraction: false,
+                onSlideChangeStart: function () {
+                    // updateNavPosition()

@@ -1,0 +1,44 @@
+[
+  {
+    "site": {
+      "name": "小明哥上",
+      "url": "https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html",
+      "pick": "top",
+      "archived": false
+    },
+    "result": {
+      "index": 16,
+      "success_line": "7尾 小明哥上",
+      "fail_line": null,
+      "ranking_value": "7",
+      "messages": [
+        "[16/270] 小明哥上 top https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html",
+        "  成功: 7尾 小明哥上",
+        "  命中片段: 292期小明哥上课杀一尾[777]开00准"
+      ],
+      "failure_stage": "",
+      "failure_reason": ""
+    }
+  },
+  {
+    "site": {
+      "name": "可见一斑",
+      "url": "https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html",
+      "pick": "bottom",
+      "archived": false
+    },
+    "result": {
+      "index": 19,
+      "success_line": "3尾 可见一斑",
+      "fail_line": null,
+      "ranking_value": "3",
+      "messages": [
+        "[19/270] 可见一斑 bottom https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html",
+        "  成功: 3尾 可见一斑",
+        "  命中片段: 292期:绝杀一尾[3] 开0000准 .advert img{vertical-align: bottom;} @所有彩民: 用您快人一步头脑记住 40752c.com 杜绝跟风 · 谁与争锋 40752c.com 成功需要耐心和毅力！ 不要轻言放弃·坚持下去·你一定能够取得自己想要的结果！ 本站承诺禁止卖料·杜绝一..."
+      ],
+      "failure_stage": "",
+      "failure_reason": ""
+    }
+  }
+]

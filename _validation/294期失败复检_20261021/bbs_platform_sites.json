@@ -1,0 +1,286 @@
+{
+  "bbs_sites": [
+    {
+      "name": "坚持战斗",
+      "url": "https://1214.775486.xyz/bbs/topic.php?id=20200",
+      "pick": "bottom"
+    },
+    {
+      "name": "一代楷模",
+      "url": "https://1214.775486.xyz/bbs/topic.php?id=20201",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "无量寿佛",
+      "url": "https://1214.775486.xyz/bbs/topic.php?id=20198",
+      "pick": "bottom"
+    },
+    {
+      "name": "挥手乾坤",
+      "url": "https://pa4dwcnd64.772149.shop/bbs/topic.php?id=726",
+      "pick": "bottom"
+    },
+    {
+      "name": "再度归来",
+      "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20144",
+      "pick": "bottom"
+    },
+    {
+      "name": "猫咪尾巴",
+      "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20150",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "马料发财",
+      "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20140",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "童颜鹤发",
+      "url": "https://67806780827.325346.xyz/bbs/topic.php?id=19812",
+      "pick": "bottom"
+    },
+    {
+      "name": "暖夏少年",
+      "url": "https://67806780827.234535.xyz/bbs/topic.php?id=22163",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "劲爆猛料",
+      "url": "https://67806780827.234535.xyz/bbs/topic.php?id=19587",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "一心为民",
+      "url": "https://88888020827.983654.xyz/bbs/topic.php?id=20758",
+      "pick": "bottom"
+    },
+    {
+      "name": "喜欢中奖",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=22608",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "推陈出新",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=20522",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "江山如画",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=20972",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "百财王特",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=19832",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "致富宝贝",
+      "url": "https://88888020827.885536.xyz/bbs/topic.php?id=20684",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "怪咖小生",
+      "url": "https://0130190827.657954.xyz/bbs/topic.php?id=20210",
+      "pick": "bottom"
+    },
+    {
+      "name": "澳彩碼王",
+      "url": "https://12388990827.794555.xyz/bbs/topic.php?id=21353",
+      "pick": "bottom"
+    },
+    {
+      "name": "饱食暖衣",
+      "url": "https://12388990827.794555.xyz/bbs/topic.php?id=20270",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "寻宝探码",
+      "url": "https://12388990827.688756.xyz/bbs/topic.php?id=18520",
+      "pick": "bottom"
+    },
+    {
+      "name": "财源滚滚",
+      "url": "https://12388990827.688756.xyz/bbs/topic.php?id=19930",
+      "pick": "bottom"
+    },
+    {
+      "name": "潇洒人生",
+      "url": "https://0130190827.767566.xyz/bbs/topic.php?id=30780",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "夜空无痕",
+      "url": "https://88888020827.897657.xyz/bbs/topic.php?id=20207",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "安身立命",
+      "url": "https://88888020827.897657.xyz/bbs/topic.php?id=20215",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "海角天涯",
+      "url": "https://88888020827.997595.xyz/bbs/topic.php?id=18490",
+      "pick": "bottom"
+    }
+  ],
+  "alive": [
+    {
+      "name": "挥手乾坤",
+      "url": "https://pa4dwcnd64.772149.shop/bbs/topic.php?id=726",
+      "pick": "bottom"
+    }
+  ],
+  "dead": [
+    {
+      "name": "坚持战斗",
+      "url": "https://1214.775486.xyz/bbs/topic.php?id=20200",
+      "pick": "bottom"
+    },
+    {
+      "name": "一代楷模",
+      "url": "https://1214.775486.xyz/bbs/topic.php?id=20201",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "无量寿佛",
+      "url": "https://1214.775486.xyz/bbs/topic.php?id=20198",
+      "pick": "bottom"
+    },
+    {
+      "name": "再度归来",
+      "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20144",
+      "pick": "bottom"
+    },
+    {
+      "name": "猫咪尾巴",
+      "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20150",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "马料发财",
+      "url": "https://0130190827.673454.xyz/bbs/topic.php?id=20140",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "童颜鹤发",
+      "url": "https://67806780827.325346.xyz/bbs/topic.php?id=19812",
+      "pick": "bottom"
+    },
+    {
+      "name": "暖夏少年",
+      "url": "https://67806780827.234535.xyz/bbs/topic.php?id=22163",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "劲爆猛料",
+      "url": "https://67806780827.234535.xyz/bbs/topic.php?id=19587",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "一心为民",
+      "url": "https://88888020827.983654.xyz/bbs/topic.php?id=20758",
+      "pick": "bottom"
+    },
+    {
+      "name": "喜欢中奖",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=22608",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "推陈出新",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=20522",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "江山如画",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=20972",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "百财王特",
+      "url": "https://88888020827.833567.xyz/bbs/topic.php?id=19832",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "致富宝贝",
+      "url": "https://88888020827.885536.xyz/bbs/topic.php?id=20684",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "怪咖小生",
+      "url": "https://0130190827.657954.xyz/bbs/topic.php?id=20210",
+      "pick": "bottom"
+    },
+    {
+      "name": "澳彩碼王",
+      "url": "https://12388990827.794555.xyz/bbs/topic.php?id=21353",
+      "pick": "bottom"
+    },
+    {
+      "name": "饱食暖衣",
+      "url": "https://12388990827.794555.xyz/bbs/topic.php?id=20270",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "寻宝探码",
+      "url": "https://12388990827.688756.xyz/bbs/topic.php?id=18520",
+      "pick": "bottom"
+    },
+    {
+      "name": "财源滚滚",
+      "url": "https://12388990827.688756.xyz/bbs/topic.php?id=19930",
+      "pick": "bottom"
+    },
+    {
+      "name": "潇洒人生",
+      "url": "https://0130190827.767566.xyz/bbs/topic.php?id=30780",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "夜空无痕",
+      "url": "https://88888020827.897657.xyz/bbs/topic.php?id=20207",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "安身立命",
+      "url": "https://88888020827.897657.xyz/bbs/topic.php?id=20215",
+      "pick": "bottom",
+      "archived": true
+    },
+    {
+      "name": "海角天涯",
+      "url": "https://88888020827.997595.xyz/bbs/topic.php?id=18490",
+      "pick": "bottom"
+    }
+  ]
+}

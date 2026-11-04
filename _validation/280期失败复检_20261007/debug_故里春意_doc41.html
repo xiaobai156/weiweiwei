@@ -1,0 +1,10 @@
+    } else {
+        month++;
+    }
+
+    option       = document.createElement("option");
+    option.value = year + '-' + setzero(month + 1);
+    option.text  = year + '年' + setzero(month + 1) + '月';
+    months.add(option);
+}
+

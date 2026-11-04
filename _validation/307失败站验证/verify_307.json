@@ -1,0 +1,30 @@
+[
+  {
+    "name": "坚持战斗",
+    "url": "https://1214.775486.xyz/bbs/topic.php?id=20200",
+    "pick": "bottom",
+    "status": "无数据-未发布307期",
+    "success_line": null,
+    "failure_stage": "抓取/解析",
+    "failure_reason": "LookupError: 没有找到307期数据",
+    "messages": [
+      "[196/266] 坚持战斗 bottom https://1214.775486.xyz/bbs/topic.php?id=20200",
+      "  未找到307期，清缓存后刷新第1次",
+      "  失败: 抓取/解析失败(LookupError: 没有找到307期数据)"
+    ]
+  },
+  {
+    "name": "张天师",
+    "url": "https://wwlhc.com/thread-87037-1-1.html",
+    "pick": "bottom",
+    "status": "异常-传输/渲染",
+    "success_line": null,
+    "failure_stage": "抓取/解析",
+    "failure_reason": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_CONNECTION_CLOSED at https://wwlhc.com/thread-87037-1-1.html\nCall log:\n  - navigating to \"https://wwlhc.com/thread-87037-1-1.html\", waiting until \"domcontentloaded\"\n)",
+    "messages": [
+      "[265/266] 张天师 bottom https://wwlhc.com/thread-87037-1-1.html",
+      "  传输/渲染瞬时异常，清缓存后刷新第1次",
+      "  失败: 抓取/解析失败(RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_CONNECTION_CLOSED at https://wwlhc.com/thread-87037-1-1.html\nCall log:\n  - navigating to \"https://wwlhc.com/thread-87037-1-1.html\", waiting until \"domcontentloaded\"\n))"
+    ]
+  }
+]

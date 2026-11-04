@@ -1,0 +1,75 @@
+[
+  {
+    "name": "虚空恐惧",
+    "url": "https://kfkxqua.vohzh-s0pbh-vhwsal.xyz:16677/topic/247429.html",
+    "len": 14946,
+    "name_hit": true,
+    "removed": false,
+    "periods_tail": [
+      360,
+      361,
+      362,
+      363,
+      364,
+      365
+    ],
+    "has_300": true,
+    "max": 365,
+    "rows": [
+      "300期：虚空恐惧【精杀一尾】",
+      "298期：精杀一尾◆8尾开羊23准",
+      "299期：精杀一尾◆4尾开蛇49准",
+      "300期：精杀一尾◆9尾开虎40准",
+      "298期：精杀一尾◆0尾开猪08准",
+      "299期：精杀一尾◆4尾开猴23准",
+      "300期：精杀一尾◆1尾开0000准"
+    ],
+    "verdict": "可救(有300期)"
+  },
+  {
+    "name": "魔童",
+    "url": "https://bloynnbb.gzgli-koeq8-deouwc.xyz:16677/",
+    "len": 88323,
+    "name_hit": true,
+    "removed": false,
+    "periods_tail": [
+      360,
+      361,
+      362,
+      363,
+      364,
+      365
+    ],
+    "has_300": true,
+    "max": 365,
+    "rows": [
+      "300期一码中特 点击查看>",
+      "300期一码中特 点击查看>",
+      "299期【单数】投资1000元579尾 开:猴23准",
+      "300期【单数】投资1000元135尾 开:?000准",
+      "297-299期特尾：297期",
+      "298-300期特尾：000期",
+      "300期",
+      "299期"
+    ],
+    "verdict": "可救(有300期)"
+  },
+  {
+    "name": "龙游天下",
+    "url": "https://552554.com.xn--61b2aeb.xn--h2brj9c:1888/sp/024.html",
+    "error": "Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://552554.com.xn--61b2aeb.xn--h2brj9c:1888/sp/024.html\nCall log:\n  ",
+    "verdict": "异常(打不开)"
+  },
+  {
+    "name": "任由漂泊",
+    "url": "https://kk.336868m.com:1888/art_zhuanqu/182.html",
+    "error": "Error: Page.goto: Navigation to \"https://kk.336868m.com:1888/art_zhuanqu/182.html\" is interrupted by another navigati",
+    "verdict": "异常(打不开)"
+  },
+  {
+    "name": "只求稳定不求最好",
+    "url": "https://kk.336868m.com:1888/art_zhuanqu/8023.html",
+    "error": "Error: Page.goto: Navigation to \"https://kk.336868m.com:1888/art_zhuanqu/8023.html\" is interrupted by another navigat",
+    "verdict": "异常(打不开)"
+  }
+]

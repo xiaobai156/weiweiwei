@@ -1,0 +1,50 @@
+{
+  "period": 292,
+  "scope": "仅原失败白名单；镜像研究不写正式数据；无全量抓取",
+  "new_successes_in_this_review": 0,
+  "reviews": [
+    {
+      "site": "六玄网",
+      "original_url": "https://lx11.www87127b.com:8443/#87127",
+      "search_query": "\"六玄网\" \"87127\"",
+      "search_candidate": "https://www.915577.cc/",
+      "official_link_source": "https://www.915577.cc/ 的 /915577.html iframe 内真实链接",
+      "official_link": "https://bb5.www87127b.com:8443/#62tam",
+      "verified_document": "https://bb5.www87127b.com:8443/915577.html",
+      "document_title": "六玄网论坛",
+      "anchor": "澳彩六玄网【综合绝杀】",
+      "observed_first_rows": [
+        "澳彩最准开奖：87127.com",
+        "145期:绝杀【3头.4尾.蓝双.鼠肖】 开？00准",
+        "291期:绝杀【3头.0尾.绿双.牛肖】 开虎17准",
+        "290期:绝杀【1头.3尾.红单.羊肖】 开兔40准"
+      ],
+      "observed_last_row": "262期:绝杀【3头.4尾.蓝双.鼠肖】 开牛30准",
+      "decision": "官方新线路与原线路同样无292记录且top边界异常；不将145猜为292，不取其他栏目"
+    },
+    {
+      "site": "正气凛然",
+      "candidate": "https://m.aczj.cc/",
+      "observed_author": "正气凛然",
+      "observed_link_text": "292期【绝杀三尾】",
+      "observed_href": "/gsb.aspx?id=0018",
+      "decision": "同名候选为三尾，原目标为单尾；栏目、字段及文章身份未匹配，不采用"
+    },
+    {
+      "site": "昙花一现",
+      "original_url": "https://www.www144344.com/read.php?tid=1904",
+      "search_query": "\"昙花一现\" \"144344\"",
+      "original_blocker": "原站证书名称不匹配；HTTP404或域名停放页",
+      "decision": "本次搜索未得到可验证的同站同文章镜像；保持来源异常，未绕过浏览器安全页"
+    },
+    {
+      "site": "龙凤呈祥",
+      "candidate_domains_from_prior_review": ["565698.xyz", "ji137.com"],
+      "decision": "搜索候选在浏览器被阻止，无法证明原topic324698、作者和单尾栏目；保持来源异常"
+    },
+    {
+      "sites": ["可怜春天", "违背烟蒂", "清清淡淡", "八面驶风"],
+      "decision": "原topic已跳其他论坛或线路页；此前逐站搜索及真实目录链接核对尚未找到身份相符的镜像，不表示镜像不存在"
+    }
+  ]
+}

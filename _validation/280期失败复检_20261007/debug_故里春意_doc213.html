@@ -1,0 +1,10 @@
+    for (i = 1; i <= n; i++) {
+        var menu = document.getElementById(name + i);
+        var con = document.getElementById('con_' + name + '_' + i);
+        menu.className = i == cursel ? menu.className += ' hover' : menu.className.replace(/hover/g, '');
+        con.style.display = i == cursel ? 'flex' : 'none';
+    }
+    settingTabList(cursel,classId);
+}
+
+const backgroundImages = [

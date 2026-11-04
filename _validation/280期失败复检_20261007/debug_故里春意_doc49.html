@@ -1,0 +1,10 @@
+    initial();
+
+    setdate.onchange = function() {
+        show();
+    }
+    for (let i = 0; i < tab.length; i++) {
+        tab[i].onclick = function () {
+            if (lottery_id === this.dataset.tab) {
+                return;
+            }

@@ -1,0 +1,3047 @@
+ 
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="gb2312">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no">
+    
+    
+    <link href="css/bootstrap.min.css?1" rel="stylesheet">
+
+    <link href="main.css" rel="stylesheet">	
+    <script src="js/jquery/3.6.0/jquery.min.js"></script>
+   
+    <title>聚宝盆</title>
+
+    <META name="keywords" content="">
+
+    <meta name="description" content="">
+    
+    <link rel="stylesheet" href="css/bootstrap-icons.css">
+    <link href="css/bbsdialogstyle.css" rel="stylesheet">
+    	
+    <link type="text/css" rel="stylesheet" href="css/news.css" />
+
+    <style>
+        body{-moz-user-select: none;-webkit-user-select: none;-ms-user-select: none;-khtml-user-select: none;user-select: none;}
+        #hidenav {
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #dfdfdf;
+            background-image: url(images/logo.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge:empty {
+    display: none;
+}
+
+.btn .badge {
+    position: relative;
+    top: -1px;
+}
+
+.badge-pill {
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    border-radius: 10rem;
+}
+
+.badge-primary {
+    color: #fff;
+    background-color: #1f4977;
+}
+
+.badge-primary[href]:hover,.badge-primary[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #14304f;
+}
+
+.badge-secondary {
+    color: #fff;
+    background-color: #868e96;
+}
+
+.badge-secondary[href]:hover,.badge-secondary[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #6c757d;
+}
+
+.badge-success {
+    color: #fff;
+    background-color: #177f2e;
+}
+
+.badge-success[href]:hover,.badge-success[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0f541e;
+}
+
+.badge-info {
+    color: #fff;
+    background-color: #117887;
+}
+
+.badge-info[href]:hover,.badge-info[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0b505a;
+}
+
+.badge-warning {
+    color: #212529;
+    background-color: #f1c84c;
+}
+
+.badge-warning[href]:hover,.badge-warning[href]:focus {
+    color: #212529;
+    text-decoration: none;
+    background-color: #edb91d;
+}
+
+.badge-danger {
+    color: #fff;
+    background-color: #c6303e;
+}
+
+.badge-danger[href]:hover,.badge-danger[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #9d2631;
+}
+
+.badge-light {
+    color: #212529;
+    background-color: #f8f9fa;
+}
+
+.badge-light[href]:hover,.badge-light[href]:focus {
+    color: #212529;
+    text-decoration: none;
+    background-color: #dae0e5;
+}
+
+.badge-dark {
+    color: #fff;
+    background-color: #343a40;
+}
+
+.badge-dark[href]:hover,.badge-dark[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #1d2124;
+}
+
+    </style>
+    <style type="text/css">
+ div.divcontainer {max-width:900px; margin:0 auto;padding:2px; border:2px solid #039e6d}
+ 
+/*高手榜*/
+.divheader,.divbody,.divfooter{
+    font-size: 1.30rem;
+}
+@media (min-width: 477px) and (max-width: 767px) {
+   .divheader,.divbody,.divfooter{
+        font-size: 1.25rem;
+    }
+    .divheader{padding-top:30px;}
+     ol, ul {
+        padding-left: 1.5rem;
+    }
+    .news-title-title{font-size:1.25rem;}
+    .subject-username{ display:inline;}
+    div.divcontainer {
+        padding-top: 36px;
+    }
+}
+
+@media (min-width: 420px) and (max-width: 476px) {
+   .divheader,.divbody,.divfooter{
+        font-size: 1.15rem;
+    }
+    .divheader{padding-top:30px;}
+     ol, ul {
+        padding-left: 1.5rem;
+    }
+    .news-title-title{font-size:1.15rem;}
+   .subject-username{ display:none;}
+    .tiel{
+        width: 50px;
+    }
+    div.divcontainer {
+        padding-top: 36px;
+    }
+}
+
+@media (min-width: 378px) and (max-width: 419px) {
+   .divheader,.divbody,.divfooter{
+        font-size: 1.05rem;
+    }
+    .divheader{padding-top:30px;}
+     ol, ul {
+        padding-left: 1.5rem;
+    }
+    .news-title-title{font-size:1.05rem;}
+   .subject-username{ display:none;}
+    .tiel{
+        width: 45px;
+    }
+    div.divcontainer {
+        padding-top: 36px;
+    }
+}
+
+@media (max-width: 376px) {
+    .divheader,.divbody,.divfooter{
+        font-size: 0.99rem;
+    }
+    .divheader{padding-top:55px;}
+    ol, ul {
+        padding-left: 1rem;
+    }
+    .news-title-title{font-size:1.00rem;}
+    .subject-username{ display:none;}
+    .tiel{
+        width: 45px;
+    }
+    
+}
+.subject-tag {
+    padding: 0.25rem;
+}
+.subject-title {
+    display: inline;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: clip;
+}
+.tap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+.subject .username {
+    max-width: 123px;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+   
+
+</style>
+
+<style>
+	
+@media (max-width: 795px) {
+	    .disp {
+	        display: none;
+	    }
+	}
+.fb-1, .fb-2, .fb-3, .fb-4, .fb-5 {
+    background: linear-gradient(to bottom, #ff0000, #ffd700);
+}	
+.fb-4 {  
+	color:#fff;
+	width: 80px;
+	height: 80px;
+	z-index: 999999;
+	text-align: center;
+	position: fixed;
+	right: 50px !important;
+	bottom: 228px !important;
+	font-size: 33px !important;
+	border-radius: 50px;
+	line-height: 80px !important;
+	text-shadow: 2px 2px 1px #000;
+	border: 2px solid #ff0000;
+	box-shadow: 0 0 0 1px #666;
+}
+.fb-5 {
+	color:#fff;
+	width: 80px;
+	height: 80px;
+	z-index: 999999;
+	text-align: center;
+	position: fixed;
+	right: 50px !important;
+	bottom: 142px !important;
+	font-size: 33px !important;
+	border-radius: 50px;
+	line-height: 80px !important;
+	text-shadow: 2px 2px 1px #000;
+	border: 2px solid #ff0000;
+	box-shadow: 0 0 0 1px #666;
+}	
+		
+</style>
+	
+	<script>
+		(function(){
+			var docElem = document.documentElement;
+			window.lazySizesConfig = window.lazySizesConfig || {};
+			window.lazySizesConfig.loadMode = 1;
+			//set expand to a higher value on larger displays
+			window.lazySizesConfig.expand = Math.max(Math.min(docElem.clientWidth, docElem.clientHeight, 1222) - 1, 359);
+			window.lazySizesConfig.expFactor = lazySizesConfig.expand < 380 ? 4 : 3;
+		})();
+	</script>
+    <script src="js/lazysizes.min.js" async=""></script>
+         <script type="text/javascript">
+    function topMao(target) {
+        $('html, body').animate({
+            scrollTop: $(target).offset().top - 30
+        }, 500);
+    }
+  
+</script>
+</head>
+<body >
+
+    
+    <header class="fixed-top p-2 text-danger d-none d-md-block" style="background-color:#f1f1f1;border-bottom:1px solid #dfdfdf;z-index:10;">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start">
+                <a href="" class="d-flex align-items-center mb-2 mb-md-0 text-white text-decoration-none">
+                    <img src="images/logo.png" class="me-3">
+                </a>
+                <ul class="nav col-12 col-md-auto me-md-auto mb-2 justify-content-center mb-md-0">
+                   
+                    <li><a href="index.php" class="nav-link px-2 text-dark">首页</a></li>
+                
+                    <li><a href="rule.php" class="nav-link px-2 text-dark">规则</a></li>
+                    <li><a href="rcg.php"  class="nav-link px-2 text-dark">充值</a></li>
+                    <li><a href="kefu.php"  class="nav-link px-2 text-dark">客服</a></li>
+                </ul>
+                
+                <div class="text-end">
+                                    <a href="register.php"><button type="button" class="btn btn-outline-danger">注册</button></a>
+                    <a href="login.php"><button type="button" class="btn btn-danger">登录</button></a>
+                     
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <header class="p-2 bg-danger text-white d-none d-md-block" style="border-bottom:1px solid #f4a86e;">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start">
+                <a href="" class="d-flex align-items-center mb-2 mb-md-0 text-white text-decoration-none">
+                    <img src="images/logo.png" class="me-3">
+                </a>
+                <ul class="nav col-12 col-md-auto me-md-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="" class="nav-link px-2 text-light">聚宝盆</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <header id="hidenav" class="fixed-top p-2 d-lg-none d-md-block" style="background-color:#f1f1f1;border-bottom:1px solid #dfdfdf;">
+        <div class="container d-flex flex-wrap">
+            <div class="me-auto">
+            	                    <a class="py-2 text-secondary d-inline-block" href="register.php"><i class="bi bi-caret-left"></i>注册</a>
+                    
+                
+            </div>
+            <div class="text-end">
+            	                     <a class="py-2 text-secondary d-inline-block" href="login.php">登录<i class="bi bi-caret-right"></i></a>
+                  
+               
+            </div>
+        </div>
+    </header>
+    
+    <header class="fixed-bottom d-md-none" style="background-color:#f1f1f1;border-top:1px solid #dfdfdf;box-shadow: 0px -2px 4px rgba(100, 100, 100, 0.1);">
+	    <div class="container">
+	        <ul class="nav col-12 col-md-auto me-md-auto justify-content-center mb-md-0" style="line-height:1.5rem;font-size: 1.10rem;">
+	            <li class="mx-auto">
+	                <a href="index.php" class="nav-link py-1 text-center text-secondary">
+	                    <i class="bi bi-house fs-3"></i><br>首页
+	                </a>
+	            </li>
+	            <li class="mx-auto">
+	                <a href="./zhushou/"  class="nav-link py-1 text-center text-secondary">
+	                   <i class="bi-box fs-3"></i><br>挑码
+	                </a>
+	            </li>
+	            <li class="mx-auto">
+	                <a href="rule.php"  class="nav-link py-1 text-center text-secondary">
+	                   <i class="bi-calendar3 fs-3"></i><br>规则
+	                </a>
+	            </li>
+	            <li class="mx-auto">
+	                <a href="rcg.php" onclick="topMao('#hf')" class="nav-link py-1 text-center text-secondary">
+	                    <i class="bi bi-box fs-3"></i><br>客服
+	                </a>
+	            </li>
+	                
+	        </ul>
+	    </div>
+	</header>
+
+            <div class="disp">
+        	     
+            <a href="./zhushou/" >
+                <div class="fb-5 ss3">挑码</div>
+            </a>        
+        </div>
+ 
+<div id="scroll_to_top" class="d-fixed" style="display:none;position: fixed; bottom: 60px; right: 10px; width: 60px; height: 60px;z-index: 20">
+    <a href="javascript:void(0);" title="返回顶部"><img src="images/top.png" width="60px" height="60px"></a>
+</div>    <style>
+        body{background:url(images/bga.webp) center top no-repeat;background-size: cover;background-attachment: fixed;}
+@media (min-width: 280px) and (max-width: 575px) {
+    body{background:url(images/bga-xs.webp) center 6px no-repeat,url(images/bga-xs.webp)center top repeat-y;background-size: 100%;}
+}
+    </style>
+    <section id="banner">
+        <picture>
+            <source type="image/webp" media="(min-width: 466px)" srcset="images/kb.webp" class="img-fluid" width="100%" alt="banner">
+            <source type="image/webp" media="(max-width: 465px)" srcset="images/m-kb.webp" class="img-fluid" width="100%" alt="banner">
+                       
+                    </picture>
+    </section><style type="text/css">.xxqbbslisttable{}table.xxqbbslisttable {border-collapse: collapse;border-bottom: 1px solid #d2d8de;width: 100%;color: black;font-weight: bold;}table.xxqbbslisttable td, table.xxqbbslisttable th {border-bottom: 1px solid #d2d8de;text-align: left;color: #666666;padding: 9px 0px 9px 0px;}table.xxqbbslisttable th {background-color: #4cbd99;}</style>   <style type="text/css"><!--body {	margin: 0px;	padding: 0px;}*{padding:0;margin:0}* {	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px}* {	WORD-WRAP: break-word}* {	WORD-WRAP: break-word}* {	WORD-WRAP: break-word}* {	WORD-WRAP: break-word}*{padding:0;margin:0}* {	PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px; PADDING-TOP: 0px}* {	WORD-WRAP: break-word}* {	WORD-WRAP: break-word}* {	WORD-WRAP: break-word}* {	WORD-WRAP: break-word}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}*{padding:0;margin:0}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}.wysiwyg {	BORDER-BOTTOM: #dddddd 1px solid; BORDER-LEFT: #dddddd 1px solid; PADDING-BOTTOM: 4px; PADDING-LEFT: 4px; PADDING-RIGHT: 4px; FONT: 12px Tahoma, Verdana; BORDER-TOP: #dddddd 1px solid; BORDER-RIGHT: #dddddd 1px solid; PADDING-TOP: 4px}--></style><style>.ctzq2 { table-layout: fixed; font-size: 16px; text-align: center; background: #fff; font-family: '宋体';}.ctzq2 td { line-height: 1.9; padding: 5px 2px; border: dashed 1px #c0c0c0;}@media screen and (max-width:720px){.ctzq2 { font-size: 13px;}}</style><style>.ctzq2 td {  color: #000; /* 设置链接的默认颜色，可以根据需要更改 */  font-weight: bold;  text-decoration: none; /* 去除下划线 */}.ctzq2 td {height: 40px;}</style><div class="divcontainer">	<div class="divheader"><img src="/bbs/fta1/1081081logo.gif" width="100%">
+
+<!--开奖插件-->
+<iframe marginWidth="0" marginHeight="0" frameBorder="0" width="100%" scrolling="no" height="180" src="https://fJj8vQ.9kj8.shop:28368/bbs/" name="I1"></iframe>
+<!--开奖插件-->
+
+
+<style>
+.gaogao{
+    line-height:40px;
+    height:40px;
+    background-color:#fff200;
+    border-radius:30px;
+    box-shadow: 2px 3px 4px #e71d1d;
+    padding:1px 10px 1px 10px;
+    margin:8px 10px 8px 10px;
+    font-size: 22px;
+    color: #ff0000;
+    font-weight:bold;
+    //box-shadow: inset 2px 2px 1px rgb(231, 29, 29, 0.6), 2px 3px 4px rgb(231, 29, 29 ,1);
+}
+@media (max-width: 795px) {
+.gaogao{
+    line-height:25px;
+    height:25px;
+    background-color:#fff200;
+    border-radius:30px;
+    box-shadow: 2px 3px 4px #e71d1d;
+    padding:1px 7px 1px 7px;
+    margin:8px 3px 8px 2px;
+    font-size: 15px;
+}
+}
+</style>
+
+
+<div class="main">
+        <div class="banner-container"></div>
+        <div class="m-boxa m-box-smz m-box-quick-enter" style="">
+            <div style="text-align: center;">
+                
+
+                
+                
+       <h1 id="demo" class="text-center font-weight-bold" style="font-size:2rem; color:red;font-weight:bold">截图保存永久网址</h1>
+            	
+
+            	
+                       	
+            	
+            <div id="maindomaintexts">
+            <p style="font-size: 2rem; color: rgb(160, 64, 0); font-weight: bold; background: linear-gradient(45deg, #fff456, #fff, #fff889);" class="text-item">1081081.com</p>
+<p style="font-size: 2rem; color: rgb(160, 64, 0); font-weight: bold; background: linear-gradient(45deg, #fff123, #fff, #fff321);" class="text-item">1081082.com</p>    
+<p style="font-size: 2rem; color: rgb(160, 64, 0); font-weight: bold; background: linear-gradient(45deg, #fff123, #fff, #fff321);" class="text-item">1081085.com</p>
+<p style="font-size: 2rem; color: rgb(160, 64, 0); font-weight: bold; background: linear-gradient(45deg, #fff123, #fff, #fff321);" class="text-item">1081089.com</p>
+                
+            </div>	
+            </div>
+
+<table border="0" width="100%" style="border-collapse: collapse">
+    <tbody>
+        <tr>
+            <td height="40" style="padding:3px;">
+                <p align="center" style="margin-bottom:0.1rem;">
+                    <a target="_blank" style="box-sizing: border-box; text-decoration: none; line-height: 30px; text-align: center; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px; display: block; font-weight: 700; color: rgb(255, 0, 0); outline: none; font-family: 微软雅黑;  font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; border: 1px solid rgb(221, 221, 221); padding: 0px; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position-y:50%" href="/index.php">
+                        <span style="font-size:16px;"><font color="#009900" style="box-sizing: border-box; border: 0px none; padding: 0px; background-color: #ffffff">
+                         好资料分享给你的朋友。让更多的朋友一起中奖！</font>
+                    </a>
+                </p>
+            </td>
+        </tr>
+    </tbody>
+
+</table>
+
+
+
+
+			
+<div style="background-color:#333;border-radius:25px;box-shadow:0px 0px 5px #f200ff;padding:0px;margin-top:10px;margin-bottom:10px;">
+	<font size="4" color="#ffff00">
+	<marquee><b id="nr"><b>公告：                                广西贺州市梁先生在聚宝盆论坛，此客户回访已因购买本坛资料赚103万元
+                                浙江宁海市秦先生在聚宝盆论坛，此客户回访已因购买本坛资料赚28万元
+                                广西百色市陈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚23万元
+                                广东汕头市郑先生在聚宝盆论坛，此客户回访已因购买本坛资料赚120万元
+                                广东罗定市容先生在聚宝盆论坛，此客户回访已因购买本坛资料赚28万元
+                                广东江门市吴先生在聚宝盆论坛，此客户回访已因购买本坛资料赚06万元
+                                深圳宝安区刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚101万元
+                                湖南娄底市李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚17万元
+                                广西桂平市朱先生在聚宝盆论坛，此客户回访已因购买本坛资料赚103万元
+                                福建漳浦县陈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚21万元
+                                湖北大冶市黄先生在聚宝盆论坛，此客户回访已因购买本坛资料赚23万元
+                                广东梅州市陈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚12万元
+                                广东英德市李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚72万元
+                                广东汕头市郑先生在聚宝盆论坛，此客户回访已因购买本坛资料赚92万元
+                                广西省巴马县黄生在聚宝盆论坛，此客户回访已因购买本坛资料赚10万元
+                                湖南宁远县李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚26万元
+                                河北唐山市谈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚47万元
+                                广州珠海区刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚45万元
+                                福建莆田市阮先生在聚宝盆论坛，此客户回访已因购买本坛资料赚21万元
+                                四川省叙永县陈生在聚宝盆论坛，此客户回访已因购买本坛资料赚23万元
+                                广西河池市韦先生在聚宝盆论坛，此客户回访已因购买本坛资料赚43万元
+                                佛山南海区谭先生在聚宝盆论坛，此客户回访已因购买本坛资料赚20万元
+                                广东云浮市刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚27万元
+                                湖北省沙市刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚83万元
+                                广东省阳江市黄生在聚宝盆论坛，此客户回访已因购买本坛资料赚101万元
+                                深圳龙岗区郑先生在聚宝盆论坛，此客户回访已因购买本坛资料赚71万元
+                                广西桂林市张先生在聚宝盆论坛，此客户回访已因购买本坛资料赚29万元
+                                广东东莞市陈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚25万元
+                                广东广州市吕先生在聚宝盆论坛，此客户回访已因购买本坛资料赚111万元
+                                广东深圳市胡先生在聚宝盆论坛，此客户回访已因购买本坛资料赚23万元
+                                湖北武汉市曾先生在聚宝盆论坛，此客户回访已因购买本坛资料赚29万元
+                                福建省晋江市陈生在聚宝盆论坛，此客户回访已因购买本坛资料赚21万元
+                                广东顺德市黄先生在聚宝盆论坛，此客户回访已因购买本坛资料赚116万元
+                                广东中通县吴先生在聚宝盆论坛，此客户回访已因购买本坛资料赚52万元
+                                广东南海市黄先生在聚宝盆论坛，此客户回访已因购买本坛资料赚105万元
+                                湖南省益阳市周生在聚宝盆论坛，此客户回访已因购买本坛资料赚73万元
+                                广东省东莞市罗生在聚宝盆论坛，此客户回访已因购买本坛资料赚105万元
+                                广东清远市梁先生在聚宝盆论坛，此客户回访已因购买本坛资料赚82万元
+                                福建武平县赖先生在聚宝盆论坛，此客户回访已因购买本坛资料赚101万元
+                                深圳市福田区周生在聚宝盆论坛，此客户回访已因购买本坛资料赚62万元
+                                广东省江门市陈生在聚宝盆论坛，此客户回访已因购买本坛资料赚24万元
+                                福建省漳州市叶生在聚宝盆论坛，此客户回访已因购买本坛资料赚110万元
+                                广东省汕头市乐生在聚宝盆论坛，此客户回访已因购买本坛资料赚100万元
+                                福建莆田市颜先生在聚宝盆论坛，此客户回访已因购买本坛资料赚30万元
+                                广东汕头市郑先生在聚宝盆论坛，此客户回访已因购买本坛资料赚94万元
+                                广西省巴马县黄生在聚宝盆论坛，此客户回访已因购买本坛资料赚20万元
+                                湖南宁远县李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚26万元
+                                河北唐山市谈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚37万元
+                                广州珠海区刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚105万元
+                                福建莆田市阮先生在聚宝盆论坛，此客户回访已因购买本坛资料赚21万元
+                                四川省叙永县陈生在聚宝盆论坛，此客户回访已因购买本坛资料赚23万元
+                                广西河池市韦先生在聚宝盆论坛，此客户回访已因购买本坛资料赚24万元
+                                佛山南海区谭先生在聚宝盆论坛，此客户回访已因购买本坛资料赚20万元
+                                湖南娄底市李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚70万元
+                                广西桂平市朱先生在聚宝盆论坛，此客户回访已因购买本坛资料赚100万元
+                                福建漳浦县陈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚21万元
+                                广东珠海市沈先生在聚宝盆论坛，此客户回访已因购买本坛资料赚40万元
+                                广东东莞市李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚20万元
+                                福建龙岩市周先生在聚宝盆论坛，此客户回访已因购买本坛资料赚60万元
+                                广州市花都区先生在聚宝盆论坛，此客户回访已因购买本坛资料赚24万元
+                                浙江台州市曹先生在聚宝盆论坛，此客户回访已因购买本坛资料赚10万元
+                                广西天等县李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚83万元
+                                佛山南海区彭先生在聚宝盆论坛，此客户回访已因购买本坛资料赚10万元
+                                浙江省温州市李生在聚宝盆论坛，此客户回访已因购买本坛资料赚110万元
+                                上海宝山区周先生在聚宝盆论坛，此客户回访已因购买本坛资料赚73万元
+                                广东省汕尾市王生在聚宝盆论坛，此客户回访已因购买本坛资料赚13万元
+                                广州市白云区林生在聚宝盆论坛，此客户回访已因购买本坛资料赚27万元
+                                云南昭通市钟先生在聚宝盆论坛，此客户回访已因购买本坛资料赚71万元
+                                湖南株洲市漆先生在聚宝盆论坛，此客户回访已因购买本坛资料赚22万元
+                                南宁市宾阳县蓝生在聚宝盆论坛，此客户回访已因购买本坛资料赚26万元
+                                福建长乐市刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚13万元
+                                浙江台州市曹先生在聚宝盆论坛，此客户回访已因购买本坛资料赚17万元
+                                广西天等县李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚18万元
+                                佛山南海区彭先生在聚宝盆论坛，此客户回访已因购买本坛资料赚31万元
+                                浙江省温州市李生在聚宝盆论坛，此客户回访已因购买本坛资料赚11万元
+                                上海宝山区周先生在聚宝盆论坛，此客户回访已因购买本坛资料赚77万元
+                                广东省汕尾市王生在聚宝盆论坛，此客户回访已因购买本坛资料赚17万元
+                                广州市白云区林生在聚宝盆论坛，此客户回访已因购买本坛资料赚27万元
+                                云南昭通市钟先生在聚宝盆论坛，此客户回访已因购买本坛资料赚78万元
+                                湖南株洲市漆先生在聚宝盆论坛，此客户回访已因购买本坛资料赚28万元
+                                河北荆州市凡先生在聚宝盆论坛，此客户回访已因购买本坛资料赚103万元
+                                广州珠海区郭先生在聚宝盆论坛，此客户回访已因购买本坛资料赚31万元
+                                福建省三明市先生在聚宝盆论坛，此客户回访已因购买本坛资料赚162万元
+                                广东东莞市刘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚27万元
+                                广东云浮市严先生在聚宝盆论坛，此客户回访已因购买本坛资料赚208万元
+                                广东深圳市封斌生在聚宝盆论坛，此客户回访已因购买本坛资料赚40万元
+                                广州番禺区游先生在聚宝盆论坛，此客户回访已因购买本坛资料赚108万元
+                                广东河源市关先生在聚宝盆论坛，此客户回访已因购买本坛资料赚10万元
+                                佛山顺德区潘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚19万元
+                                广西梧州市周先生在聚宝盆论坛，此客户回访已因购买本坛资料赚18万元
+                                广东东莞市胡先生在聚宝盆论坛，此客户回访已因购买本坛资料赚60万元
+                                珠海香洲区李先生在聚宝盆论坛，此客户回访已因购买本坛资料赚90万元
+                                广东江门市容先生在聚宝盆论坛，此客户回访已因购买本坛资料赚66万元
+                                广东罗定市霍先生在聚宝盆论坛，此客户回访已因购买本坛资料赚90万元
+                                广东江门市潘先生在聚宝盆论坛，此客户回访已因购买本坛资料赚42万元
+</b> </b></marquee></font>
+		</div><table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=2043"><font color="#000000">地顺人和【①肖中特】公开验证 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+<!-------【分割】 ------>
+<table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=2386"><font color="#000000">吃喝玩乐【三码中特】福临万家 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+<!-------【分割】 ------>
+
+
+<!-------【分割】 ------>
+<table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=2090"><font color="#000000">内幕真经【四组3中3】信心百倍 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+
+<!-------【分割】 ------>
+<table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=327"><font color="#000000">玫瑰利剑【1 肖中特】坚定不移 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+<!-------【分割】 ------>
+<table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=319"><font color="#000000">规范农村【⒉码中特】马上赢钱 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+<!-------【分割】 ------>
+<table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=328"><font color="#000000">威震大财【一码中特】雄霸天下 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+<!-------【分割】 ------>
+<table border="1" width="100%" style="border-collapse: collapse" bordercolor="#66ccff">
+    <tr>
+        <td align="center" height="30">
+
+            <font size="4">
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"><a target="_blank" href="/bbs/topic.php?id=329"><font color="#000000">风云争霸【①码3中3】速度跟上 </font></a>
+            <img src="/bbs/fta1/hg.gif" width="30" height="30"></td>
+    </tr>
+</table>
+
+
+
+
+
+<!--友情链接开始-->
+
+
+<div style="border-radius: 5px; overflow: hidden; background: linear-gradient(90deg, rgb(35,148,228) 0%, rgb(104,208,104) 100%);;
+     padding: 2px; margin: 5px;
+    " >
+    <div style=" padding: 5px 0; text-align: center; color: #000; text-shadow: 0px 0px 10px #e5e5e5; font-size: 15px; font-weight: bold" > 
+		<font size="5" color="#FFFFFF">☆优秀名站收录☆</font></div>
+
+
+<table border="1" width="100%" class="blgg" bgcolor="#ffffff" cellspacing="0" bordercolor="#c0c0c0" bordercolordark="#c0c0c0">
+			<tbody>	
+                         
+			<tr>
+                                <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.1081081.com">
+                                <img src="/bbs/fta1/1081081logo.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+				<td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.5565566.com">
+                                <img src="/bbs/fta1/5565566logo.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+				<td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.4884881.com">
+                                <img src="/bbs/fta1/4884881logo.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+				
+			</tr>
+
+                        <tr>
+                                <td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.1081081.com">
+				<span style="vertical-align: top">聚宝盆论坛</span></a></td>
+                                <td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.5565566.com">
+				<span style="vertical-align: top">管家婆论坛</span></a></td>
+                                <td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.4884881.com">
+				<span style="vertical-align: top">刘伯温论坛</span></a></td>
+			</tr>
+	   </tbody>
+	</table>
+	
+	
+<table border="1" width="100%" class="blgg" bgcolor="#ffffff" cellspacing="0" bordercolor="#c0c0c0" bordercolordark="#c0c0c0">
+			<tbody>	
+                         
+			<tr>
+			    <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.669332.com">
+                            <img src="/bbs/fta1/logo669331.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+			    <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.5777588.com">
+                            <img src="/bbs/fta1/5777588logo.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+			    <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.998774.com">
+                            <img src="/bbs/fta1/logo333741.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+			</tr>
+
+                        <tr>
+                                
+				<td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.669331.com">
+				<span style="vertical-align: top">财富高手论坛</span></a></td>
+                                <td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.5777588.com">
+				<span style="vertical-align: top">黄大仙论坛</span></a></td>
+				<td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.998774.com">
+				<span style="vertical-align: top">彩民之家论坛</span></a></td>
+			</tr>
+	   </tbody>
+	</table>	
+
+<table border="1" width="100%" class="blgg" bgcolor="#ffffff" cellspacing="0" bordercolor="#c0c0c0" bordercolordark="#c0c0c0">
+			<tbody>	
+                         
+			<tr>
+			    <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.552149.com">
+                            <img src="/bbs/fta1/logo552149.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+			    <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.772149.com">
+                            <img src="/bbs/fta1/logo772149.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+			    <td align="center" style="border: 1px solid #000000" width="33%"><a target="_blank" href="https://www.772149.com">
+                            <img src="/bbs/fta1/logo772149.gif" width="100%" style="vertical-align: top" height="80"></a></td>
+			</tr>
+
+                        <tr>
+                                
+				<td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.552149.com">
+				<span style="vertical-align: top">六合财神</span></a></td>
+                                <td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.772149.com">
+				<span style="vertical-align: top">一心为民</span></a></td>
+				<td align="center" style="border: 1px solid #000000" height="26">
+				<a href="https://www.772149.com">
+				<span style="vertical-align: top">一心为民</span></a></td>
+			</tr>
+	   </tbody>
+	</table>		
+	
+
+</div> 
+<!--友情链接结束-->
+
+
+
+
+
+
+</b>
+</table>
+</div><table border="0" width="100%" cellspacing="1" bgcolor="#000000" style="margin: 0px; padding: 0px; outline: none; border-spacing: 0px; color: rgb(51, 51, 51); font-family: Arial, 宋体; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-style: initial; text-decoration-color: initial; border-collapse: collapse;">
+    <tbody style="margin: 0px; padding: 0px; outline: none;">
+        <tr style="margin: 0px; padding: 0px; outline: none;">
+            <td style="margin: 0px; padding: 0px; outline: none;">
+                <p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                    　<table border="0" width="100%" cellspacing="1" bgcolor="#ffff00" style="margin: 0px; padding: 0px; outline: none; border-spacing: 0px; border-collapse: collapse;">
+                        <tbody style="margin: 0px; padding: 0px; outline: none;">
+                            <tr style="margin: 0px; padding: 0px; outline: none;">
+                                <td style="margin: 0px; padding: 0px; outline: none;">
+                                    <p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b style="margin: 0px; padding: 0px; outline: none;">
+                                            <font face="微软雅黑" color="#FFFFFF" style="margin: 0px; padding: 0px; outline: none; font-size: 40pt;">
+                                                <img src="/bbs/fta1/laba.gif" width="61" height="46" style="margin: 0px; padding: 0px; outline: none; border: 0px;"></font>
+                                        </b><b>
+                                            <font face="微软雅黑" size="3" color="#FF0000">
+										最低300元起充，货币汇率：（１元人民币兑换１个金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#0000FF">
+										充值:300元 (送38金币=338金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#0000FF">
+										充值:500元 (送58金币=558金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#0000FF">
+										充值:1000元 (送288金币=1288金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#0000FF">
+										充值:3000元 (送888金币=3888金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#0000FF">
+										充值:5000元 (送1888金币=6888金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#0000FF">
+										充值:10000元 (送5888金币=15888金币)</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+										<font face="微软雅黑" size="3" color="#008000">
+										聚宝盆高手坛，在此感谢新老会员的支持！
+所有资料都经站长严格审核（10期中7至8期以上）验证通过后才可以发布出售
+资料无法保证百分百期期中奖（请理性消费）
+论坛承诺所有资料错对绝不更改 保证彩民买到是百分百真实可靠的资料
+充值金币后在您需查看的资料下方隐藏区域点击购买即可查看到高手发布的资料
+杜绝二次收费。</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b><font face="微软雅黑" size="3">
+										祝各大彩民跟踪本论坛高手发布的资料，期期中大奖发大财！</font></b><p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        　<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                        <b>
+
+
+						<b><font face="微软雅黑" size="3">
+						<span style="background-color: #FF0000">（注意：如客服QQ长时间不回复，请到论坛从新扫描添加新QQ）</span></font></b></p>
+						<p align="center" style="margin: 0px; padding: 0px; outline: none;">
+                                            <font face="微软雅黑" size="3" color="#FF0000">
+										新用户注册加管理QQ:764224007 即可赠送188金币 
+<img src="https://dtn0csgk43.1081085bbs1.shop/bbs/ftimg/2d78e12bef118f7281f98a9061dc6631.png
+" style="width:30%;margin: 0px; padding: 0px; outline: none; border: 0px; color: rgb(51, 51, 51); font-family: Arial, 宋体; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;">
+                                		</b>
+                                </td>
+                            </tr>
+                    </table>
+            </td>
+        </tr>
+</table>		</div>	<div class="divbody">		<div style="color:#1a1d20;border-bottom:1px solid #039e6d;border-top:1px solid #039e6d">您现在是游客:  <a href="register.php">注册</a> | <a href="login.php">登录</a></div><table class="xxqbbslisttable">
+	<tbody>										
+
+<!---------------  --------------->
+<style>
+
+    .fb_ztbz {
+        padding: 4px 6px 4px 6px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 5px;
+        margin: 0 4px 0 4px;
+        vertical-align: top;
+        line-height: 30px;
+    }
+
+    .fb_cst {
+        color: #2106e9;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 30px;
+        overflow: hidden;
+    }
+
+    .fb_scyzt {
+        color: #9104b3;
+        font-weight: bold;
+        font-size: 24px;
+        overflow: hidden;
+    }
+
+    .fb_ecysz {
+        color: #81021e;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ccyst {
+        color: #2c8709;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ckt {
+        color: #000000;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ztmz {
+        color: #9933ff;
+        font-weight: bold;
+        font-size: 22px;
+        overflow: hidden;
+    }
+
+    .fb_ztsj {
+        color: #000000;
+        font-size: 14px;
+        overflow: hidden;
+    }
+
+    .fb_ztsj a {
+        color: #000000;
+        font-size: 14px;
+        overflow: hidden;
+    }
+
+    .fb_ztfh {
+        color: #000000;
+        font-size: 22px;
+        overflow: hidden;
+       
+    }
+
+    .fb_zdsj {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #666666;
+        font-size: 15px;
+    }
+
+    .fb_zddjs {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #000000;
+        font-size: 15px;
+    }
+
+    .fb_zdlsjl {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #008000;
+        font-size: 15px;
+    }
+
+    .fb_zdhfts {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #0000ff;
+        font-size: 15px;
+    }
+
+    .fb_hfzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #008ef1;
+        font-size: 12px;
+    }
+
+    .fb_hffh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_hfmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_hfsj {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_gsbzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #3973ac;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbfh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #668B8B;
+        font-size: 17px;
+    }
+
+    .fb_gsbmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #ff0000;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #3973ac;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #ff0000;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbfh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #668B8B;
+        font-size: 17px;
+    }
+
+    .f_date {
+        text-align: right;
+    }
+
+    @media (max-width: 795px) {
+        .fb_ztbz {
+            padding: 1px 1px 1px 1px;
+            font-size: 12px;
+            font-weight: normal;
+            margin: 0px 0px 0px 0px;
+            border-radius: 2px;
+            vertical-align: top;
+            line-height: 26px;
+        }
+
+        .fb_cst {
+            font-size: 16px;
+            margin-left: 0px;
+            line-height: 26px;
+        }
+
+        .fb_ztzt {
+            font-size: 15px;
+            margin-left: 0px;
+            line-height: 26px;
+        }
+
+        .fb_ztmz {
+            font-size: 10px;
+        }
+
+        .fb_ztsj {
+            font-size: 10px;
+        }
+
+        .fb_ztfh {
+            /*display: none;*/
+        }
+
+        .fb_zdsj {
+            font-size: 12px;
+        }
+
+        .fb_zddjs {
+            font-size: 12px;
+        }
+
+        .fb_zdlsjl {
+            font-size: 12px;
+        }
+
+        .fb_zdhfts {
+            font-size: 12px;
+        }
+
+        .fb_hfzt {
+            font-size: 12px;
+        }
+
+        .fb_hffh {
+            font-size: 12px;
+        }
+
+        .fb_hfmz {
+            font-size: 12px;
+        }
+
+        .fb_hfsj {
+            font-size: 12px;
+        }
+
+        .fb_gsbzt {
+            font-size: 12px;
+        }
+
+        .fb_gsbfh {
+            font-size: 12px;
+        }
+
+        .fb_gsbmz {
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 424px) {
+        .fb_cst {
+            font-size: 14px;
+            margin-left: 0px;
+            line-height: 28px;
+        }
+
+        .fb_ztfh {
+            /*display: none;*/
+        }
+
+        .fb_ztbz {
+            padding: 1px 1px 1px 1px;
+            font-size: 14px;
+            font-weight: normal;
+            margin: 0px 0px 0px 0px;
+            border-radius: 2px;
+            vertical-align: top;
+            line-height: 28px;
+        }
+    }
+</style>
+
+<!---------------  --------------->
+
+	
+			<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb0">公告</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=2540" target="_blank">
+					<span class="subject-tag">充值金币和购买资料流程-QQ号：764224007</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">管理员</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb1">精品</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3327" target="_blank">
+					<span class="subject-tag">294期：亿元空间【①码中特】平地风波</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">亿元空间</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb1">精品</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3321" target="_blank">
+					<span class="subject-tag">294期：春水初生【②肖②码】千万富翁</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">春水初生</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb1">精品</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3322" target="_blank">
+					<span class="subject-tag">294期：海枯石烂【④码中特】跟踪发财</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">海枯石烂</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb1">精品</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3323" target="_blank">
+					<span class="subject-tag">294期：夏至春掩【②肖④码】完美中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">夏至春掩</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb1">精品</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3306" target="_blank">
+					<span class="subject-tag">294期：江中神算【③肖⑥码】关注中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">江中神算</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=3298" target="_blank">
+					<span class="subject-tag">294期：富贵荣华【二肖中特】期期真实</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">富贵荣华</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=3058" target="_blank">
+					<span class="subject-tag">294期：再度归来【②肖④码】发财之道</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">再度归来</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=3252" target="_blank">
+					<span class="subject-tag">294期：金樽神像【①肖②码】正版资料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">金樽神像</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=3014" target="_blank">
+					<span class="subject-tag">294期：权威码王【⑨码中特】期期实战</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">权威码王</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2985" target="_blank">
+					<span class="subject-tag">294期：实心实意【八码中特】点击查看</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">实心实意</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2945" target="_blank">
+					<span class="subject-tag">294期：天造地设【三肖三码】完美中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">天造地设</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2865" target="_blank">
+					<span class="subject-tag">294期：白璧无瑕【九码中特】大胆下注</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">白璧无瑕</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2863" target="_blank">
+					<span class="subject-tag">294期：聚精会神【12码中特】期期实战</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">聚精会神</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2857" target="_blank">
+					<span class="subject-tag">294期：马会荣光【三肖六码】圆梦六合</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">马会荣光</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2855" target="_blank">
+					<span class="subject-tag">294期：澳彩顺哥【③肖⑥码】抓住机会</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">澳彩顺哥</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2856" target="_blank">
+					<span class="subject-tag">294期：郎才女貌【四肖八码】公式推算</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">郎才女貌</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2816" target="_blank">
+					<span class="subject-tag">294期：经书传说【12码中特】平地风波</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">经书传说</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2785" target="_blank">
+					<span class="subject-tag">294期：彩蝶翩翩【②肖④码】久跟必发</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">彩蝶翩翩</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2780" target="_blank">
+					<span class="subject-tag">294期：逆天改命【一肖二码】高薪聘请</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">逆天改命</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2757" target="_blank">
+					<span class="subject-tag">294期：内幕发财【④码中特】抓住机会</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">内幕发财</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2718" target="_blank">
+					<span class="subject-tag">294期：彩经名利【15码中特】幸运中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">彩经名利</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2659" target="_blank">
+					<span class="subject-tag">294期：单刀直入【12码中特】天赐良机</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">单刀直入</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2655" target="_blank">
+					<span class="subject-tag">294期：天书彩料【②肖④码】期期真实</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">天书彩料</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2386" target="_blank">
+					<span class="subject-tag">294期：吃喝玩乐【③码中特】期期实战</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">吃喝玩乐</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2349" target="_blank">
+					<span class="subject-tag">294期：特码专区【八码中特】跟踪发财</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">特码专区</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2090" target="_blank">
+					<span class="subject-tag">294期：内幕真经【四组3中3】信心百倍</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">内幕真经</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=2043" target="_blank">
+					<span class="subject-tag">294期：北城余情【①肖中特】正版资料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">北城余情</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1936" target="_blank">
+					<span class="subject-tag">294期：旭日东升【三肖六码】完美中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">旭日东升</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1872" target="_blank">
+					<span class="subject-tag">294期：戏精少女【四码中特】送钱猛料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">戏精少女</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1870" target="_blank">
+					<span class="subject-tag">294期：灵丹妙药【②肖中特】信心百倍</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">灵丹妙药</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1822" target="_blank">
+					<span class="subject-tag">294期：遥遥领先【⑨码中特】福临万家</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">遥遥领先</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1853" target="_blank">
+					<span class="subject-tag">294期：玲珑剔透【一码中特】天天中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">玲珑剔透</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1852" target="_blank">
+					<span class="subject-tag">294期：白净柔嫩【②码中特】期期实战</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">白净柔嫩</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1621" target="_blank">
+					<span class="subject-tag">294期：福星精品【⑧码中特】一心为民</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">福星精品</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1459" target="_blank">
+					<span class="subject-tag">294期：成绩斐然【三肖六码】完美中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">成绩斐然</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1431" target="_blank">
+					<span class="subject-tag">294期：正直无私【①肖②码】关注中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">正直无私</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1290" target="_blank">
+					<span class="subject-tag">294期：绚丽多彩【②肖④码】大胆下注</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">绚丽多彩</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1238" target="_blank">
+					<span class="subject-tag">294期：空古绝今【①肖②码】期期实战</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">空古绝今</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=1162" target="_blank">
+					<span class="subject-tag">294期：天赐机密【①码中特】更新中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">天赐机密</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=949" target="_blank">
+					<span class="subject-tag">294期：顶级规律【④码中特】送钱猛料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">顶级规律</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=853" target="_blank">
+					<span class="subject-tag">294期：皇家透密【四肖八码】手到擒来</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">皇家透密</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=826" target="_blank">
+					<span class="subject-tag">294期：一碧千里【③码中特】免费发表</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">一碧千里</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=675" target="_blank">
+					<span class="subject-tag">294期：美人兮美【平特①肖】正版资料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">美人兮美</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=629" target="_blank">
+					<span class="subject-tag">294期：协力中彩【三肖三码】千万富翁</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">协力中彩</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=329" target="_blank">
+					<span class="subject-tag">294期：风云争霸【①码3中3】公式推算</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">风云争霸</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=328" target="_blank">
+					<span class="subject-tag">294期：威震大财【①码中特】抓住机会</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">威震大财</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=327" target="_blank">
+					<span class="subject-tag">294期：玫瑰利剑【①肖中特】天天中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">玫瑰利剑</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=321" target="_blank">
+					<span class="subject-tag">294期：极品秘籍【②肖④码】久跟必发</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">极品秘籍</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=320" target="_blank">
+					<span class="subject-tag">294期：高山景行【三肖三码】专业抓码</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">高山景行</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=319" target="_blank">
+					<span class="subject-tag">294期：规范农村【②码中特】天天中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">规范农村</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=318" target="_blank">
+					<span class="subject-tag">294期：卫星云图【②肖中特】高薪聘请</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">卫星云图</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=317" target="_blank">
+					<span class="subject-tag">294期：富甲一方【⑩码中特】连准多期</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">富甲一方</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=312" target="_blank">
+					<span class="subject-tag">294期：高山遥远【三肖六码】赚钱秘籍</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">高山遥远</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb2">出售</span>
+			</td>
+		
+			<td>
+				<a style="color:#FF0000;" href="./topic.php?id=311" target="_blank">
+					<span class="subject-tag">294期：独家妙解【二肖四码】步步发财</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">独家妙解</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb3">推荐</span>
+			</td>
+		
+			<td>
+				<a style="color:#0000FF;" href="./topic.php?id=3302" target="_blank">
+					<span class="subject-tag">294期：温文儒雅【30码中特】精英资料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">温文儒雅</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb3">推荐</span>
+			</td>
+		
+			<td>
+				<a style="color:#0000FF;" href="./topic.php?id=3292" target="_blank">
+					<span class="subject-tag">294期：水清梦蓝【六肖中特】极品资料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">水清梦蓝</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb3">推荐</span>
+			</td>
+		
+			<td>
+				<a style="color:#0000FF;" href="./topic.php?id=3237" target="_blank">
+					<span class="subject-tag">294期：皇上密令【七肖中特】完美中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">皇上密令</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb3">推荐</span>
+			</td>
+		
+			<td>
+				<a style="color:#0000FF;" href="./topic.php?id=3227" target="_blank">
+					<span class="subject-tag">294期：省港赌圣【九肖中特】步步发财</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">省港赌圣</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3328" target="_blank">
+					<span class="subject-tag">294期：我心如秤【一季中特】共同致富</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">我心如秤</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3329" target="_blank">
+					<span class="subject-tag">294期：顶尖福星【男女中特】专业抓码</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">顶尖福星</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3324" target="_blank">
+					<span class="subject-tag">294期：记人之善【六肖中特】关注中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">记人之善</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3325" target="_blank">
+					<span class="subject-tag">294期：龙潭虎穴【二十四码】大胆下注</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">龙潭虎穴</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3318" target="_blank">
+					<span class="subject-tag">294期：天伦之乐【⑧肖中特】完美中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">天伦之乐</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3319" target="_blank">
+					<span class="subject-tag">294期：围炉夜话【二十四码】高薪聘请</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">围炉夜话</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3320" target="_blank">
+					<span class="subject-tag">294期：星金爆彩【⑨肖中特】共同致富</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">星金爆彩</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3314" target="_blank">
+					<span class="subject-tag">294期：心想事成【阴阳中特】抓住机会</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">心想事成</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3315" target="_blank">
+					<span class="subject-tag">294期：天地回转【⑧肖中特】更新中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">天地回转</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3310" target="_blank">
+					<span class="subject-tag">294期：财源富贵【绝杀一肖】专业抓码</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">财源富贵</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3311" target="_blank">
+					<span class="subject-tag">294期：寸有所长【左右中特】抓住机会</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">寸有所长</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3304" target="_blank">
+					<span class="subject-tag">294期：整装待发【绝杀十码】极品资料</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">整装待发</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3288" target="_blank">
+					<span class="subject-tag">294期：意兴阑珊【30码中特】期期真实</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">意兴阑珊</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3289" target="_blank">
+					<span class="subject-tag">294期：高手淘金【⑦肖中特】公开验证</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">高手淘金</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3272" target="_blank">
+					<span class="subject-tag">294期：翻腾辉煌【绝杀一行】手到擒来</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">翻腾辉煌</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3261" target="_blank">
+					<span class="subject-tag">294期：一袭纸鸢【大小中特】更新中奖</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">一袭纸鸢</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3262" target="_blank">
+					<span class="subject-tag">294期：玩彩尖峰【绝杀②肖】步步发财</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">玩彩尖峰</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3230" target="_blank">
+					<span class="subject-tag">294期：凤凰彩码【三十六码】妙手回春</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">凤凰彩码</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=3201" target="_blank">
+					<span class="subject-tag">294期：枕戈待旦【三十六码】重金铲庄</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">枕戈待旦</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=2541" target="_blank">
+					<span class="subject-tag">充值金币和购买资料流程-QQ号：764224007</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">管理员</span> 
+			</td>
+		
+		</tr>
+
+		<tr>
+			<td	class="tiel" width="10%">
+				<span class="fb_ztbz badge-fb7">热门</span>
+			</td>
+		
+			<td>
+				<a style="color:#000000;" href="./topic.php?id=2483" target="_blank">
+					<span class="subject-tag">294期：吐故纳新【绝杀一段】继续公开</span>
+				</a>
+			</td>
+		
+			<td class="">
+				<span class="subject-tag subject-username badge badge-light" style="color:#828385">吐故纳新</span> 
+			</td>
+		
+		</tr>
+
+	                                                          
+<!---------------  --------------->
+	</tbody>
+
+</table>
+<table border="0" width="100%" style="border-collapse: collapse">    <tbody>        <tr>            <td height="40" style="padding:3px;">                <p align="center" style="margin-bottom:0.1rem;">                    <a target="_blank" style="box-sizing: border-box; text-decoration: none; line-height: 30px; text-align: center; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px; display: block; font-weight: 700; color: rgb(0, 0, 0); outline: none; font-family: 微软雅黑;  font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; border: 1px solid rgb(221, 221, 221); padding: 0px; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position: top" href="/bbs/register.php">                        <font color="#ff0000" style="box-sizing: border-box; border: 0px none; padding: 0px; background-color: #ffffff; font-size:11pt">                            用户注册</font></a></p>            </td>            <td height="40" style="padding:3px;">                <p align="center" style="margin-bottom:0.1rem;">                    <a target="_blank" style="box-sizing: border-box; text-decoration: none; line-height: 30px; text-align: center; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px; display: block; font-weight: 700; color: #ff00ff; outline: none; font-family: 微软雅黑;  font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; border: 1px solid rgb(221, 221, 221); padding: 0px; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position-y:50%" href="/bbs/rcg.php">                        <font style="box-sizing: border-box; border: 0px none; padding: 0px; background-color: #ffffff; font-size:11pt">                            金币充值</font></a></p>            </td>            <td height="40" style="padding:3px;">                <p align="center" style="margin-bottom:0.1rem;">                    <a target="_blank" style="box-sizing: border-box; text-decoration: none; line-height: 30px; text-align: center; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 5px; display: block; font-weight: 700; color: #00ff00; outline: none; font-family: 微软雅黑;  font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; border: 1px solid rgb(221, 221, 221); padding: 0px; background-image: none; background-repeat: repeat; background-attachment: scroll; background-position-y:50%" href="/bbs/login.php">                        <font style="box-sizing: border-box; border: 0px none; padding: 0px; background-color: #ffffff; font-size:11pt">                            用户登录</font></a></p>            </td>        </tr>    </tbody></table><table class="xxqbbslisttable">
+	<tbody>										
+
+<!---------------  --------------->
+<style>
+
+    .fb_ztbz {
+        padding: 4px 6px 4px 6px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 5px;
+        margin: 0 4px 0 4px;
+        vertical-align: top;
+        line-height: 30px;
+    }
+
+    .fb_cst {
+        color: #2106e9;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 30px;
+        overflow: hidden;
+    }
+
+    .fb_scyzt {
+        color: #9104b3;
+        font-weight: bold;
+        font-size: 24px;
+        overflow: hidden;
+    }
+
+    .fb_ecysz {
+        color: #81021e;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ccyst {
+        color: #2c8709;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ckt {
+        color: #000000;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ztmz {
+        color: #9933ff;
+        font-weight: bold;
+        font-size: 22px;
+        overflow: hidden;
+    }
+
+    .fb_ztsj {
+        color: #000000;
+        font-size: 14px;
+        overflow: hidden;
+    }
+
+    .fb_ztsj a {
+        color: #000000;
+        font-size: 14px;
+        overflow: hidden;
+    }
+
+    .fb_ztfh {
+        color: #000000;
+        font-size: 22px;
+        overflow: hidden;
+       
+    }
+
+    .fb_zdsj {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #666666;
+        font-size: 15px;
+    }
+
+    .fb_zddjs {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #000000;
+        font-size: 15px;
+    }
+
+    .fb_zdlsjl {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #008000;
+        font-size: 15px;
+    }
+
+    .fb_zdhfts {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #0000ff;
+        font-size: 15px;
+    }
+
+    .fb_hfzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #008ef1;
+        font-size: 12px;
+    }
+
+    .fb_hffh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_hfmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_hfsj {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_gsbzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #3973ac;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbfh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #668B8B;
+        font-size: 17px;
+    }
+
+    .fb_gsbmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #ff0000;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #3973ac;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #ff0000;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbfh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #668B8B;
+        font-size: 17px;
+    }
+
+    .f_date {
+        text-align: right;
+    }
+
+    @media (max-width: 795px) {
+        .fb_ztbz {
+            padding: 1px 1px 1px 1px;
+            font-size: 12px;
+            font-weight: normal;
+            margin: 0px 0px 0px 0px;
+            border-radius: 2px;
+            vertical-align: top;
+            line-height: 26px;
+        }
+
+        .fb_cst {
+            font-size: 16px;
+            margin-left: 0px;
+            line-height: 26px;
+        }
+
+        .fb_ztzt {
+            font-size: 15px;
+            margin-left: 0px;
+            line-height: 26px;
+        }
+
+        .fb_ztmz {
+            font-size: 10px;
+        }
+
+        .fb_ztsj {
+            font-size: 10px;
+        }
+
+        .fb_ztfh {
+            /*display: none;*/
+        }
+
+        .fb_zdsj {
+            font-size: 12px;
+        }
+
+        .fb_zddjs {
+            font-size: 12px;
+        }
+
+        .fb_zdlsjl {
+            font-size: 12px;
+        }
+
+        .fb_zdhfts {
+            font-size: 12px;
+        }
+
+        .fb_hfzt {
+            font-size: 12px;
+        }
+
+        .fb_hffh {
+            font-size: 12px;
+        }
+
+        .fb_hfmz {
+            font-size: 12px;
+        }
+
+        .fb_hfsj {
+            font-size: 12px;
+        }
+
+        .fb_gsbzt {
+            font-size: 12px;
+        }
+
+        .fb_gsbfh {
+            font-size: 12px;
+        }
+
+        .fb_gsbmz {
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 424px) {
+        .fb_cst {
+            font-size: 14px;
+            margin-left: 0px;
+            line-height: 28px;
+        }
+
+        .fb_ztfh {
+            /*display: none;*/
+        }
+
+        .fb_ztbz {
+            padding: 1px 1px 1px 1px;
+            font-size: 14px;
+            font-weight: normal;
+            margin: 0px 0px 0px 0px;
+            border-radius: 2px;
+            vertical-align: top;
+            line-height: 28px;
+        }
+    }
+</style>
+
+<!---------------  --------------->
+
+	
+		                                                          
+<!---------------  --------------->
+	</tbody>
+
+</table>
+<img src="/bbs/fta1/888888.gif" width="100%"><table class="xxqbbslisttable">
+	<tbody>										
+
+<!---------------  --------------->
+<style>
+
+    .fb_ztbz {
+        padding: 4px 6px 4px 6px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 5px;
+        margin: 0 4px 0 4px;
+        vertical-align: top;
+        line-height: 30px;
+    }
+
+    .fb_cst {
+        color: #2106e9;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 30px;
+        overflow: hidden;
+    }
+
+    .fb_scyzt {
+        color: #9104b3;
+        font-weight: bold;
+        font-size: 24px;
+        overflow: hidden;
+    }
+
+    .fb_ecysz {
+        color: #81021e;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ccyst {
+        color: #2c8709;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ckt {
+        color: #000000;
+        font-weight: bold;
+        font-size: 29px;
+        overflow: hidden;
+    }
+
+    .fb_ztmz {
+        color: #9933ff;
+        font-weight: bold;
+        font-size: 22px;
+        overflow: hidden;
+    }
+
+    .fb_ztsj {
+        color: #000000;
+        font-size: 14px;
+        overflow: hidden;
+    }
+
+    .fb_ztsj a {
+        color: #000000;
+        font-size: 14px;
+        overflow: hidden;
+    }
+
+    .fb_ztfh {
+        color: #000000;
+        font-size: 22px;
+        overflow: hidden;
+       
+    }
+
+    .fb_zdsj {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #666666;
+        font-size: 15px;
+    }
+
+    .fb_zddjs {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #000000;
+        font-size: 15px;
+    }
+
+    .fb_zdlsjl {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #008000;
+        font-size: 15px;
+    }
+
+    .fb_zdhfts {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #0000ff;
+        font-size: 15px;
+    }
+
+    .fb_hfzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #008ef1;
+        font-size: 12px;
+    }
+
+    .fb_hffh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_hfmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_hfsj {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #999999;
+        font-size: 12px;
+    }
+
+    .fb_gsbzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #3973ac;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbfh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #668B8B;
+        font-size: 17px;
+    }
+
+    .fb_gsbmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #ff0000;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbzt {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #3973ac;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbmz {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #ff0000;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .fb_gsbfh {
+        font-family: TVe2aSpJArfKAXpAAZxkf48mMXNqAmESvW                   color: #668B8B;
+        font-size: 17px;
+    }
+
+    .f_date {
+        text-align: right;
+    }
+
+    @media (max-width: 795px) {
+        .fb_ztbz {
+            padding: 1px 1px 1px 1px;
+            font-size: 12px;
+            font-weight: normal;
+            margin: 0px 0px 0px 0px;
+            border-radius: 2px;
+            vertical-align: top;
+            line-height: 26px;
+        }
+
+        .fb_cst {
+            font-size: 16px;
+            margin-left: 0px;
+            line-height: 26px;
+        }
+
+        .fb_ztzt {
+            font-size: 15px;
+            margin-left: 0px;
+            line-height: 26px;
+        }
+
+        .fb_ztmz {
+            font-size: 10px;
+        }
+
+        .fb_ztsj {
+            font-size: 10px;
+        }
+
+        .fb_ztfh {
+            /*display: none;*/
+        }
+
+        .fb_zdsj {
+            font-size: 12px;
+        }
+
+        .fb_zddjs {
+            font-size: 12px;
+        }
+
+        .fb_zdlsjl {
+            font-size: 12px;
+        }
+
+        .fb_zdhfts {
+            font-size: 12px;
+        }
+
+        .fb_hfzt {
+            font-size: 12px;
+        }
+
+        .fb_hffh {
+            font-size: 12px;
+        }
+
+        .fb_hfmz {
+            font-size: 12px;
+        }
+
+        .fb_hfsj {
+            font-size: 12px;
+        }
+
+        .fb_gsbzt {
+            font-size: 12px;
+        }
+
+        .fb_gsbfh {
+            font-size: 12px;
+        }
+
+        .fb_gsbmz {
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 424px) {
+        .fb_cst {
+            font-size: 14px;
+            margin-left: 0px;
+            line-height: 28px;
+        }
+
+        .fb_ztfh {
+            /*display: none;*/
+        }
+
+        .fb_ztbz {
+            padding: 1px 1px 1px 1px;
+            font-size: 14px;
+            font-weight: normal;
+            margin: 0px 0px 0px 0px;
+            border-radius: 2px;
+            vertical-align: top;
+            line-height: 28px;
+        }
+    }
+</style>
+
+<!---------------  --------------->
+
+	
+		                                                          
+<!---------------  --------------->
+	</tbody>
+
+</table>
+<iframe width="100%"  marginwidth="0" height="1260" scrolling="no" frameborder="0" border="0"  src="https://ks3w2c88k9.99kjhi.app:2860/dh/amtuku.html" target="_blank"></iframe>
+
+
+
+
+
+			</div>    
+
+<div class="wb">
+
+<img src="https://waypuvi.wp99.top/vph6/sxtu.png" border="0" width="100%" /></div>
+
+<div class="wb">
+
+<img src="./images/di2.png" border="0" width="100%" /></div>	</div>	<div class="divfooter">				</div></div>
+    
+    <script src="main.js"></script>
+    
+    <footer class="bg-white pt-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="text-secondary">免责提示：未满十八岁人士、无民事行为能力人，请勿浏览本站内容，本站拒绝提供任何服务。</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p>版权所有 不得转载 &copy; 聚宝盆</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

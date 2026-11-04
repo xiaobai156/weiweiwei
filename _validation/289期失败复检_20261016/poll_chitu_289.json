@@ -1,0 +1,105 @@
+[
+  {
+    "top_period": 288,
+    "has_289_in_table": false,
+    "rows": [
+      [
+        "288期",
+        "《牛》",
+        "《蓝单》",
+        "《1》",
+        "《1》",
+        "0000准"
+      ],
+      [
+        "288期",
+        "《羊》",
+        "《蓝双》",
+        "《2》",
+        "《4》",
+        "马25准"
+      ],
+      [
+        "287期",
+        "《狗》",
+        "《绿双》",
+        "《9》",
+        "《0》",
+        "猪08准"
+      ],
+      [
+        "286期",
+        "《兔》",
+        "《红双》",
+        "《3》",
+        "《4》",
+        "羊24准"
+      ],
+      [
+        "285期",
+        "《蛇》",
+        "《绿单》",
+        "《3》",
+        "《1》",
+        "鼠19准"
+      ]
+    ],
+    "attempt": 1,
+    "ts": "2026-10-16 18:42:35",
+    "cache_bust": true
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 2,
+    "ts": "2026-10-16 18:46:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 3,
+    "ts": "2026-10-16 18:49:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 4,
+    "ts": "2026-10-16 18:52:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 5,
+    "ts": "2026-10-16 18:55:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 6,
+    "ts": "2026-10-16 18:58:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 7,
+    "ts": "2026-10-16 19:01:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 8,
+    "ts": "2026-10-16 19:04:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 9,
+    "ts": "2026-10-16 19:07:05",
+    "cache_bust": false
+  },
+  {
+    "error": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_TIMED_OUT at https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\nCall log:\n  - navigating to \"https://zwpwuwq.fxnb4-uer1b-uftjcw.work:16677/#am\", waiting until \"domcontentloaded\"\n)",
+    "attempt": 10,
+    "ts": "2026-10-16 19:10:05",
+    "cache_bust": false
+  }
+]

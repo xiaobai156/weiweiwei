@@ -1,0 +1,10 @@
+        <div class="home"><a target="_self" href="/"><img class="lazyload" data-original="https://daai01.cosds.aohjifv.com/upload/epy/skin/image/jylt-bank" ><span>返回首页</span></a></div>
+    </div>
+    </div><script type="text/javascript" >$(function () {
+    $('.nav ul li a')['click'](function () {
+        let value = $(this)['attr']('value');
+        console.log(value.match('http'));
+        if(value.match('http') === null) {
+            $('html,body')['animate']({scrollTop: $(value)['offset']()['top'] - 275}, 500);
+        } else {
+            window.open(value);

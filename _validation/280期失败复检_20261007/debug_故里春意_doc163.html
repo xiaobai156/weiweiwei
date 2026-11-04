@@ -1,0 +1,10 @@
+                            //mySwiper1.setTranslate(clientWidth - navWidth) //不卷动
+                        } else {
+                            //mySwiper1.setTranslate((clientWidth - parseInt(navSlideWidth)) / 2 - navActiveSlideLeft) //不卷动
+                        }
+
+                        $('#' + id1 + ' .active-nav').removeClass('active-nav');
+                        mySwiper1.slides.eq(activeIndex).addClass('active-nav');
+                        mySwiper1.autoplay.stop();
+
+                    }

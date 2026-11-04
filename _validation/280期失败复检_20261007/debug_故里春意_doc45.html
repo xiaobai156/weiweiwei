@@ -1,0 +1,10 @@
+    for (let i = 0; i < rows; i++) {
+        let row = table.insertRow(i + 1);
+        row.classList.add("jiaozhu-" + lottery_type);
+        for (let j = 0; j < 7; j++) {
+            let cell = row.insertCell(j);
+            k++;
+            if (k <= week || k > dayofmonth[dt.getMonth()] + week) {
+                cell.innerHTML = "";
+            } else {
+                cell.innerHTML         = k - week;

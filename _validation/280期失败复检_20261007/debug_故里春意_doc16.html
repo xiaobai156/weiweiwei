@@ -1,0 +1,10 @@
+        if (i !== 0) {
+          xf_divs[i].style.top = (top) + 'px';
+        }
+        top += xf_divs[i].clientHeight;
+      } else {
+        xf_divs[i].setAttribute("data-fixed", '');
+        xf_divs[i].style.top = 0;
+      }
+    }
+  }

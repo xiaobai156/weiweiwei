@@ -1,0 +1,10 @@
+function changeTab() {
+    document.querySelector(".jiaozhu-menu li.hover").classList.remove('hover');
+    document.querySelector(".jiaozhu-menu [data-tab~='" + lottery_id + "']").classList.add('hover');
+}
+
+// 顯示日曆
+function show() {
+    // 獲取滑鼠點選所選擇的年月值
+    const getValue   = setdate.value;
+    const date       = getValue.split('-');

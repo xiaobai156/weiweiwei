@@ -1,0 +1,38 @@
+{
+  "period": 292,
+  "site": "故里春意",
+  "old_url": "https://zdwcig.iyo4d-81klf-udwkqg.work:16677/topic/350485.html",
+  "mirror_url": "https://bbjkbgbw.rqzf2-shxqn-jtrsyy.work:17488/topic/350485.html",
+  "live_result": {
+    "index": 215,
+    "success_line": "0尾 故里春意",
+    "fail_line": null,
+    "ranking_value": "0",
+    "messages": [
+      "[215/297] 故里春意 bottom https://bbjkbgbw.rqzf2-shxqn-jtrsyy.work:17488/topic/350485.html",
+      "  专属区292期记录: 编号1/1",
+      "  成功: 0尾 故里春意",
+      "  命中片段: 专属区292期记录编号 1/1 故里春意 主帖标题292期 292期杀肖杀尾[鼠肖.0尾]开?00准 =================="
+    ],
+    "failure_stage": "",
+    "failure_reason": ""
+  },
+  "success_count": 262,
+  "failure_count": 8,
+  "only_changed_cache_site": "故里春意",
+  "history_preserved": true,
+  "other_success_rows_and_order_preserved": true,
+  "other_cache_entries_preserved": true,
+  "before_sha256": {
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\杀尾-修复版2\\sites.json": "87225e85b4887fdae987716ede576e9a142f4b90ed3c6defa427906296ad831d",
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\七类数据统一归纳\\292期-尾.txt": "e772ebb1574465dc81bd9348ef7dfaaeac811d8340e249a746df4d1962902f84",
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\七类数据统一归纳失败\\292期-尾-失败.txt": "745aa80bc2fcde8742a7a5829b8c1300e139278be50411f3304fc1608d2809ee",
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\杀尾-修复版2\\recent_10_cache.json": "1581c2f5c75676bc8eaf26ab7aa44cb49dd382f1dc8864bea0c047127412724f"
+  },
+  "after_sha256": {
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\杀尾-修复版2\\sites.json": "3c08564ff148c1c22c8f2717f57966d8021d255ba13595beffb866abd51c1416",
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\七类数据统一归纳\\292期-尾.txt": "33eec8ce3af66ca75d98977df7a3d2ebe0f110fdd190addc919b30d467cf1cd5",
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\七类数据统一归纳失败\\292期-尾-失败.txt": "a386d02a1a9ae109ef4a6bd80adba4e90dc1bda3cf1b5a09e14b9fd1526d3792",
+    "C:\\Users\\Administrator\\Desktop\\每天工具\\爬虫合集\\杀尾-修复版2\\recent_10_cache.json": "daa57248d682c0eca94f26564869e5814756432b70b789ec82157f1ff1f235ab"
+  }
+}

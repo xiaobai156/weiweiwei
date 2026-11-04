@@ -1,0 +1,10 @@
+    $(function() {
+        createSwiper('fivetab5_1_okz', 'fivetab6_1_okz', {delay: 2500});
+
+        function createSwiper(id1, id2, autoplay)
+        {
+            var clientWidth;
+            var navSlideWidth;
+            var mySwiper1 = new Swiper('#' + id1, {
+                freeMode: true,
+                autoplay: autoplay,

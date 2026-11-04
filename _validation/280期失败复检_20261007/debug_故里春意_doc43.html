@@ -1,0 +1,10 @@
+    const year       = parseInt(date[0]);
+    const month      = parseInt(date[1]);
+    // 判斷是否為閏年,以便確定2月的天數
+    const flag       = year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
+    const dayofmonth = [31, flag ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    // 給date賦值,值為所選擇的某年某月一號
+    const dt         = new Date();
+    dt.setFullYear(year);
+    dt.setMonth(month - 1);
+    dt.setDate(1);

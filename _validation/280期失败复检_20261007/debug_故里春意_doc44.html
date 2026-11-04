@@ -1,0 +1,10 @@
+    // 獲取date對應周幾
+    const week = dt.getDay();
+    // 當月應該列印多少行
+    const rows = Math.ceil((dayofmonth[dt.getMonth()] + week) / 7);
+    let k      = 0;
+    // 如果表格中有除表頭外的資料,進行資料刪除,避免上次月份的資料對下次有影響
+    while (table.rows.length > 1) {
+        table.deleteRow(1);
+    }
+    // 迴圈向表格中新增資料，生成日曆

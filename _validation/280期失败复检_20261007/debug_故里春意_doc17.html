@@ -1,0 +1,10 @@
+
+  document.onscroll = function() {
+    if (xfTicking) return;
+    xfTicking = true;
+    requestAnimationFrame(function() {
+      xfUpdate();
+      xfTicking = false;
+    });
+  };
+}

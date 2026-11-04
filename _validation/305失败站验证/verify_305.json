@@ -1,0 +1,354 @@
+[
+  {
+    "name": "可见一斑",
+    "url": "https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html",
+    "pick": "bottom",
+    "status": "无数据-未发布305期",
+    "success_line": null,
+    "failure_stage": "抓取/解析",
+    "failure_reason": "LookupError: 绝对bottom边界是304期，不是指定305期",
+    "messages": [
+      "[19/266] 可见一斑 bottom https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html",
+      "  未找到305期，清缓存后刷新第1次",
+      "  失败: 抓取/解析失败(LookupError: 绝对bottom边界是304期，不是指定305期)"
+    ]
+  },
+  {
+    "name": "泡沫荭茶",
+    "url": "https://skgdjjmz.l54vq-9httr-cmdnip.work:29477/article/admin/6a042fe34ea5c20141013e1a?url=xdr",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "2尾 泡沫荭茶",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[61/266] 泡沫荭茶 bottom https://skgdjjmz.l54vq-9httr-cmdnip.work:29477/article/admin/6a042fe34ea5c20141013e1a?url=xdr",
+      "  成功: 2尾 泡沫荭茶",
+      "  命中片段: 305期: [泡沫荭茶] 💎 绝杀1尾 💎[2]开: 00 准"
+    ]
+  },
+  {
+    "name": "虚空恐惧",
+    "url": "https://kfkxqua.vohzh-s0pbh-vhwsal.xyz:16677/topic/247429.html",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "0尾 虚空恐惧",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[82/266] 虚空恐惧 bottom https://kfkxqua.vohzh-s0pbh-vhwsal.xyz:16677/topic/247429.html",
+      "  专属区305期记录: 编号2/2",
+      "  成功: 0尾 虚空恐惧",
+      "  命中片段: 专属区305期记录编号 2/2 虚空恐惧 305期:精杀一尾◆0尾开0000准"
+    ]
+  },
+  {
+    "name": "开心果",
+    "url": "https://vttydhzd.85wro-7v8ip-sywhkl.xyz:16677/",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "1尾 开心果",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[89/266] 开心果 top https://vttydhzd.85wro-7v8ip-sywhkl.xyz:16677/",
+      "  成功: 1尾 开心果",
+      "  命中片段: 305期 龙肖 绿单 1尾 2头 开:?00"
+    ]
+  },
+  {
+    "name": "魔童",
+    "url": "https://bloynnbb.gzgli-koeq8-deouwc.xyz:16677/",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "5尾 魔童",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[90/266] 魔童 top https://bloynnbb.gzgli-koeq8-deouwc.xyz:16677/",
+      "  专属区305期记录: 编号1/1",
+      "  成功: 5尾 魔童",
+      "  命中片段: 专属区305期记录编号 1/1 305期 [蛇] [蓝单] [5尾] 开:0000"
+    ]
+  },
+  {
+    "name": "孤傲女帝",
+    "url": "https://buzfwpox.pwp8o-vfhi5-xmrytn.xyz:16677/topic/248722.html",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "5尾 孤傲女帝",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[91/266] 孤傲女帝 bottom https://buzfwpox.pwp8o-vfhi5-xmrytn.xyz:16677/topic/248722.html",
+      "  成功: 5尾 孤傲女帝",
+      "  命中片段: 孤傲女帝 主体305期 305期 绝杀1尾[5]开0000准"
+    ]
+  },
+  {
+    "name": "阳光叔叔",
+    "url": "https://neciezht.h6r8g-z9l98-usthpy.xyz:16677/topic/322668.html",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "9尾 阳光叔叔",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[93/266] 阳光叔叔 top https://neciezht.h6r8g-z9l98-usthpy.xyz:16677/topic/322668.html",
+      "  成功: 9尾 阳光叔叔",
+      "  命中片段: 阳光叔叔 主帖标题305期 305期:绝杀一尾[9尾]开: 00准"
+    ]
+  },
+  {
+    "name": "赌神码经",
+    "url": "https://oofsukyp.7u9l0-zq8hd-obpxwe.work:29455/article/admin/6a02dab96bedb2a8313d5869?url=home",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "7尾 赌神码经",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[98/266] 赌神码经 bottom https://oofsukyp.7u9l0-zq8hd-obpxwe.work:29455/article/admin/6a02dab96bedb2a8313d5869?url=home",
+      "  成功: 7尾 赌神码经",
+      "  命中片段: 305期: 〖赌神码经〗 🧣 绝杀一尾 🧣[7]开: 00 准"
+    ]
+  },
+  {
+    "name": "肢体动作",
+    "url": "https://asmfkb.dfkxu-0rwnp-wevqzo.work:29466/article/admin/6a15cc4c806b655fd89b4148?url=fcw",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "3尾 肢体动作",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[107/266] 肢体动作 bottom https://asmfkb.dfkxu-0rwnp-wevqzo.work:29466/article/admin/6a15cc4c806b655fd89b4148?url=fcw",
+      "  成功: 3尾 肢体动作",
+      "  命中片段: 305期: [肢体动作] 🧧 绝杀1尾 🧧[3]开: 00 准"
+    ]
+  },
+  {
+    "name": "独孤九天",
+    "url": "https://ztpqrap.m8sbq-na911-wmojzb.work:29444/article/admin/6a14512f597e16d57eacb6a3?url=gsw",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "1尾 独孤九天",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[110/266] 独孤九天 bottom https://ztpqrap.m8sbq-na911-wmojzb.work:29444/article/admin/6a14512f597e16d57eacb6a3?url=gsw",
+      "  成功: 1尾 独孤九天",
+      "  命中片段: 305期: 独孤九天 绝杀一尾 [1]开: 00 准"
+    ]
+  },
+  {
+    "name": "临川观月",
+    "url": "https://fbgbfg.www27521c.com:8443/gsb/am04.html",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "1尾 临川观月",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[111/266] 临川观月 bottom https://fbgbfg.www27521c.com:8443/gsb/am04.html",
+      "  成功: 1尾 临川观月",
+      "  命中片段: 305期:绝杀一尾[1尾] 开?00准 澳门百姓网，用户范围，覆盖全球！全球彩民共同的选择！ —彩民都说好 新增网址: 27521.com 中奖网址: 27521.com 官方域名: 27521.com 易记域名: 27521.com 🔥 澳门天机网↘ [神秘高手]四尾12码 document.write(qqishu..."
+    ]
+  },
+  {
+    "name": "通情达理",
+    "url": "https://kk.212557a.com:1888/art_zhuanqu/8143.html",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "9尾 通情达理",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[113/266] 通情达理 top https://kk.212557a.com:1888/art_zhuanqu/8143.html",
+      "  成功: 9尾 通情达理",
+      "  命中片段: 305期: ✭绝杀一尾✭ [9] 开??准"
+    ]
+  },
+  {
+    "name": "爱有时差",
+    "url": "https://ztpqrap.m8sbq-na911-wmojzb.work:29444/article/admin/6a2d8e27d164c1deb62446cd?url=gsw",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "7尾 爱有时差",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[115/266] 爱有时差 bottom https://ztpqrap.m8sbq-na911-wmojzb.work:29444/article/admin/6a2d8e27d164c1deb62446cd?url=gsw",
+      "  成功: 7尾 爱有时差",
+      "  命中片段: 305期: 『爱有时差』 绝杀1尾 [7]开: 00 准"
+    ]
+  },
+  {
+    "name": "吉祥彩娃",
+    "url": "https://ifnkblf.e4kce-krr7o-vuvqhd.work:29411/article/admin/6a143518bf0a6cb1dd38fb20?url=scyd",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "0尾 吉祥彩娃",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[117/266] 吉祥彩娃 bottom https://ifnkblf.e4kce-krr7o-vuvqhd.work:29411/article/admin/6a143518bf0a6cb1dd38fb20?url=scyd",
+      "  成功: 0尾 吉祥彩娃",
+      "  命中片段: 305期: 『吉祥彩娃』 🌳 绝杀1尾 🌳[0]开:00准"
+    ]
+  },
+  {
+    "name": "巅峰造极",
+    "url": "https://fymxwnyg.ttmzc-muvns-udlfln.work:29455/article/admin/6a096a32291caff3edcb8b7f?url=lhbd",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "1尾 巅峰造极",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[123/266] 巅峰造极 bottom https://fymxwnyg.ttmzc-muvns-udlfln.work:29455/article/admin/6a096a32291caff3edcb8b7f?url=lhbd",
+      "  成功: 1尾 巅峰造极",
+      "  命中片段: 305期: [巅峰造极] 🐁 绝杀1尾 🐁[1]开: 00 准"
+    ]
+  },
+  {
+    "name": "淋漓尽致",
+    "url": "https://kulipur.l5paz-a0o8v-uozmmd.xyz:16677/topic/435507.html",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "5尾 淋漓尽致",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[154/266] 淋漓尽致 bottom https://kulipur.l5paz-a0o8v-uozmmd.xyz:16677/topic/435507.html",
+      "  成功: 5尾 淋漓尽致",
+      "  命中片段: 淋漓尽致 305期: 绝杀一尾 〖5 尾 〗开: 0000 准"
+    ]
+  },
+  {
+    "name": "夜月花朝",
+    "url": "https://u6agr.dgj1u-jtp00-hcqvut.xyz/topic/226654.html",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "1尾 夜月花朝",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[156/266] 夜月花朝 top https://u6agr.dgj1u-jtp00-hcqvut.xyz/topic/226654.html",
+      "  成功: 1尾 夜月花朝",
+      "  命中片段: 夜月花朝 305期:精杀一尾◆1尾开00准"
+    ]
+  },
+  {
+    "name": "坚韧不拔",
+    "url": "https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "4尾 坚韧不拔",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[160/266] 坚韧不拔 bottom https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html",
+      "  成功: 4尾 坚韧不拔",
+      "  命中片段: 坚韧不拔 主帖标题305期 305期:[绝杀一尾][444]开:0000准"
+    ]
+  },
+  {
+    "name": "掂梢折本",
+    "url": "https://sfch0f.8qf8z-uqq0p-brtstz.work/topic/206435.html",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "6尾 掂梢折本",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[166/266] 掂梢折本 top https://sfch0f.8qf8z-uqq0p-brtstz.work/topic/206435.html",
+      "  成功: 6尾 掂梢折本",
+      "  命中片段: 305期:杀一尾(6尾)开0000准"
+    ]
+  },
+  {
+    "name": "美人为馅",
+    "url": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3271e955781f6efb148965?url=jbx",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "1尾 美人为馅",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[177/266] 美人为馅 bottom https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3271e955781f6efb148965?url=jbx",
+      "  成功: 1尾 美人为馅",
+      "  命中片段: 305期: [美人为馅] ☘️ 绝杀一尾 ☘️[1]开:00准"
+    ]
+  },
+  {
+    "name": "彩民码王",
+    "url": "https://yzpbdkow.6m1ba-7p7u4-ppolcy.work:29433/article/manager/6a5261485e6c7637a3f5447f?url=tdg",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "1尾 彩民码王",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[181/266] 彩民码王 bottom https://yzpbdkow.6m1ba-7p7u4-ppolcy.work:29433/article/manager/6a5261485e6c7637a3f5447f?url=tdg",
+      "  成功: 1尾 彩民码王",
+      "  命中片段: 305期: [彩民码王] 🐁 绝杀一尾 🐁[1]开: 00 准"
+    ]
+  },
+  {
+    "name": "首富推送",
+    "url": "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/manager/6a0951b3291caff3edcb8a2b?url=lf",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "0尾 首富推送",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[182/266] 首富推送 bottom https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/manager/6a0951b3291caff3edcb8a2b?url=lf",
+      "  成功: 0尾 首富推送",
+      "  命中片段: 305期: 〖首富推送〗 ⛩️ 绝杀一尾 ⛩️[0]开: 00 准"
+    ]
+  },
+  {
+    "name": "言简意赅",
+    "url": "https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/manager/6a095299291caff3edcb8a35?url=lf",
+    "pick": "bottom",
+    "status": "有数据-成功",
+    "success_line": "8尾 言简意赅",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[185/266] 言简意赅 bottom https://knfoaep.ivqs8-1depw-yoirtw.xyz:29444/article/manager/6a095299291caff3edcb8a35?url=lf",
+      "  成功: 8尾 言简意赅",
+      "  命中片段: 305期: [言简意赅] 🍏 绝杀一尾 🍏[8]开: 00 准"
+    ]
+  },
+  {
+    "name": "梦回大唐",
+    "url": "https://wmdhoki.6su07-7lpw6-gudkzl.xyz:16677/topic/727514.html",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "4尾 梦回大唐",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[189/266] 梦回大唐 top https://wmdhoki.6su07-7lpw6-gudkzl.xyz:16677/topic/727514.html",
+      "  成功: 4尾 梦回大唐",
+      "  命中片段: 305期: 绝杀 一 尾 [4]开:00中"
+    ]
+  },
+  {
+    "name": "脑浆炸裂",
+    "url": "https://mxiscni.nkh6s-vfni4-lwgfvw.xyz:16677/topic/257907.html",
+    "pick": "top",
+    "status": "有数据-成功",
+    "success_line": "0尾 脑浆炸裂",
+    "failure_stage": "",
+    "failure_reason": "",
+    "messages": [
+      "[191/266] 脑浆炸裂 top https://mxiscni.nkh6s-vfni4-lwgfvw.xyz:16677/topic/257907.html",
+      "  成功: 0尾 脑浆炸裂",
+      "  命中片段: 305期:杀一尾(0尾) 开0000准"
+    ]
+  }
+]

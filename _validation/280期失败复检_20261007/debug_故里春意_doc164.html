@@ -1,0 +1,10 @@
+                }
+            })
+
+            function updateNavPosition() {
+                $('#' + id1 + ' .active-nav').removeClass('active-nav')
+                var activeNav = $('#' + id1 + ' .swiper-slide').eq(mySwiper2.activeIndex).addClass('active-nav');
+                console.log(activeNav.index())
+                if (!activeNav.hasClass('swiper-slide-visible')) {
+                    if (activeNav.index() > mySwiper1.activeIndex) {
+                        var thumbsPerNav = Math.floor(mySwiper1.width / activeNav.width()) - 1

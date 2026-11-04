@@ -1,0 +1,10 @@
+                cell.dataset.tbcalDate = getValue + '-' + setzero(k - week);
+            }
+        }
+    }
+    setLotteryDate();
+}
+
+function setzero(obj) {
+    if (parseInt(obj) < 10) {
+        return '0' + obj;

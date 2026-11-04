@@ -1,0 +1,10 @@
+
+  var xfTicking = false;
+
+  function xfUpdate() {
+    var xf_divs = document.getElementsByClassName('xf');
+    var st = document.body.scrollTop || document.documentElement.scrollTop;
+    var top = 0;
+    for (var i = 0; i < xf_divs.length; i++) {
+      if (st > xf_divs[i].offsetTop) {
+        xf_divs[i].setAttribute("data-fixed", 'fixed');

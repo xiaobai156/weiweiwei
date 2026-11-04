@@ -1,0 +1,10 @@
+    for (let i = 0; i < setDate.length; i++) {
+        item = document.querySelector('[data-tbcal-date~="' + setDate[i]['drawn_at'] + '"]');
+        if (item) {
+            item.classList.add("hover");
+        }
+    }
+}
+
+function jiaozhuCalendar(obj) {
+    lottery = obj;

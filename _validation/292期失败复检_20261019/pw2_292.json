@@ -1,0 +1,24 @@
+[
+  {
+    "name": "小明哥上",
+    "goto": "ok",
+    "body_after_goto": 12477,
+    "has_292_after_goto": true,
+    "networkidle": "ok",
+    "wait": "ok",
+    "body_after_wait": 12477,
+    "has_292_after_wait": true,
+    "scroll_1": "TargetClosedError: Page.wait_for_timeout: Page crashed"
+  },
+  {
+    "name": "可见一斑",
+    "goto": "ok",
+    "body_after_goto": 10746,
+    "has_292_after_goto": true,
+    "networkidle": "ok",
+    "wait": "ok",
+    "body_after_wait": 10746,
+    "has_292_after_wait": true,
+    "scroll_0": "TargetClosedError: Page.wait_for_timeout: Page crashed"
+  }
+]

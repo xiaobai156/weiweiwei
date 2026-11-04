@@ -1,0 +1,10 @@
+                disableOnInteraction: false,
+                // slideToClickedSlide: true, //点击跟随滑动
+                slidesPerView: 15, //一屏显示的个数
+                onTap: function () {
+
+                },
+                on: {
+                    init: function() {
+                        navSlideWidth = this.slides.eq(0).css('width'); //导航字数需要统一,每个导航宽度一致
+                        navSum = this.slides[this.slides.length - 1].offsetLeft //最后一个slide的位置

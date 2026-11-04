@@ -1,0 +1,51 @@
+{
+ "url": "https://0130190827.767566.xyz/bbs/topic.php?id=30780",
+ "period_lines": [],
+ "raw_period_hits": [],
+ "requests": [
+  {
+   "url": "https://0130190827.767566.xyz/bbs/topic.php?id=30780",
+   "status": 200,
+   "ct": "text/html; charset=gb2312"
+  },
+  {
+   "url": "https://0130190827.767566.xyz/bbs/images/bga.webp",
+   "status": 404,
+   "ct": "text/html"
+  },
+  {
+   "url": "https://0130190827.767566.xyz/bbs/topic.php?id=30780",
+   "status": 200,
+   "ct": "text/html; charset=gb2312"
+  }
+ ],
+ "title": "",
+ "body_len": 360,
+ "has_275": false,
+ "tail_lines": [
+  "首页",
+  "规则",
+  "充值",
+  "客服",
+  "注册 登录",
+  "小仙女288060com",
+  "此帖子ID已被下架",
+  "充值金币联系 QQ号:3991784405",
+  "充值优惠活动",
+  "1金币=1人民币，充值300起",
+  "【充500元送100金币】",
+  "【充1000元送300金币】",
+  "【充2000元送800金币】",
+  "【充3000元送1500金币】",
+  "【充5000元送3000金币】",
+  "【充10000元送10000金币】",
+  "声明：上方QQ是论坛管理员。 管理员不发表资料也不提供任何资料， 论坛所有资料都是高手发表与管理员无关。问码试料的请不要加！管理员只提供充值服务，和监督高手!",
+  "（注意：所有高手出售的资料都是单期售卖，需要购买才能查看）",
+  "免责提示：未满十八岁人士、无民事行为能力人，请勿浏览本站内容，本站拒绝提供任何服务。",
+  "版权所有 不得转载 © 小仙女288060com"
+ ],
+ "raw_status": 200,
+ "raw_len": 21634,
+ "raw_has_275": false,
+ "raw_head": "\r\r \r\r\r\r\r\n\r\r\r\n\r\r\r\n\n<!doctype html>\n<html lang=\"zh-CN\">\n\n<head>\n    <meta charset=\"gb2312\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <meta name=\"format-detection\" content=\"telephone=no\">\n    \n    \n    <link href=\"css/bootstrap.min.css\" rel=\"stylesheet\">\n\n    <link href=\"main.css\" rel=\"stylesheet\">\t\n    <script src=\"js/jquery/3.6.0/jquery.min.js\"></script>\n   \n    <title>С��Ů288060com</title>\n\n    <META name=\"keywords\" content=\"XXͼ��ؼ���\">\n\n    <meta name=\"description\" content=\"XXͼ������\">\n    \n    <link rel=\"stylesheet\" href=\"css/bootstrap-icons.css\">\n    <link href=\"css/bbsdialogstyle.css\" rel=\"stylesheet\">\n\n    <style>\n        body{-moz-user-select: none;-webkit-user-select: none;-ms-user-select: none;-khtml-user-select: none;user-select: none;}\n        #hidenav {\n            background-color: #f1f1f1;\n            border-bottom: 1px solid #dfdfdf;\n            background-image: url(images/logo.png);\n            background-repeat: no-repeat;\n            background-position: center;\n        }\n        \n.badge {\n    display: inline-block;\n    padding: 0.25em 0.4em;\n    font-size: 75%;\n    font-weight: 700;\n    line-height: 1;\n    text-align: center;\n    white-space: nowrap;\n    vertical-align: baseline;\n    border-radius: 0.25rem;\n}\n\n.badge:empty {\n    display: none;\n}\n\n.btn .badge {\n    position: relative;\n    top: -1px;\n}\n\n.badge-pill {\n    padding-right: 0.6em;\n    padding-left: 0.6em;\n    border-radius: 10rem;\n}\n\n.badge-primary {\n    color: "
+}

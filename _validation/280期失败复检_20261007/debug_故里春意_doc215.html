@@ -1,0 +1,10 @@
+    let tabContainer = document.querySelector('#con_tabform' + classId + '_' + num);
+    if (tabContainer) {
+        let randomBgContainers = tabContainer.querySelectorAll('.random-bg-container');
+        // 从第二个带有类的容器元素开始设置随机背景图像
+        for (let index = 1; index < randomBgContainers.length; index++) {
+            const randomIndex = Math.floor(Math.random() * backgroundImages.length);
+            const selectedImage = backgroundImages[randomIndex];
+            randomBgContainers[index].style.backgroundImage = `url(${selectedImage})`;
+        }
+    }
