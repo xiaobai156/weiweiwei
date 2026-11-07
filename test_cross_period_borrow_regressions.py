@@ -4,7 +4,8 @@
 覆盖：
 1) _period_window 截断不造出假值（[] () 【】 三种括号都不许切出半个数字）
 2) _has_draw_signal 只认开奖字段形状，排除「公开/开奖栏目/开奖网址」等噪声词
-3) _extract_tail_value 按「出现位置」取值，不按模式优先级（第三轮修复）
+3) _extract_tail_value 按「出现位置」取值，不按模式优先级；并且带「上期/回顾」
+   时间词的值不再借给本期（第三轮修复 + 本轮时间词修复）
 4) 跨年期号切段归一（365→001）
 """
 from __future__ import annotations
@@ -128,10 +129,28 @@ def test_tail_value_prefers_first_occurrence_not_pattern_priority() -> None:
     assert _extract_tail_value(text) == 7
 
 
-def test_tail_value_respects_document_order_when_history_first() -> None:
-    """上期片段确实排在本期之前时，按位置取到的就是它（保持文档顺序语义）。"""
-    text = "上期绝杀一尾5 开:12准 本期杀:7尾: 0000 准"
+def test_tail_value_does_not_borrow_explicit_previous_period() -> None:
+    """明确标了「上期」的值即使排在前面，也不能当本期值。
+
+    旧行为按出现位置直接取第一个合法值，于是「上期绝杀一尾5 … 本期…」
+    会把上期的 5 借给本期。时间词必须优先于位置序。
+    """
+    assert _extract_tail_value("298期 上期杀一尾5 本期杀一尾7 开?") == 7
+    assert _extract_tail_value("298期 上周回顾 绝杀一尾3 本期绝杀一尾（9）") == 9
+
+    # 整个窗口只有上期片段时，宁可不给值，也不借上期。
+    assert _extract_tail_value("上期绝杀一尾5 开:12准 本期杀:7尾: 0000 准") is None
+
+
+def test_tail_value_keeps_document_order_when_no_time_word() -> None:
+    """没有任何时间词时，仍然按出现位置取第一个值（不改既有排版语义）。"""
+    text = "298期 绝杀一尾5 另一栏 绝杀一尾3 开:12准"
     assert _extract_tail_value(text) == 5
+
+
+def test_tail_value_ignores_previous_word_belonging_to_draw_field() -> None:
+    """「上期开奖 …」属于开奖字段，不应连坐后面的本期尾值。"""
+    assert _extract_tail_value("298期 上期开奖 猴12 杀一尾7") == 7
 
 
 def test_tail_value_single_occurrence_unchanged() -> None:

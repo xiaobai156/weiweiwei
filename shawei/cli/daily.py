@@ -7,12 +7,18 @@ from shawei.config import sites as site_config
 from shawei.config.paths import RECENT_CACHE_PATH
 from shawei.persistence import cache_repository, health_repository, txt_writer
 from shawei.persistence.atomic_file import atomic_write_text
+from shawei.parsers import common as parser_common
 from shawei.services import batch_crawl
+from shawei.validation import validator
 
 
 def should_update_cache(success_count: int, total_sites: int) -> bool:
-    """Allow a cache roll for any valid finalized live-result count."""
-    if total_sites <= 0 or success_count < 0 or success_count > total_sites:
+    """Only roll the window when at least one site produced a valid live result.
+
+    0 成功代表整轮抓取/解析故障，此时滚动缓存会先把本期旧值 pop 掉、
+    再把所有站点标成失败，等于用一次故障删掉本期已经抓到的数据。
+    """
+    if total_sites <= 0 or success_count <= 0 or success_count > total_sites:
         return False
     return True
 
@@ -111,6 +117,8 @@ def main(argv: list[str] | None = None) -> int:
 
     sites = site_config.load_sites()
     indexed = list(enumerate(sites, start=1))
+    validator.reset_run_warnings()
+    parser_common.reset_tail_rejections()
     # The live crawl and unified validation decide success/failure from this
     # run's documents only; the disk cache is not consulted in this phase.
     results = _crawl(indexed, len(sites), args, args.retries, max(1, args.workers))
@@ -143,6 +151,16 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     print(f"\n完成: 成功 {len(successes)} 条, 失败 {len(failures)} 条")
+    warnings = validator.run_warnings()
+    if warnings:
+        print(
+            f"解析告警: {len(warnings)} 条"
+            "（[文档域冲突]/[同期多值]/[块内多值]，明细见上方 stderr）"
+        )
+    rejections = parser_common.tail_rejection_counts()
+    if rejections:
+        detail = "、".join(f"{reason} {count} 次" for reason, count in sorted(rejections.items()))
+        print(f"期面守卫拒绝取值: {sum(rejections.values())} 次（{detail}）")
     for line in txt_writer.format_failure_summary(failures):
         print(line)
     print(f"成功结果: {success_path}")
@@ -151,7 +169,10 @@ def main(argv: list[str] | None = None) -> int:
         print("最近10期缓存: 本次按参数要求不更新")
         return 0
     if not should_update_cache(len(successes), len(sites)):
-        print("最近10期缓存: 实时结果计数无效，本次不更新")
+        if successes:
+            print("最近10期缓存: 实时结果计数无效，本次不更新")
+        else:
+            print("最近10期缓存: 本轮 0 成功，判定为整轮故障，不滚动缓存")
         return 0
     # Cache is updated only after realtime judgement/output is complete.  It
     # is used for new-site duplicate detection, never to alter this run.  The

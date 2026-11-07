@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import sys
+import threading
 from collections.abc import Iterable
 from dataclasses import replace
 
@@ -542,6 +544,125 @@ def _records_by_period(
     return selected, numbered_candidates, selected_candidates
 
 
+_WARNING_LOCK = threading.Lock()
+_RUN_WARNINGS: list[str] = []
+
+
+def reset_run_warnings() -> None:
+    """清空本轮解析告警，入口在正式抓取开始时调用。"""
+
+    with _WARNING_LOCK:
+        _RUN_WARNINGS.clear()
+
+
+def run_warnings() -> tuple[str, ...]:
+    """返回本轮累积的解析告警，供入口在汇总行里计数。
+
+    stderr 在多线程下会交错、也不会进健康记录和失败 TXT；这里留一份计数，
+    让「有告警」这件事在控制台汇总里一定能看到，明细仍在 stderr。
+    """
+
+    with _WARNING_LOCK:
+        return tuple(_RUN_WARNINGS)
+
+
+def _emit_warning(message: str) -> None:
+    print(message, file=sys.stderr)
+    with _WARNING_LOCK:
+        # 重试、二次解析（接口 + 渲染兜底）会对同一条问题重复调用，
+        # 计数去重，避免汇总行把一次问题报成多条。
+        if message in _RUN_WARNINGS:
+            return
+        _RUN_WARNINGS.append(message)
+
+
+def _warn_cross_document_scope_disagreement(
+    candidates: Iterable[Candidate],
+    target_period: int,
+    site_name: str,
+    document_scope: str,
+) -> None:
+    """方向文档域选文档前，把「不同文档给出不同同期值」报到 stderr。
+
+    这里不判失败：这些站点配置了 ``direction_document_scope``，选权威文档是
+    既定设计（横刀跃马的正文首行与解码碎片本来就不一致）。但静默选择会让
+    「取到了另一份文档的值」无从发现，所以留一条可 grep 的告警。
+
+    注意：判定用交集语义——只有各文档取值**完全不相交**时才告警；部分重合
+    （例如 {0,6} 与 {6}）视为同一份数据的两个呈现，不告警。
+    """
+
+    grouped: dict[tuple[object, ...], set[str]] = {}
+    for candidate in candidates:
+        if candidate.record.period != target_period:
+            continue
+        grouped.setdefault(_candidate_authority_key(candidate), set()).add(
+            candidate.record.value()
+        )
+    block_values = [values for values in grouped.values() if values]
+    if len(block_values) < 2:
+        return
+    first = block_values[0]
+    if all(first & values for values in block_values):
+        return
+    _emit_warning(
+        f"[文档域冲突] {site_name} {target_period}期不同文档尾值不一致: "
+        f"{'、'.join(sorted(set().union(*block_values)))}；"
+        f"按 direction_document_scope={document_scope} 选择，请人工核对"
+    )
+
+
+def _warn_same_block_multiple_values(
+    site_name: str,
+    target_period: int,
+    candidates: Iterable[Candidate],
+) -> None:
+    """同一权威块内出现多个不同同期值时报出来。
+
+    普通站点在同一区块里出现两个本期值（主推 + 历史表、正文 + 推荐位）时，
+    校验层按方向取边、不判冲突；这条通道以前完全静默，取错也无从发现。
+    这里只告警：改成硬失败会推翻大量既有圆场的站点语义。
+    """
+
+    grouped: dict[tuple[object, ...], set[str]] = {}
+    for candidate in candidates:
+        if candidate.record.period != target_period:
+            continue
+        grouped.setdefault(_candidate_authority_key(candidate), set()).add(
+            candidate.record.value()
+        )
+    for values in grouped.values():
+        if len(values) > 1:
+            _emit_warning(
+                f"[块内多值] {site_name} {target_period}期同一区块出现多个不同尾值: "
+                f"{'、'.join(sorted(values))}；按方向取边，请人工核对"
+            )
+            return
+
+
+def _warn_same_period_multiple_values(
+    site_name: str,
+    target_period: int,
+    target_candidates: Iterable[Candidate],
+    use_bottom: bool,
+) -> None:
+    """同一区块出现多个不同同期值时告警，但不改变按方向取边的既定行为。
+
+    这类站点的授权前提就是「同区多记录、按方向选一条」；把多值直接判失败会
+    推翻既有站点语义。告警只是把「选中的是哪条、还有哪些值」暴露出来，
+    方便人工复核，不影响退出码，也不写进成功 TXT。
+    """
+
+    values = sorted({candidate.record.value() for candidate in target_candidates})
+    if len(values) <= 1:
+        return
+    direction = "bottom" if use_bottom else "top"
+    _emit_warning(
+        f"[同期多值] {site_name} {target_period}期同一区块出现多个不同尾值: "
+        f"{'、'.join(values)}；按{direction}取边，请人工核对"
+    )
+
+
 def validate_documents(
     documents: Iterable[str | Document],
     site_name: str,
@@ -555,6 +676,20 @@ def validate_documents(
     use_bottom = is_bottom_pick(pick)
     candidates = _parse_candidates(documents, site_name, pick, active_rule, target_period)
     all_candidates = list(candidates)
+    if (
+        active_rule.direction_document_scope
+        and target_period is not None
+        and not active_rule.same_period_record_selection
+    ):
+        # 方向文档域是按配置选权威文档，不是「各文档值相同才算过」：横刀跃马
+        # 的正文首行与解码碎片本来就给出不同尾值，硬判冲突会让它每天失败。
+        # 但选择过程必须留痕，否则不同文档的分歧会被静默抹掉。
+        _warn_cross_document_scope_disagreement(
+            candidates,
+            target_period,
+            site_name,
+            active_rule.direction_document_scope,
+        )
     candidates = _apply_direction_document_scope(
         candidates,
         pick,
@@ -611,6 +746,9 @@ def validate_documents(
                 allow_same_period_records=True,
             )
             records = [selected[target_period]]
+            _warn_same_period_multiple_values(
+                site_name, target_period, target_candidates, use_bottom
+            )
         else:
             boundaries = _require_target_authority_consistency(
                 candidates,
@@ -627,6 +765,9 @@ def validate_documents(
                 _require_no_conflicting_target_values(
                     candidates, target_period, site_name
                 )
+            # 块内同期多值不判失败（按方向取边是既定语义），但必须留痕，
+            # 否则「正文值与推荐位值不同」这类误取永远发现不了。
+            _warn_same_block_multiple_values(site_name, target_period, candidates)
             boundary_candidate = boundaries[0]
             numbered_candidates = target_candidates
             records = [boundary_candidate.record]

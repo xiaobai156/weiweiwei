@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import re
+import sys
+import threading
 from html.parser import HTMLParser
 
 from shawei.config.constants import (
-    CHINESE_DIGITS, DEFAULT_EXCLUDE_KEYWORDS, DRAW_RE, PERIOD_CHUNK_RE, PERIOD_RE,
+    CHINESE_DIGITS, CURRENT_PERIOD_MARKERS, DEFAULT_EXCLUDE_KEYWORDS, DRAW_RE,
+    PERIOD_CHUNK_RE, PERIOD_RE, PRIOR_PERIOD_LOOKBEHIND, PRIOR_PERIOD_MARKERS,
     SECTION_KEYWORDS, SECTION_TAIL_KEYWORDS, TABLE_TAIL_HEADERS, TAIL_PATTERNS,
     TAIL_RE, TWO_TAIL_SITE_URLS, USER_FEED_TAIL_RE, WAVE_VALUE_RE,
 )
@@ -158,6 +161,105 @@ def exact_tail_value(raw_value: str) -> int | None:
     return None
 
 
+# 匹配点所在小句的边界：句读符号和真正的开奖字段。裸「开」不能当边界，
+# 否则「上期公开 杀一尾5」里的「公开」会把上期词截掉，又变回借值。
+_SENTENCE_BOUNDARIES = ("。", "，", ",", "；", ";", "\n", "|")
+_DRAW_FIELD_BOUNDARY_RE = re.compile(
+    r"开(?:奖结果|奖号码|奖)?\s*[:：?？]?\s*(?=(?:[鼠牛虎兔龙蛇马羊猴鸡狗猪])?\d|\?)"
+)
+# 「上期红单/上期命中」描述的是上期开奖的战绩，不是上期的预测字段，
+# 后面的尾值仍属本行。这是一组封闭结果词；不能把「连中/全中/连红/战绩/
+# 推荐」这类预测记录词也放进来，否则「上期战绩 杀一尾5」就会借上期值。
+_PRIOR_RESULT_WORDS = (
+    "红单",
+    "黑单",
+    "命中",
+    "中出",
+    "中奖",
+    "中特",
+)
+
+# 期面守卫拒绝取值的计数：真实验证时要能分清「页面真没数据」和
+# 「被上期/本期判定挡回去」，否则误伤面无法量化。
+_REJECTION_LOCK = threading.Lock()
+_REJECTION_COUNTS: dict[str, int] = {}
+
+
+def reset_tail_rejections() -> None:
+    with _REJECTION_LOCK:
+        _REJECTION_COUNTS.clear()
+
+
+def tail_rejection_counts() -> dict[str, int]:
+    with _REJECTION_LOCK:
+        return dict(_REJECTION_COUNTS)
+
+
+def _count_rejection(reason: str) -> None:
+    with _REJECTION_LOCK:
+        _REJECTION_COUNTS[reason] = _REJECTION_COUNTS.get(reason, 0) + 1
+
+
+def _prior_directive_start(prediction: str, start: int) -> int:
+    """返回最近一个**直接管辖**该匹配点的上期词位置，没有则返回 -1。
+
+    只认紧贴取值字段的时间标签（「上期杀一尾5」「往期绝杀一尾3」）。
+    时间词和尾值之间如果先出现战绩/状态词（红单、命中、最高…），说明它
+    描述的是别的内容，不能用来剔除这个值——否则会把本期的首值删掉、
+    换成后面另一个栏目的值，比原来的借值更危险。
+    """
+
+    prefix_start = max(0, start - PRIOR_PERIOD_LOOKBEHIND)
+    prefix = prediction[prefix_start:start]
+    boundary_at = max(
+        (prefix.rfind(boundary) for boundary in _SENTENCE_BOUNDARIES),
+        default=-1,
+    )
+    draw = None
+    for match in _DRAW_FIELD_BOUNDARY_RE.finditer(prefix):
+        draw = match
+    if draw is not None and draw.end() > boundary_at:
+        boundary_at = draw.end() - 1
+    if boundary_at >= 0:
+        prefix = prefix[boundary_at + 1 :]
+    prefix_base = start - len(prefix)
+
+    prior_at = max(
+        (prefix.rfind(marker) for marker in PRIOR_PERIOD_MARKERS if marker in prefix),
+        default=-1,
+    )
+    if prior_at < 0:
+        return -1
+    current_at = max(
+        (prefix.rfind(marker) for marker in CURRENT_PERIOD_MARKERS if marker in prefix),
+        default=-1,
+    )
+    if current_at > prior_at:
+        return -1
+    matched_marker = max(
+        (marker for marker in PRIOR_PERIOD_MARKERS if prefix.rfind(marker) == prior_at),
+        key=len,
+    )
+    between = prefix[prior_at + len(matched_marker) :]
+    # 三种情形：①「上期杀一尾5」——上期词直接管辖取值字段，剔除；
+    # ②「上期红单 杀一尾7」——中间只有开奖战绩词，是在说上期结果，不剔除；
+    # ③「上期推荐命中 杀一尾5」——还夹着别的说明，仍是上期预测字段，剔除。
+    residue = between
+    for word in _PRIOR_RESULT_WORDS:
+        residue = residue.replace(word, "")
+    if re.sub(r"[\s\W_]+", "", residue) == "" and any(
+        word in between for word in _PRIOR_RESULT_WORDS
+    ):
+        return -1
+    return prefix_base + prior_at
+
+
+def _is_prior_period_position(prediction: str, start: int) -> bool:
+    """判断匹配点是否被紧邻的上期词直接管辖。"""
+
+    return _prior_directive_start(prediction, start) >= 0
+
+
 def _extract_tail_value(chunk: str) -> int | None:
     """按「出现位置」取本期尾值，而不是按模式优先级。
 
@@ -165,20 +267,26 @@ def _extract_tail_value(chunk: str) -> int | None:
     「本期杀:7尾: 0000 准 上期绝杀一尾5」会先命中「绝杀一尾」这个强模式，
     把上期的 5 当本期值（块内跨期借值，且不产生同期冲突，校验层看不见）。
 
-    现在收集所有模式的全部匹配，按出现位置从前往后取第一个合法值：
-    真实站点一律把本期数据写在块首、上期/回顾写在后面，因此位置序等价于
-    时间序，能自然屏蔽块内上期值。
+    现在收集所有模式的全部匹配，按出现位置从前往后取第一个合法值，
+    并且只剔除「被上期词直接管着」的值：既挡住借值，也不会把本行首值
+    误删后改用后面栏目里的另一个值。
     """
+
     prediction = normalize_text(_prediction_text(chunk))
     if "尾" not in prediction:
         return None
 
     candidates: list[tuple[int, int, str, re.Match[str]]] = []
+    prior_positions: list[int] = []
     for order, pattern in enumerate(TAIL_PATTERNS):
         for match in pattern.finditer(prediction):
+            if _is_prior_period_position(prediction, match.start()):
+                prior_positions.append(match.start())
+                continue
             candidates.append((match.start(), order, pattern.pattern, match))
     candidates.sort(key=lambda item: (item[0], item[1]))
 
+    first_prior = min(prior_positions) if prior_positions else None
     for start, _order, _pattern, match in candidates:
         raw_value = match.group(1)
         value = exact_tail_value(raw_value)
@@ -194,7 +302,17 @@ def _extract_tail_value(chunk: str) -> int | None:
         suffix = prediction[match.end() : match.end() + 16]
         if re.match(r"\s*(?:尾\s*)?(?:[、,，.．+＋/]\s*)?\d\s*尾", suffix):
             continue
+        if first_prior is not None and first_prior < start:
+            # 前面已经有被判成上期的值，而当前候选没有被本期词直接管辖：
+            # 这多半是后面另一个栏目的值。宁可不给值，也不能把上期值删掉
+            # 之后换用它的邻居——那和借值一样是错值，而且更隐蔽。
+            prefix = prediction[max(0, start - PRIOR_PERIOD_LOOKBEHIND) : start]
+            if not any(marker in prefix for marker in CURRENT_PERIOD_MARKERS):
+                _count_rejection("上期值在前且无本期词")
+                return None
         return value
+    if prior_positions:
+        _count_rejection("窗口内只有上期值")
     return None
 
 
@@ -286,7 +404,10 @@ def _strong_tail_candidate_window(
         return ""
     if require_draw_signal and not _has_draw_signal(window):
         return ""
-    if _extract_tail_value(window) is None and _extract_wave_value(window) == "":
+    if (
+        _extract_tail_value(window) is None
+        and _extract_wave_value(window) == ""
+    ):
         return ""
     return window
 
@@ -450,56 +571,77 @@ def extract_absolute_kill_section_records(
     if section_start is None:
         return []
 
-    section = text.split(section_start, 1)[1][: max(200, max_section_span)]
-    stop_positions = [
-        section.find(keyword)
-        for keyword in section_stop_keywords
-        if keyword and section.find(keyword) >= 0
-    ]
-    if stop_positions:
-        section = section[: min(stop_positions)]
+    section_full = text.split(section_start, 1)[1][: max(200, max_section_span)]
+    # 站名和杀尾关键词必须在**切之前**的整段上判定：切过的 section 只是它的
+    # 子集，先切后判会把「停止词接错」误报成「站名/关键词缺失」，也会让下面
+    # 的回退告警失去意义。
     # The section marker itself can be the site identity (for example
-    # ``飞龙在天 『绝杀一尾』``).  It is consumed when slicing ``section``,
-    # so accept that proven marker instead of requiring the site name to be
-    # repeated inside the rows.
+    # ``飞龙在天 『绝杀一尾』``).  It is consumed when slicing the section, so
+    # accept that proven marker instead of requiring the site name to repeat in
+    # the rows.
     if require_site_keyword and not (
-        _site_keyword_present(section, site_name)
+        _site_keyword_present(section_full, site_name)
         or _site_keyword_present(section_start, site_name)
     ):
         return []
     signal_keywords = _tail_signal_keywords(chunk_keywords, site_name)
-    if signal_keywords and not matches_tail_signal(section, signal_keywords):
+    if signal_keywords and not matches_tail_signal(section_full, signal_keywords):
         return []
-    records: list[Record] = []
-    chunks = [chunk.strip() for chunk in PERIOD_CHUNK_RE.split(section) if chunk.strip()]
-    for chunk in chunks:
-        period_match = PERIOD_RE.match(chunk)
-        if not period_match:
-            continue
-        if exclude_keywords and not contains_none(chunk, exclude_keywords):
-            continue
-        window = _strong_tail_candidate_window(
-            chunk,
-            chunk_keywords,
-            site_name=site_name,
-            max_span=max_chunk_span,
-            require_draw_signal=require_draw_signal,
-            require_site_keyword=require_site_keyword,
-        )
-        if not window:
-            continue
-        tail = _extract_tail_value(window)
-        if tail is None:
-            continue
-        records.append(
-            Record(
-                tail=tail,
-                period=int(period_match.group(1)),
+    stop_positions = [
+        section_full.find(keyword)
+        for keyword in section_stop_keywords
+        if keyword and section_full.find(keyword) >= 0
+    ]
+
+    def _section_records(section: str) -> list[Record]:
+        records: list[Record] = []
+        chunks = [
+            chunk.strip() for chunk in PERIOD_CHUNK_RE.split(section) if chunk.strip()
+        ]
+        for chunk in chunks:
+            period_match = PERIOD_RE.match(chunk)
+            if not period_match:
+                continue
+            if exclude_keywords and not contains_none(chunk, exclude_keywords):
+                continue
+            window = _strong_tail_candidate_window(
+                chunk,
+                chunk_keywords,
                 site_name=site_name,
-                draw_text=extract_draw_text(window),
-                source_snippet=_compact_snippet(window),
+                max_span=max_chunk_span,
+                require_draw_signal=require_draw_signal,
+                require_site_keyword=require_site_keyword,
             )
-        )
+            if not window:
+                continue
+            tail = _extract_tail_value(window)
+            if tail is None:
+                continue
+            records.append(
+                Record(
+                    tail=tail,
+                    period=int(period_match.group(1)),
+                    site_name=site_name,
+                    draw_text=extract_draw_text(window),
+                    source_snippet=_compact_snippet(window),
+                )
+            )
+        return records
+
+    records = _section_records(
+        section_full[: min(stop_positions)] if stop_positions else section_full
+    )
+    if not records and stop_positions:
+        # 停止词切完没有记录，说明真实排版里停止词排在数据行之前。退回不切
+        # 窗口的行为，避免把「停止词接错」变成每天静默失败；同时报到 stderr，
+        # 让这条规则能被发现并修正，而不是永远静默失效。
+        records = _section_records(section_full)
+        if records:
+            print(
+                f"{site_name}停止词切分后无记录，已回退不切窗口: "
+                f"{section_stop_keywords}",
+                file=sys.stderr,
+            )
     return records
 
 

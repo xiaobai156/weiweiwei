@@ -38,3 +38,24 @@ DEFAULT_EXCLUDE_KEYWORDS = (
 
 STRICT_BOUNDARY_WINDOW = 3
 DIRECTION_BOUNDARY_WINDOW = 3
+
+# 期面时间词：用来判断一个尾值属于本期还是上期/回顾。
+# 只在取值匹配点之前这么近的距离内查找，避免把整块的开头词当成每个值的归属。
+PRIOR_PERIOD_MARKERS = (
+    "上一期",
+    "上期",
+    "上周",
+    "上回",
+    "上轮",
+    "上届",
+    "前期",
+    "前一",
+    "往期",
+    "往届",
+    "昨日",
+    "昨天",
+)
+
+CURRENT_PERIOD_MARKERS = ("本期", "今期", "当期", "最新", "这期")
+
+PRIOR_PERIOD_LOOKBEHIND = 12
