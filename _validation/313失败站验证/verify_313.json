@@ -1,0 +1,12 @@
+[
+  {
+    "name": "精杀一尾啊",
+    "status": "失败",
+    "error": "AttributeError: 'CurrentRunResult' object has no attribute 'snippet'"
+  },
+  {
+    "name": "星槎渡海",
+    "status": "失败",
+    "error": "AttributeError: 'CurrentRunResult' object has no attribute 'snippet'"
+  }
+]
