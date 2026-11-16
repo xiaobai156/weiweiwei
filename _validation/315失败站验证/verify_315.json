@@ -1,0 +1,29 @@
+[
+  {
+    "name": "无量寿佛",
+    "status": "有数据-成功",
+    "line": null,
+    "messages": [
+      "[194/264] 无量寿佛 bottom https://1214.775486.xyz/bbs/topic.php?id=20198",
+      "  失败: 抓取/解析失败(URLError: <urlopen error [SSL: TLSV1_UNRECOGNIZED_NAME] tlsv1 unrecognized name (_ssl.c:1006)>)"
+    ]
+  },
+  {
+    "name": "一心为民",
+    "status": "有数据-成功",
+    "line": null,
+    "messages": [
+      "[250/264] 一心为民 bottom https://88888020827.983654.xyz/bbs/topic.php?id=20915",
+      "  失败: 抓取/解析失败(URLError: <urlopen error [SSL: TLSV1_UNRECOGNIZED_NAME] tlsv1 unrecognized name (_ssl.c:1006)>)"
+    ]
+  },
+  {
+    "name": "张天师",
+    "status": "有数据-成功",
+    "line": null,
+    "messages": [
+      "[262/264] 张天师 bottom https://wwlhc.com/thread-87037-1-1.html",
+      "  失败: 抓取/解析失败(LookupError: 张天师314期单尾字段缺少可证明的直接值)"
+    ]
+  }
+]

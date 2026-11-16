@@ -85,3 +85,27 @@ def test_discuz_main_post_parser_reads_revealed_locked_tail() -> None:
     )
 
     assert [(record.period, record.value()) for record in records] == [(271, "4"), (272, "2")]
+
+def test_discuz_main_post_parser_accepts_dui_draw_marker() -> None:
+    """开奖字段用「对」表示命中时仍应取到尾值。"""
+    from shawei.parsers.topic import extract_discuz_main_post_records
+
+    document = '''<link rel="canonical" href="https://example.com/thread-87037-1-1.html">
+    <h1><span id="thread_subject">【315期】【张天师㊣新澳门】杀一尾</span></h1>
+    <div id="post_1">
+      <div id="favatar1"><div class="authi"><a href="space-uid-1.html">★张天师★</a></div></div>
+      <table><tbody><tr><td id="postmessage_1">
+    314期: ★★★张天师★★★绝杀一尾【5尾】开:31对<br>
+    315期: ★★★张天师★★★绝杀一尾【5尾】开:</td></tr></tbody></table>
+    </div>'''
+    records = extract_discuz_main_post_records(
+        document,
+        "张天师",
+        ("张天师", "绝杀一尾"),
+        (),
+        True,
+        315,
+        "https://example.com/thread-87037-1-1.html",
+    )
+
+    assert [(record.period, record.value()) for record in records] == [(314, "5"), (315, "5")]

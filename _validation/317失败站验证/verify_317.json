@@ -1,0 +1,58 @@
+[
+  {
+    "name": "刘半仙",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 刘半仙 https://smnwgqcm.vkk2k-rpbnk-qtocig.xyz:16677/ 方向: top 期数: 317 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 没有找到317期数据)",
+    "messages": [
+      "[0/264] 刘半仙 top https://smnwgqcm.vkk2k-rpbnk-qtocig.xyz:16677/",
+      "  未找到317期，清缓存后刷新第1次",
+      "  未找到317期，清缓存后刷新第2次",
+      "  失败: 抓取/解析失败(LookupError: 没有找到317期数据)"
+    ]
+  },
+  {
+    "name": "飞龙在天",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 飞龙在天 https://anhomo.n03wh-m2skn-wssphn.xyz/ 方向: top 期数: 317 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 没有找到317期数据)",
+    "messages": [
+      "[49/264] 飞龙在天 top https://anhomo.n03wh-m2skn-wssphn.xyz/",
+      "  未找到317期，清缓存后刷新第1次",
+      "  未找到317期，清缓存后刷新第2次",
+      "  失败: 抓取/解析失败(LookupError: 没有找到317期数据)"
+    ]
+  },
+  {
+    "name": "无量寿佛",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 无量寿佛 https://1214.775486.xyz/bbs/topic.php?id=20198 方向: bottom 期数: 317 阶段: 抓取/解析 原因: 抓取/解析失败(URLError: <urlopen error [SSL: TLSV1_UNRECOGNIZED_NAME] tlsv1 unrecognized name (_ssl.c:1006)>)",
+    "messages": [
+      "[194/264] 无量寿佛 bottom https://1214.775486.xyz/bbs/topic.php?id=20198",
+      "  失败: 抓取/解析失败(URLError: <urlopen error [SSL: TLSV1_UNRECOGNIZED_NAME] tlsv1 unrecognized name (_ssl.c:1006)>)"
+    ]
+  },
+  {
+    "name": "跑马图",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 跑马图 https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/ 方向: bottom 期数: 317 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 没有找到317期数据)",
+    "messages": [
+      "[229/264] 跑马图 bottom https://sxapnxtw.w9lkt-9vch6-idlact.work:17477/",
+      "  未找到317期，清缓存后刷新第1次",
+      "  未找到317期，清缓存后刷新第2次",
+      "  失败: 抓取/解析失败(LookupError: 没有找到317期数据)"
+    ]
+  },
+  {
+    "name": "一心为民",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 一心为民 https://88888020827.983654.xyz/bbs/topic.php?id=20915 方向: bottom 期数: 317 阶段: 抓取/解析 原因: 抓取/解析失败(URLError: <urlopen error [SSL: TLSV1_UNRECOGNIZED_NAME] tlsv1 unrecognized name (_ssl.c:1006)>)",
+    "messages": [
+      "[250/264] 一心为民 bottom https://88888020827.983654.xyz/bbs/topic.php?id=20915",
+      "  失败: 抓取/解析失败(URLError: <urlopen error [SSL: TLSV1_UNRECOGNIZED_NAME] tlsv1 unrecognized name (_ssl.c:1006)>)"
+    ]
+  }
+]

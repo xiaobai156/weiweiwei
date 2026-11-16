@@ -475,7 +475,7 @@ _TOPIC_MAIN_PARSER_MARKERS = {
     "muzhi_topic_main_tail": ("目治手营",),
     "shanhaijing_topic_main_tail": ("精品好料",),
     "fengchi_topic_main_tail": ("风驰电掣",),
-    "jianren_topic_main_tail": ("坚韧不拔",),
+    "jianren_topic_main_tail": ("摸风暗掩",),
     "lulu_topic_main_tail": ("碌碌庸才",),
     "chuimao_topic_tail": ("吹毛求疵",),
     "chuimao_primary_topic_tail": ("吹毛求疵",),
@@ -1449,7 +1449,7 @@ def extract_discuz_main_post_records(
         # 作者常在开奖字段后跟一句自由说明（如「开:10准 不杀就开了！…」）；
         # 只放宽「空白分隔的尾部说明」，尾值/开奖字段本身仍按原样严格匹配。
         match = re.fullmatch(
-            r"\[(\d)尾\]\s*开\s*:\s*(?:\d{2}\s*(?:准|错)?)?(?:\s+.*)?", suffix
+            r"\[(\d)尾\]\s*开\s*:\s*(?:\d{2}\s*(?:准|错|对|中)?)?(?:\s+.*)?", suffix
         )
         if match is None:
             records.append(Record(tail=-1, period=period, site_name=site_name,

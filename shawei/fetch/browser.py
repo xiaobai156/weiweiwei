@@ -124,6 +124,28 @@ class _BrowserRuntime:
             except Exception:
                 pass
 
+    async def _force_visible_content(self, page: object, wait_ms: int) -> None:
+        """把 content-visibility:auto 的离屏区块强制纳入 inner_text。
+
+        站方用该 CSS 做渲染优化时，Chromium 会跳过离屏区块的内容构建，
+        body.inner_text() 只返回已构建部分，数据行整片消失（实测 317 期三站）。
+        注样式属于辅助取数手段，失败时不得影响正常渲染，故整体吞异常。
+        """
+        try:
+            await page.add_style_tag(  # type: ignore[attr-defined]
+                content=(
+                    "*{content-visibility:visible!important;"
+                    "contain-intrinsic-size:auto!important}"
+                )
+            )
+        except Exception:
+            return
+        # 样式生效需要一次布局刷新；只等一小段，避免给每个站点增加整段加载等待。
+        try:
+            await page.wait_for_timeout(min(max(int(wait_ms), 100), 300))  # type: ignore[attr-defined]
+        except Exception:
+            pass
+
     async def _render_page(
         self,
         url: str,
@@ -159,6 +181,9 @@ class _BrowserRuntime:
                     await page.wait_for_timeout(1200)
                 except Exception:
                     pass
+            # 部分站点给离屏区块加了 content-visibility:auto（如 dz_content08），
+            # 这类区块不进入 inner_text，快照会整片丢失数据行；取快照前强制可见。
+            await self._force_visible_content(page, options.post_load_wait_ms)
             # 滚动只用于触发懒加载；部分站点在滚动阶段会让渲染进程崩溃（Page crashed），
             # 此时正文往往已经完整可读，先留存滚动前快照，崩溃时回退到该快照而不是整站判失败。
             snapshot: list[str] = []

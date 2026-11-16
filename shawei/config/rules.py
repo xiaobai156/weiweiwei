@@ -1213,7 +1213,7 @@ STRICT_SITE_RULES: dict[str, StrictRule] = {
     'https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html': StrictRule(
         allowed_sources=("dedicated",),
         dedicated_parser="jianren_topic_main_tail",
-        chunk_keywords=('坚韧不拔', "绝杀一尾"),
+        chunk_keywords=('摸风暗掩', "绝杀一尾"),
         prefer_rendered=True,
         require_site_keyword=False,
         prefer_rendered_body_text=True,

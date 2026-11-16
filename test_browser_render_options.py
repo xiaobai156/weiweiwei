@@ -168,6 +168,46 @@ def test_render_reports_error_when_scroll_crashes_and_snapshot_is_empty() -> Non
     assert "Page crashed" in error
 
 
+class _ContentVisibilityPage(_FakePage):
+    """站方用 content-visibility:auto 隐藏离屏区块：取快照前必须强制可见。"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.styles: list[str] = []
+
+    async def add_style_tag(self, *, content: str) -> None:
+        self.calls.append(("style", content))
+        self.styles.append(content)
+
+
+def test_render_forces_content_visibility_before_snapshot() -> None:
+    page = _ContentVisibilityPage()
+    runtime = _BrowserRuntime.__new__(_BrowserRuntime)
+    runtime._context = _FakeContext(page)
+
+    documents, error = asyncio.run(runtime._render_page("https://example.test", 20))
+
+    assert error == ""
+    assert documents == ["body text", "<body>body text</body>"]
+    assert len(page.styles) == 1
+    assert "content-visibility:visible!important" in page.styles[0]
+    # 样式必须在取快照（locator）之前注入，否则快照仍是残缺的。
+    kinds = [call[0] for call in page.calls]
+    assert kinds.index("style") < kinds.index("locator")
+    assert kinds.count("style") == 1
+
+
+def test_render_tolerates_pages_without_style_injection() -> None:
+    page = _FakePage()  # 无 add_style_tag/evaluate，等价于旧版 Playwright 或受限页面
+    runtime = _BrowserRuntime.__new__(_BrowserRuntime)
+    runtime._context = _FakeContext(page)
+
+    documents, error = asyncio.run(runtime._render_page("https://example.test", 20))
+
+    assert error == ""
+    assert documents == ["body text", "<body>body text</body>"]
+
+
 class _FakeChromium:
     def __init__(self) -> None:
         self.launch_calls: list[dict[str, object]] = []

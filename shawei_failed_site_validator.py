@@ -61,7 +61,7 @@ TARGETED_FAILED_SITE_CHECKLIST = (
     ValidationSite("目治手营", "https://sqddimfu.evs71-kia2b-gshsdc.xyz:16677/topic/226259.html", "bottom", 203),
     ValidationSite("山海经", "https://mwztnor.vapgy-gskm7-sqbyej.work:17455/topic/564223.html", "top", 203),
     ValidationSite("风驰电掣", "https://qarppl.154bo-trld9-qppors.xyz:16677/topic/326551.html", "bottom", 203),
-    ValidationSite("坚韧不拔", "https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html", "bottom", 203),
+    ValidationSite("摸风暗掩", "https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html", "bottom", 203),
     ValidationSite("碌碌庸才", "https://eolantz.v6nli-9yz71-rihyny.xyz:16677/topic/447895.html", "top", 203),
     ValidationSite("一点红", "https://kfkxqua.vohzh-s0pbh-vhwsal.xyz:16677/topic/246761.html", "bottom", 209),
     ValidationSite("傻傻熊二", "https://ihdfsxo.kgqq8-mbcz5-qpbkfh.xyz:16677/topic/258481.html", "bottom", 206),

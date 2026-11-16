@@ -108,7 +108,7 @@ def test_tanhua_bottom_265_selects_the_same_block() -> None:
 
 
 def test_jianren_prefers_rendered_body_text() -> None:
-    rule = effective_rule_for(JIANREN_URL, "坚韧不拔")
+    rule = effective_rule_for(JIANREN_URL, "摸风暗掩")
 
     assert rule.allowed_sources == ("dedicated",)
     assert rule.dedicated_parser == "jianren_topic_main_tail"

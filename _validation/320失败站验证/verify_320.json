@@ -1,0 +1,26 @@
+[
+  {
+    "name": "坚韧不拔",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 坚韧不拔 https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html 方向: bottom 期数: 320 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 没有找到320期数据)",
+    "messages": [
+      "[158/261] 坚韧不拔 bottom https://lxbwvnfv.3gwtt-z9y8n-wsxdfy.xyz:16677/topic/458345.html",
+      "  未找到320期，清缓存后刷新第1次",
+      "  未找到320期，清缓存后刷新第2次",
+      "  失败: 抓取/解析失败(LookupError: 没有找到320期数据)"
+    ]
+  },
+  {
+    "name": "张天师",
+    "status": "失败",
+    "line": null,
+    "fail_line": "失败 张天师 https://wwlhc.com/thread-87037-1-1.html 方向: bottom 期数: 320 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 绝对bottom边界是302期，不是指定320期)",
+    "messages": [
+      "[259/261] 张天师 bottom https://wwlhc.com/thread-87037-1-1.html",
+      "  未找到320期，清缓存后刷新第1次",
+      "  未找到320期，清缓存后刷新第2次",
+      "  失败: 抓取/解析失败(LookupError: 绝对bottom边界是302期，不是指定320期)"
+    ]
+  }
+]
