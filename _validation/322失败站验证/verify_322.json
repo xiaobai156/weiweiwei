@@ -1,0 +1,63 @@
+{
+  "period": 322,
+  "runs": [
+    {
+      "name": "小明哥上",
+      "url": "https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html",
+      "pick": "top",
+      "success_line": null,
+      "fail_line": "失败 小明哥上 https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html 方向: top 期数: 322 阶段: 抓取/解析 原因: 抓取/解析失败(RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html\nCall log:\n  - navigating to \"https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html\", waiting until \"domcontentloaded\"\n))",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html\nCall log:\n  - navigating to \"https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html\", waiting until \"domcontentloaded\"\n)",
+      "messages": [
+        "[16/260] 小明哥上 top https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html",
+        "  失败: 抓取/解析失败(RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html\nCall log:\n  - navigating to \"https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/172572.html\", waiting until \"domcontentloaded\"\n))"
+      ]
+    },
+    {
+      "name": "可见一斑",
+      "url": "https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html",
+      "pick": "bottom",
+      "success_line": null,
+      "fail_line": "失败 可见一斑 https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html 方向: bottom 期数: 322 阶段: 抓取/解析 原因: 抓取/解析失败(RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html\nCall log:\n  - navigating to \"https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html\", waiting until \"domcontentloaded\"\n))",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html\nCall log:\n  - navigating to \"https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html\", waiting until \"domcontentloaded\"\n)",
+      "messages": [
+        "[19/260] 可见一斑 bottom https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html",
+        "  失败: 抓取/解析失败(RuntimeError: 浏览器渲染为空(Error: Page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html\nCall log:\n  - navigating to \"https://gboqrz.sm0a0-x9x2c-xyvjdr.work/topic/241106.html\", waiting until \"domcontentloaded\"\n))"
+      ]
+    },
+    {
+      "name": "行舒唱晚",
+      "url": "https://yqjfwqsc.1dayz-aetgp-kbjidr.xyz:16677/topic/682033.html",
+      "pick": "top",
+      "success_line": "8尾 行舒唱晚",
+      "fail_line": null,
+      "ranking_value": "8",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "  专属区322期记录: 编号1/1",
+        "  成功: 8尾 行舒唱晚",
+        "  命中片段: 专属区322期记录编号 1/1 行舒唱晚 主帖标题322期 322期:杀肖杀尾[猪＋8尾] 开0000准"
+      ]
+    },
+    {
+      "name": "四舅黄宾虹黄尾",
+      "url": "https://ghegvfr.5n8r1-kurkd-esielp.cyou:17455/",
+      "pick": "top",
+      "success_line": "4尾 四舅黄宾虹黄尾",
+      "fail_line": null,
+      "ranking_value": "4",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "[260/260] 四舅黄宾虹黄尾 top https://ghegvfr.5n8r1-kurkd-esielp.cyou:17455/",
+        "  成功: 4尾 四舅黄宾虹黄尾",
+        "  命中片段: 322期 兔 绿单 4尾 08-14 ?00"
+      ]
+    }
+  ]
+}

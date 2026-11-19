@@ -1,0 +1,78 @@
+[
+  {
+    "host": "gboqrz.sm0a0-x9x2c-xyvjdr.work",
+    "port": 443,
+    "dns": [
+      "198.18.3.196"
+    ],
+    "带SNI": {
+      "ok": false,
+      "error": "SSLError: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1006)"
+    },
+    "无SNI": {
+      "ok": true,
+      "version": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384"
+    },
+    "requests_https": {
+      "error": "SSLError: HTTPSConnectionPool(host='gboqrz.sm0a0-x9x2c-xyvjdr.work', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLError(1, '[SSL: TLSV1_ALERT_INTERN"
+    },
+    "requests_http": {
+      "error": "SSLError: HTTPSConnectionPool(host='gboqrz.sm0a0-x9x2c-xyvjdr.work', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLError(1, '[SSL: TLSV1_ALERT_INTERN"
+    }
+  },
+  {
+    "host": "www.baidu.com",
+    "port": 443,
+    "dns": [
+      "198.18.5.7"
+    ],
+    "带SNI": {
+      "ok": true,
+      "version": "TLSv1.2",
+      "cipher": "ECDHE-RSA-AES128-GCM-SHA256"
+    },
+    "无SNI": {
+      "ok": true,
+      "version": "TLSv1.2",
+      "cipher": "ECDHE-RSA-AES128-GCM-SHA256"
+    },
+    "requests_https": {
+      "status": 200,
+      "len": 17143,
+      "head": "<!DOCTYPE html>\n<html>\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <meta http-e"
+    },
+    "requests_http": {
+      "status": 200,
+      "len": 17143,
+      "head": "<!DOCTYPE html>\n<html>\n<head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <meta http-e"
+    }
+  },
+  {
+    "host": "bemenx.rsaha-bn3j2-tjpxnk.xyz",
+    "port": 16677,
+    "dns": [
+      "198.18.3.240"
+    ],
+    "带SNI": {
+      "ok": true,
+      "version": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384"
+    },
+    "无SNI": {
+      "ok": true,
+      "version": "TLSv1.3",
+      "cipher": "TLS_AES_256_GCM_SHA384"
+    },
+    "requests_https": {
+      "status": 200,
+      "len": 6171,
+      "head": "<!DOCTYPE html>\n<html>\n<head>\n  \t<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n  \t<meta charset=\"U"
+    },
+    "requests_http": {
+      "status": 200,
+      "len": 6171,
+      "head": "<!DOCTYPE html>\n<html>\n<head>\n  \t<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n  \t<meta charset=\"U"
+    }
+  }
+]

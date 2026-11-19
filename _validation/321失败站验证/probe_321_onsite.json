@@ -1,0 +1,67 @@
+{
+  "home_article_ids": 0,
+  "home_has_name": false,
+  "search": [
+    {
+      "api": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/api/proxy/manager-articles?keyword=血气方刚",
+      "status": 200,
+      "len": 2,
+      "sample": "[]"
+    },
+    {
+      "api": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/api/proxy/search?keyword=血气方刚",
+      "status": 404,
+      "len": 118,
+      "sample": "{\"message\":\"Cannot GET /api/search?keyword=%E8%A1%80%E6%B0%94%E6%96%B9%E5%88%9A\",\"error\":\"Not Found\",\"statusCode\":404}"
+    },
+    {
+      "api": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/api/proxy/articles/search?keyword=血气方刚",
+      "status": 404,
+      "len": 62,
+      "sample": "{\"message\":\"Article 不存在\",\"error\":\"Not Found\",\"statusCode\":404}"
+    }
+  ],
+  "home_bracket_names": [
+    "16码中特",
+    "30码中特",
+    "①头⑤码",
+    "①肖②码",
+    "①肖中特",
+    "②个半单双",
+    "②头中特",
+    "②码中特",
+    "②肖②码",
+    "②肖④码",
+    "②肖中特",
+    "③头中特",
+    "③季中特",
+    "③码中特",
+    "③肖⑥码",
+    "③肖中特",
+    "③行中特",
+    "④头中特",
+    "④肖⑧码",
+    "④肖中特",
+    "④行中特",
+    "⑤肖中特",
+    "⑥码中特",
+    "⑥肖中特",
+    "⑦尾中特",
+    "⑧尾中特",
+    "⑧码中特",
+    "⑧肖中特",
+    "⑨肖中特",
+    "一念执着",
+    "一手遮天",
+    "一波中特",
+    "一码中特",
+    "一笔抹杀",
+    "一肖中特",
+    "七尾中特",
+    "万里红妆",
+    "三个半单双",
+    "三十六码",
+    "三哥爆料"
+  ],
+  "name_in_bracket": false
+}

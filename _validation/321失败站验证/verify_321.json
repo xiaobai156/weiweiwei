@@ -1,0 +1,31 @@
+{
+  "period": 321,
+  "site": "血气方刚",
+  "url": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3978d3018539c611cb8920?url=jbx",
+  "runs": [
+    {
+      "attempt": 1,
+      "success_line": null,
+      "fail_line": "失败 血气方刚 https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3978d3018539c611cb8920?url=jbx 方向: bottom 期数: 321 阶段: 抓取/解析 原因: 抓取/解析失败(DynamicArticleNotFoundError: 目标ID 6a3978d3018539c611cb8920 的全部专属接口均返回404)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "DynamicArticleNotFoundError: 目标ID 6a3978d3018539c611cb8920 的全部专属接口均返回404",
+      "messages": [
+        "[175/261] 血气方刚 bottom https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3978d3018539c611cb8920?url=jbx",
+        "  失败: 抓取/解析失败(DynamicArticleNotFoundError: 目标ID 6a3978d3018539c611cb8920 的全部专属接口均返回404)"
+      ]
+    },
+    {
+      "attempt": 2,
+      "success_line": null,
+      "fail_line": "失败 血气方刚 https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3978d3018539c611cb8920?url=jbx 方向: bottom 期数: 321 阶段: 抓取/解析 原因: 抓取/解析失败(DynamicArticleNotFoundError: 目标ID 6a3978d3018539c611cb8920 的全部专属接口均返回404)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "DynamicArticleNotFoundError: 目标ID 6a3978d3018539c611cb8920 的全部专属接口均返回404",
+      "messages": [
+        "[175/261] 血气方刚 bottom https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3978d3018539c611cb8920?url=jbx",
+        "  失败: 抓取/解析失败(DynamicArticleNotFoundError: 目标ID 6a3978d3018539c611cb8920 的全部专属接口均返回404)"
+      ]
+    }
+  ]
+}

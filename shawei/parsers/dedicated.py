@@ -142,7 +142,7 @@ _EXACT_CURRENT_TOPIC_PATTERNS = {
         rf"\s*开\s*[:：]?\s*(?:[{_CURRENT_DRAW_ZODIAC}])\s*\d{{2}}\s*(?:准|错)"
     ),
     "yeyuehuazhao_current_tail": re.compile(
-        rf"精\s*杀\s*一\s*尾\s*◆\s*(\d)\s*尾"
+        rf"精\s*杀\s*一\s*尾\s*◆\s*(\d)\s*尾?"
         rf"\s*开\s*[:：]?\s*(?:(?:[{_CURRENT_DRAW_ZODIAC}])\s*\d{{2}}|0{{2}})\s*(?:准|错)"
     ),
     "xukong_current_tail": re.compile(
@@ -168,7 +168,7 @@ _EXACT_CURRENT_TOPIC_VALUE_PATTERNS = {
     "linlinjinzhi_current_tail": re.compile(
         r"绝\s*杀\s*一\s*尾\s*〖\s*(\d)\s*尾\s*〗"
     ),
-    "yeyuehuazhao_current_tail": re.compile(r"精\s*杀\s*一\s*尾\s*◆\s*(\d)\s*尾"),
+    "yeyuehuazhao_current_tail": re.compile(r"精\s*杀\s*一\s*尾\s*◆\s*(\d)\s*尾?"),
     "xukong_current_tail": re.compile(r"精\s*杀\s*一\s*尾\s*◆\s*(\d)\s*尾"),
     "dongfang_current_tail": re.compile(
         r"精\s*杀\s*一\s*尾\s*✠?\s*[（(]\s*(\d)\s*尾\s*[）)]"

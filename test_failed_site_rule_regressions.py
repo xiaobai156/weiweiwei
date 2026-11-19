@@ -393,6 +393,61 @@ def test_discuz_main_post_accepts_trailing_comment_after_draw_field() -> None:
     assert all(record.validation_error == "" for record in records)
 
 
+YEYUE_URL = "https://u6agr.dgj1u-jtp00-hcqvut.xyz/topic/226654.html"
+
+
+def _yeyue_current_document(rows: str) -> str:
+    return (
+        '<html><body><div class="big-tit">'
+        "绝杀料323期:【精杀一尾】 作者:夜月花朝"
+        f'</div><div class="content">{rows}</div></body></html>'
+    )
+
+
+def test_yeyue_current_period_row_without_tail_suffix_is_a_published_record() -> None:
+    # 站点当期行把「◆7尾」简写成「◆7」，旧正则强求「尾」字会让 top 边界停在上一期。
+    rows = (
+        "323期：精杀一尾◆7开00准\n"
+        "322期：精杀一尾◆1尾开鼠07准\n"
+        "321期：精杀一尾◆4尾开虎41准"
+    )
+    decision = validate_documents(
+        [_yeyue_current_document(rows)],
+        "夜月花朝",
+        pick="top",
+        rule=effective_rule_for(YEYUE_URL, "夜月花朝"),
+        target_period=323,
+    )
+
+    assert [record.value() for record in decision.records] == ["7"]
+
+
+def test_yeyue_previous_period_still_reports_top_boundary() -> None:
+    rows = "323期：精杀一尾◆7开00准\n322期：精杀一尾◆1尾开鼠07准"
+
+    with pytest.raises(LookupError, match="绝对top边界是323期，不是指定322期"):
+        validate_documents(
+            [_yeyue_current_document(rows)],
+            "夜月花朝",
+            pick="top",
+            rule=effective_rule_for(YEYUE_URL, "夜月花朝"),
+            target_period=322,
+        )
+
+
+def test_yeyue_two_digit_value_is_not_truncated_to_one_digit() -> None:
+    rows = "323期：精杀一尾◆12尾开00准\n322期：精杀一尾◆1尾开鼠07准"
+
+    with pytest.raises(LookupError, match="绝对top边界是322期，不是指定323期"):
+        validate_documents(
+            [_yeyue_current_document(rows)],
+            "夜月花朝",
+            pick="top",
+            rule=effective_rule_for(YEYUE_URL, "夜月花朝"),
+            target_period=323,
+        )
+
+
 def test_discuz_main_post_still_rejects_single_digit_draw_with_comment() -> None:
     rows = "280期: ★★★张天师★★★绝杀一尾[8尾]开:1准 备注"
     records = extract_discuz_main_post_records(

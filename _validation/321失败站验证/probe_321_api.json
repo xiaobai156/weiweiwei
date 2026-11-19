@@ -1,0 +1,30 @@
+{
+  "target": [
+    {
+      "api": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/api/proxy/manager-articles/6a3978d3018539c611cb8920",
+      "status": 404,
+      "len": 67,
+      "head": "{\"message\":\"AdminArticle 不存在\",\"error\":\"Not Found\",\"statusCode\":404}"
+    },
+    {
+      "page": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3978d3018539c611cb8920?url=jbx",
+      "status": 200,
+      "len": 49299,
+      "has_name": false
+    }
+  ],
+  "sibling": [
+    {
+      "api": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/api/proxy/manager-articles/6a3abfde018539c611cbec6a",
+      "status": 200,
+      "len": 45072,
+      "head": "{\"id\":\"6a3abfde018539c611cbec6a\",\"authorNickname\":\"神童报特\",\"title\":\"PHA+PHN0cm9uZz4zMjHmnJ/vvJrjgJDnu53mnYDkuIDlsL7jgJHjgJMg6YCB6ZKx54yb5paZPC9zdHJvbmc+PC9wPg==\",\"html\":\"PHA+PHNwYW4gc3R5bGU9ImZvbnQtZmFt"
+    },
+    {
+      "page": "https://xjsjbkv.b3e4x-wxhjo-lbdbjg.xyz:29477/article/manager/6a3abfde018539c611cbec6a?url=jbx",
+      "status": 200,
+      "len": 49299,
+      "has_name": false
+    }
+  ]
+}
