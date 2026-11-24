@@ -1,0 +1,89 @@
+{
+  "period": 327,
+  "runs": [
+    {
+      "name": "白杨金牌",
+      "url": "https://4.48kk49.com:1888/Article/ar_content/id/1556/tid/82.html",
+      "success_line": "8尾 白杨金牌",
+      "fail_line": null,
+      "ranking_value": "8",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "[234/260] 白杨金牌 top https://4.48kk49.com:1888/Article/ar_content/id/1556/tid/82.html",
+        "  成功: 8尾 白杨金牌",
+        "  命中片段: 白杨金牌 327期 稳杀一尾 : [8尾]开 ?? 准"
+      ]
+    },
+    {
+      "name": "径宅姐",
+      "url": "https://4.48kk49.com:1888/Article/ar_content/id/1544/tid/82.html",
+      "success_line": "0尾 径宅姐",
+      "fail_line": null,
+      "ranking_value": "0",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "  未找到327期，清缓存后刷新第1次",
+        "  成功: 0尾 径宅姐",
+        "  命中片段: 径宅姐 327期 稳杀一尾 : [0尾]开 ?? 准"
+      ]
+    },
+    {
+      "name": "清肝明目",
+      "url": "https://4.48kk49.com:1888/Article/ar_content/id/1543/tid/82.html",
+      "success_line": null,
+      "fail_line": "失败 清肝明目 https://4.48kk49.com:1888/Article/ar_content/id/1543/tid/82.html 方向: top 期数: 327 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 没有找到327期数据)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "LookupError: 没有找到327期数据",
+      "messages": [
+        "  未找到327期，清缓存后刷新第1次",
+        "  未找到327期，清缓存后刷新第2次",
+        "  失败: 抓取/解析失败(LookupError: 没有找到327期数据)"
+      ]
+    },
+    {
+      "name": "小小乾坤",
+      "url": "https://4.48kk49.com:1888/Article/ar_content/id/1469/tid/82.html",
+      "success_line": "0尾 5尾 小小乾坤",
+      "fail_line": null,
+      "ranking_value": "0、5",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "  未找到327期，清缓存后刷新第1次",
+        "  成功: 0尾 5尾 小小乾坤",
+        "  命中片段: 小小乾坤 327期 小小乾坤准杀二尾 : [0尾,5尾]开 ?? 准"
+      ]
+    },
+    {
+      "name": "热血风云",
+      "url": "https://4.48kk49.com:1888/Article/ar_content/id/1452/tid/82.html",
+      "success_line": "5尾 8尾 热血风云",
+      "fail_line": null,
+      "ranking_value": "5、8",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "  未找到327期，清缓存后刷新第2次",
+        "  成功: 5尾 8尾 热血风云",
+        "  命中片段: 热血风云 327期 热血风云绝杀二尾 : [5尾,8尾]开 ?? 准"
+      ]
+    },
+    {
+      "name": "曾道人每期",
+      "url": "https://4.48kk49.com:1888/Article/ar_content/id/199/tid/4.html",
+      "success_line": "5尾 曾道人每期",
+      "fail_line": null,
+      "ranking_value": "5",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "  未找到327期，清缓存后刷新第2次",
+        "  成功: 5尾 曾道人每期",
+        "  命中片段: 曾道人每期 327期 绝杀一尾 : [5尾]开 ?? 准"
+      ]
+    }
+  ]
+}

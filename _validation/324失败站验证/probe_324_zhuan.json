@@ -1,0 +1,14 @@
+{
+  "/": {
+    "status": "ok",
+    "len": 35184
+  },
+  "/article": {
+    "status": "ok",
+    "len": 29048
+  },
+  "/article/manager": {
+    "status": "ok",
+    "len": 29572
+  }
+}

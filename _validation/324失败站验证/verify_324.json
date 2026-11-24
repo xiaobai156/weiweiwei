@@ -1,0 +1,59 @@
+{
+  "period": 324,
+  "runs": [
+    {
+      "name": "逞心如意",
+      "url": "https://jkofyya.6sf58-wbz5a-thviwx.work:29477/article/admin/6a13f137c1d9e28d71e57742?url=jbp",
+      "success_line": null,
+      "fail_line": "失败 逞心如意 https://jkofyya.6sf58-wbz5a-thviwx.work:29477/article/admin/6a13f137c1d9e28d71e57742?url=jbp 方向: bottom 期数: 324 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 绝对bottom边界是323期，不是指定324期)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "LookupError: 绝对bottom边界是323期，不是指定324期",
+      "messages": [
+        "  未找到324期，清缓存后刷新第1次",
+        "  未找到324期，清缓存后刷新第2次",
+        "  失败: 抓取/解析失败(LookupError: 绝对bottom边界是323期，不是指定324期)"
+      ]
+    },
+    {
+      "name": "转嗔为喜",
+      "url": "https://djimkyw.n7ht1-wp4vm-ljitjr.xyz:29488/article/manager/6a329f1573fa32d0b73c0ca0?url=cmzj",
+      "success_line": null,
+      "fail_line": "失败 转嗔为喜 https://djimkyw.n7ht1-wp4vm-ljitjr.xyz:29488/article/manager/6a329f1573fa32d0b73c0ca0?url=cmzj 方向: bottom 期数: 324 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: article/admin专属抓取失败(接口:ok；浏览器:未触发浏览器渲染))",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "LookupError: article/admin专属抓取失败(接口:ok；浏览器:未触发浏览器渲染)",
+      "messages": [
+        "[177/260] 转嗔为喜 bottom https://djimkyw.n7ht1-wp4vm-ljitjr.xyz:29488/article/manager/6a329f1573fa32d0b73c0ca0?url=cmzj",
+        "  失败: 抓取/解析失败(LookupError: article/admin专属抓取失败(接口:ok；浏览器:未触发浏览器渲染))"
+      ]
+    },
+    {
+      "name": "任由漂泊",
+      "url": "https://kk.336868m.com:1888/art_zhuanqu/182.html",
+      "success_line": "5尾 任由漂泊",
+      "fail_line": null,
+      "ranking_value": "5",
+      "stage": "",
+      "reason": "",
+      "messages": [
+        "  传输/渲染瞬时异常，清缓存后刷新第2次",
+        "  成功: 5尾 任由漂泊",
+        "  命中片段: 任由漂泊 324期:[任由漂泊杀尾数][5]开 ?? 准"
+      ]
+    },
+    {
+      "name": "寻宝探码",
+      "url": "https://12388990827.688756.xyz/bbs/topic.php?id=19155",
+      "success_line": null,
+      "fail_line": "失败 寻宝探码 https://12388990827.688756.xyz/bbs/topic.php?id=19155 方向: bottom 期数: 324 阶段: 抓取/解析 原因: 抓取/解析失败(HTTPError: HTTP Error 500: Internal Server Error)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "HTTPError: HTTP Error 500: Internal Server Error",
+      "messages": [
+        "[256/260] 寻宝探码 bottom https://12388990827.688756.xyz/bbs/topic.php?id=19155",
+        "  失败: 抓取/解析失败(HTTPError: HTTP Error 500: Internal Server Error)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "https://12388990827.688756.xyz/bbs/topic.php?id=19155": {
+    "status": "ERR",
+    "len": 11,
+    "head": "HTTP 500:  "
+  },
+  "https://12388990827.688756.xyz/bbs/topic.php?id=19128": {
+    "status": "ERR",
+    "len": 11,
+    "head": "HTTP 500:  "
+  },
+  "https://12388990827.688756.xyz/bbs/topic.php?id=19127": {
+    "status": "ERR",
+    "len": 11,
+    "head": "HTTP 500:  "
+  },
+  "https://12388990827.688756.xyz/bbs/index.php": {
+    "status": "ERR",
+    "len": 11,
+    "head": "HTTP 500:  "
+  },
+  "https://12388990827.688756.xyz/bbs/": {
+    "status": "ERR",
+    "len": 11,
+    "head": "HTTP 500:  "
+  }
+}

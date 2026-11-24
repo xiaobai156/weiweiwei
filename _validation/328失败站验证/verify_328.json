@@ -1,0 +1,33 @@
+{
+  "period": 328,
+  "runs": [
+    {
+      "name": "百万惊喜",
+      "url": "https://mbsqhpk.8ivvt-u3cx5-enwlld.xyz:29400/article/manager/6a33d147dfa16552b923d081?url=lhzj",
+      "success_line": null,
+      "fail_line": "失败 百万惊喜 https://mbsqhpk.8ivvt-u3cx5-enwlld.xyz:29400/article/manager/6a33d147dfa16552b923d081?url=lhzj 方向: bottom 期数: 328 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 绝对bottom边界是327期，不是指定328期)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "LookupError: 绝对bottom边界是327期，不是指定328期",
+      "messages": [
+        "  未找到328期，清缓存后刷新第1次",
+        "  未找到328期，清缓存后刷新第2次",
+        "  失败: 抓取/解析失败(LookupError: 绝对bottom边界是327期，不是指定328期)"
+      ]
+    },
+    {
+      "name": "澳彩碼王",
+      "url": "https://12388990827.794555.xyz/bbs/topic.php?id=19959",
+      "success_line": null,
+      "fail_line": "失败 澳彩碼王 https://12388990827.794555.xyz/bbs/topic.php?id=19959 方向: bottom 期数: 328 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 没有找到328期数据)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "LookupError: 没有找到328期数据",
+      "messages": [
+        "  未找到328期，清缓存后刷新第1次",
+        "  未找到328期，清缓存后刷新第2次",
+        "  失败: 抓取/解析失败(LookupError: 没有找到328期数据)"
+      ]
+    }
+  ]
+}
