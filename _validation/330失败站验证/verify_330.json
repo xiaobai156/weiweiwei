@@ -1,0 +1,21 @@
+{
+  "period": 330,
+  "runs": [
+    {
+      "name": "临川观月",
+      "url": "https://fbgbfg.www27521c.com:8443/gsb/am04.html",
+      "pick": "bottom",
+      "success_line": null,
+      "fail_line": "失败 临川观月 https://fbgbfg.www27521c.com:8443/gsb/am04.html 方向: bottom 期数: 330 阶段: 抓取/解析 原因: 抓取/解析失败(LookupError: 绝对bottom边界是329期，不是指定330期)",
+      "ranking_value": null,
+      "stage": "抓取/解析",
+      "reason": "LookupError: 绝对bottom边界是329期，不是指定330期",
+      "messages": [
+        "[111/259] 临川观月 bottom https://fbgbfg.www27521c.com:8443/gsb/am04.html",
+        "  未找到330期，清缓存后刷新第1次",
+        "  未找到330期，清缓存后刷新第2次",
+        "  失败: 抓取/解析失败(LookupError: 绝对bottom边界是329期，不是指定330期)"
+      ]
+    }
+  ]
+}
